@@ -113,6 +113,7 @@
         <p style="font-size:13px;color:var(--ink-2);margin-bottom:14px;line-height:1.55;">
           ตั้งค่าพิกัด GPS ของแต่ละสาขา + รัศมีที่ถือว่า "อยู่ในเขตร้าน" (เมตร)
         </p>
+        <button id="btnAddBranch" style="width:100%;margin-bottom:12px;background:linear-gradient(135deg,#22C55E,#15803D);color:#fff;border:0;padding:11px 14px;border-radius:11px;font-family:'Kanit';font-weight:700;font-size:13.5px;cursor:pointer;">➕ เพิ่มสาขา</button>
         <div id="branchList"><div style="text-align:center;color:var(--ink-2);padding:20px;font-size:13px;">กำลังโหลด...</div></div>
       </div>
     </section>
@@ -495,6 +496,8 @@ function renderBranches(){
 function openBranchModal(id){
   const b = branches.find(function(x){return x.id===id;});
   if(!b) return;
+  document.getElementById('branchModalTitle').textContent = 'แก้ไขสาขา';
+  document.getElementById('brId').setAttribute('readonly','');
   document.getElementById('brId').value = b.id;
   document.getElementById('brName').value = b.name;
   document.getElementById('brAddr').value = b.address || '';
@@ -503,6 +506,17 @@ function openBranchModal(id){
   document.getElementById('brRadius').value = b.radius;
   document.getElementById('branchModal').classList.add('show');
 }
+function openBranchModalNew(){
+  document.getElementById('branchModalTitle').textContent = 'เพิ่มสาขา';
+  var idEl = document.getElementById('brId'); idEl.value=''; idEl.removeAttribute('readonly');
+  document.getElementById('brName').value='';
+  document.getElementById('brAddr').value='';
+  document.getElementById('brLat').value='';
+  document.getElementById('brLng').value='';
+  document.getElementById('brRadius').value='100';
+  document.getElementById('branchModal').classList.add('show');
+}
+(function(){ var b=document.getElementById('btnAddBranch'); if(b) b.addEventListener('click', openBranchModalNew); })();
 document.getElementById('brCancel').addEventListener('click', function(){
   document.getElementById('branchModal').classList.remove('show');
 });

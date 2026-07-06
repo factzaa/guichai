@@ -64,10 +64,7 @@
 
       <div class="stock-filters" id="rcCatChips" style="background:transparent;padding:0;">
         <button class="stock-cat-chip on" data-cat="all">ทั้งหมด</button>
-        <button class="stock-cat-chip" data-cat="Waffle">🧁 Waffle</button>
-        <button class="stock-cat-chip" data-cat="KUFF">🥐 KUFF</button>
-        <button class="stock-cat-chip" data-cat="Drink">🥤 Drink</button>
-        <button class="stock-cat-chip" data-cat="Other">📦 อื่นๆ</button>
+        <!-- หมวดโหลดจากฐานอัตโนมัติ (sbBuildCatChips) -->
       </div>
       <button type="button" id="jumpMlog" class="mlog-jump">✏️ แก้ไข / ลบ รายการล่าสุด</button>
 
@@ -157,14 +154,14 @@ function updateBar(){
 }
 
 // Filter chips + search
-document.querySelectorAll('#rcCatChips .stock-cat-chip').forEach(function(b){
-  b.addEventListener('click', function(){
-    document.querySelectorAll('#rcCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
-    b.classList.add('on');
-    rc.filter.cat = b.dataset.cat;
-    render();
-  });
+document.getElementById('rcCatChips').addEventListener('click', function(e){
+  var b = e.target.closest('.stock-cat-chip'); if(!b) return;
+  document.querySelectorAll('#rcCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
+  b.classList.add('on');
+  rc.filter.cat = b.dataset.cat;
+  render();
 });
+sbBuildCatChips('rcCatChips');
 document.getElementById('rcSearch').addEventListener('input', function(){ rc.filter.q = this.value; render(); });
 
 // Receipt picker

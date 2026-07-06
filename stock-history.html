@@ -65,10 +65,7 @@ table.htbl td.r{color:#15803D;}table.htbl td.o{color:#155E38;}table.htbl td.w{co
     </div>
     <div class="catchips" id="catChips">
       <button class="cc on" data-cat="all">ทั้งหมด</button>
-      <button class="cc" data-cat="Waffle">🧁 Waffle</button>
-      <button class="cc" data-cat="KUFF">🥐 KUFF</button>
-      <button class="cc" data-cat="Drink">🥤 Drink</button>
-      <button class="cc" data-cat="Other">📦 อื่นๆ</button>
+      <!-- หมวดโหลดจากฐานอัตโนมัติ (sbBuildCatChips) -->
     </div>
     <div class="vbar">
       <div class="vtog" id="vtog"><button class="vb on" data-v="card">การ์ด</button><button class="vb" data-v="table">ตาราง</button></div>
@@ -196,7 +193,7 @@ function dlCSV(days){
 $('vtog').addEventListener('click', function(e){ var b=e.target.closest('.vb'); if(!b) return; document.querySelectorAll('#vtog .vb').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); viewMode=b.dataset.v; renderCurrent(); });
 function printHistory(){
   if(!lastDays.length){ toast('ไม่มีข้อมูลให้พิมพ์'); return; }
-  var L={all:'ทั้งหมด',Waffle:'Waffle',KUFF:'KUFF',Drink:'Drink',Other:'อื่นๆ'};
+  var L=Object.assign({all:'ทั้งหมด'}, window.SB_CATMAP||{});
   var rows=[], tR=0, tU=0;
   lastDays.forEach(function(d){
     rows.push({ head: d.dateDM+' ('+d.dow+')' });
@@ -227,6 +224,7 @@ $('catChips').addEventListener('click', function(e){
   document.querySelectorAll('#catChips .cc').forEach(function(x){x.classList.remove('on');});
   b.classList.add('on'); st.cat = b.dataset.cat; load();
 });
+sbBuildCatChips('catChips','cc');
 </script>
 </body>
 </html>

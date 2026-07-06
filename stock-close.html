@@ -93,10 +93,7 @@
 
       <div class="stock-filters" id="clCatChips" style="background:transparent;padding:0;">
         <button class="stock-cat-chip on" data-cat="all">ทั้งหมด</button>
-        <button class="stock-cat-chip" data-cat="Waffle">🧁 Waffle</button>
-        <button class="stock-cat-chip" data-cat="KUFF">🥐 KUFF</button>
-        <button class="stock-cat-chip" data-cat="Drink">🥤 Drink</button>
-        <button class="stock-cat-chip" data-cat="Other">📦 อื่นๆ</button>
+        <!-- หมวดโหลดจากฐานอัตโนมัติ (sbBuildCatChips) -->
         <button class="stock-cat-chip" data-cat="count" style="background:#FEF3C7;border-color:#FCD34D;color:#92400E;">🟡 ต้องนับ</button>
       </div>
       <div class="stock-filters">
@@ -178,14 +175,13 @@ function updateRow(id){
     + (isAuto ? ' <span class="auto-tag">(อัตโนมัติ)</span>' : '');
 }
 
-var CL_PR={Waffle:'Waffle',KUFF:'KUFF',Drink:'Drink',Other:'อื่นๆ',Others:'อื่นๆ'};
 function printCloseSummary(){
   var items = cl.balances.filter(function(it){ return it.active!==false; });
   if(!items.length){ toast('ไม่มีรายการให้พิมพ์'); return; }
   var counts={}; items.forEach(function(it){ counts[it.category]=(counts[it.category]||0)+1; });
   var rows=[],cur=null;
   items.forEach(function(it){
-    var c=it.category||''; if(c!==cur){ cur=c; rows.push({ head:(CL_PR[c]||c||'อื่นๆ')+' ('+(counts[c]||0)+')' }); }
+    var c=it.category||''; if(c!==cur){ cur=c; rows.push({ head:sbCatLabel(c)+' ('+(counts[c]||0)+')' }); }
     var open=Number(it.closeBalance)||0, recv=Number(it.sinceReceive)||0, used=Number(it.sinceWithdraw)||0;
     var waste=parseFloat(cl.wastes[it.id])||0;
     var autoClosing=Math.round((open+recv-used-waste)*100)/100;
@@ -269,14 +265,14 @@ function render(){
 }
 
 // Filter chips + search
-document.querySelectorAll('#clCatChips .stock-cat-chip').forEach(function(b){
-  b.addEventListener('click', function(){
-    document.querySelectorAll('#clCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
-    b.classList.add('on');
-    cl.filter.cat = b.dataset.cat;
-    render();
-  });
+document.getElementById('clCatChips').addEventListener('click', function(e){
+  var b = e.target.closest('.stock-cat-chip'); if(!b) return;
+  document.querySelectorAll('#clCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
+  b.classList.add('on');
+  cl.filter.cat = b.dataset.cat;
+  render();
 });
+sbBuildCatChips('clCatChips');
 document.getElementById('clSearch').addEventListener('input', function(){ cl.filter.q = this.value; render(); });
 
 // Save

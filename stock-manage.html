@@ -75,8 +75,9 @@
         · <b>count</b> = นับคงเหลือสิ้นวัน (กรัม/ml — ต้องชั่ง)
       </p>
 
-      <div class="add-bar">
-        <button class="add-btn" id="btnAddItem"><span>➕</span> เพิ่มรายการใหม่</button>
+      <div class="add-bar" style="display:flex;gap:8px;">
+        <button class="add-btn" id="btnAddItem" style="flex:1;"><span>➕</span> เพิ่มรายการใหม่</button>
+        <button class="add-btn" id="btnMgrCat" style="flex:1;background:#143D26;"><span>🏷️</span> จัดการหมวด</button>
       </div>
 
       <div style="margin-bottom:12px;">
@@ -85,10 +86,7 @@
 
       <div class="stock-filters" id="mgrCatChips" style="background:transparent;padding:0;">
         <button class="stock-cat-chip on" data-cat="all">ทั้งหมด</button>
-        <button class="stock-cat-chip" data-cat="Waffle">🧁 Waffle</button>
-        <button class="stock-cat-chip" data-cat="KUFF">🥐 KUFF</button>
-        <button class="stock-cat-chip" data-cat="Drink">🥤 Drink</button>
-        <button class="stock-cat-chip" data-cat="Other">📦 อื่นๆ</button>
+        <!-- หมวดโหลดจากฐานอัตโนมัติ (sbBuildCatChips) -->
       </div>
       <div class="stock-filters">
         <input type="search" id="mgrSearch" placeholder="ค้นหารายการ...">
@@ -118,12 +116,7 @@
     <div class="grid2">
       <div class="row">
         <label>หมวด <span style="color:#EF4444;">*</span></label>
-        <select id="addCategory">
-          <option value="Waffle">🧁 Waffle</option>
-          <option value="KUFF">🥐 KUFF</option>
-          <option value="Drink">🥤 Drink</option>
-          <option value="Others">📦 Others</option>
-        </select>
+        <select id="addCategory"><!-- เติมจากฐานอัตโนมัติ --></select>
       </div>
       <div class="row">
         <label>หน่วย <span style="color:#EF4444;">*</span></label>
@@ -177,6 +170,27 @@
   </div>
 </div>
 
+<!-- Category Manager Modal -->
+<div class="modal" id="catMgrModal">
+  <div class="body">
+    <h3>🏷️ จัดการหมวดสต๊อก <button class="close-x" id="catMgrClose">✕</button></h3>
+    <div id="catMgrList" style="margin-bottom:14px;"></div>
+    <div style="border-top:1.5px dashed var(--line);padding-top:12px;">
+      <div style="font-family:'Kanit';font-weight:700;font-size:13px;margin-bottom:8px;" id="catFormTitle">➕ เพิ่มหมวดใหม่</div>
+      <input type="hidden" id="catEditKey" value="">
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input type="text" id="catEmoji" placeholder="🥟" maxlength="4" style="width:64px;text-align:center;border:1.5px solid var(--line);border-radius:10px;padding:9px;font-size:16px;font-family:'Kanit';box-sizing:border-box;">
+        <input type="text" id="catLabel" placeholder="ชื่อหมวด เช่น กุยช่าย" style="flex:1;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;font-family:'Kanit';box-sizing:border-box;">
+        <input type="text" id="catPrefix" placeholder="ย่อ" maxlength="2" title="ตัวย่อขึ้นต้นรหัส (A-Z)" style="width:56px;text-align:center;border:1.5px solid var(--line);border-radius:10px;padding:9px;font-size:14px;font-family:'Kanit';box-sizing:border-box;text-transform:uppercase;">
+      </div>
+      <div class="actions">
+        <button class="cancel" id="catFormCancel" style="display:none;">ยกเลิกแก้ไข</button>
+        <button id="catFormSave" style="background:#143D26;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-family:'Kanit';font-weight:700;font-size:13px;cursor:pointer;">บันทึกหมวด</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="shared.js"></script>
 <script>
 injectShell('stockManage');
@@ -185,6 +199,7 @@ registerSW();
 let mgrData = { items: [], filter: { cat: 'all', q: '' } };
 
 function loadStockManage(){
+  mgrRefreshCategories();   // โหลดหมวด → ชิป + dropdown + ตัวจัดการหมวด
   document.getElementById('mgrList').innerHTML = '<div style="text-align:center;color:var(--ink-2);padding:20px;font-size:13px;">กำลังโหลด...</div>';
   apiSWR('getStockItems', {}, function(res){ mgrData.items = res.items || []; renderMgrList(); })
     .catch(function(err){
@@ -252,13 +267,12 @@ function saveMgrItem(id){
 document.getElementById('mgrSearch').addEventListener('input', function(){
   mgrData.filter.q = this.value; renderMgrList();
 });
-document.querySelectorAll('#mgrCatChips .stock-cat-chip').forEach(function(b){
-  b.addEventListener('click', function(){
-    document.querySelectorAll('#mgrCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
-    b.classList.add('on');
-    mgrData.filter.cat = b.dataset.cat;
-    renderMgrList();
-  });
+document.getElementById('mgrCatChips').addEventListener('click', function(e){
+  var b = e.target.closest('.stock-cat-chip'); if(!b) return;
+  document.querySelectorAll('#mgrCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
+  b.classList.add('on');
+  mgrData.filter.cat = b.dataset.cat;
+  renderMgrList();
 });
 
 // ===== Add Item Modal =====
@@ -478,6 +492,64 @@ $('btnSaveAllMin').addEventListener('click', function(){
     .catch(function(err){ btn.disabled = false; btn.textContent = old; toast('ผิดพลาด: ' + err.message); });
 });
 
+
+// ===== จัดการหมวดสต๊อก (dynamic) =====
+async function mgrRefreshCategories(){
+  try{ await sbLoadCats(true); }catch(e){}
+  sbBuildCatChips('mgrCatChips');
+  var sel = $('addCategory');
+  if(sel){
+    sel.innerHTML = (window.SB_CATS||[]).filter(function(c){return c.active!==false;}).map(function(c){
+      return '<option value="'+escHtml(c.cat_key)+'">'+(c.emoji?escHtml(c.emoji)+' ':'')+escHtml(c.label)+'</option>';
+    }).join('');
+  }
+  renderCatManager();
+}
+function renderCatManager(){
+  var box = $('catMgrList'); if(!box) return;
+  var cats = window.SB_CATS||[];
+  if(!cats.length){ box.innerHTML = '<div style="color:var(--ink-2);font-size:13px;text-align:center;padding:10px;">ยังไม่มีหมวด</div>'; return; }
+  box.innerHTML = cats.map(function(c){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);">'
+      + '<span style="font-size:18px;width:26px;text-align:center;">'+(c.emoji||'📦')+'</span>'
+      + '<span style="flex:1;font-family:\'Kanit\';font-weight:600;font-size:14px;">'+escHtml(c.label)+' <span style="color:var(--ink-2);font-weight:400;font-size:11px;">('+escHtml(c.prefix||'')+')</span></span>'
+      + '<button class="catEditBtn" data-key="'+escHtml(c.cat_key)+'" style="background:#EEF2FF;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;">✏️</button>'
+      + '<button class="catDelBtn" data-key="'+escHtml(c.cat_key)+'" data-label="'+escHtml(c.label)+'" style="background:#FEE2E2;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;">🗑</button>'
+      + '</div>';
+  }).join('');
+  box.querySelectorAll('.catEditBtn').forEach(function(b){ b.addEventListener('click', function(){ catStartEdit(b.dataset.key); }); });
+  box.querySelectorAll('.catDelBtn').forEach(function(b){ b.addEventListener('click', function(){ catDelete(b.dataset.key, b.dataset.label); }); });
+}
+function catResetForm(){
+  $('catEditKey').value=''; $('catEmoji').value=''; $('catLabel').value=''; $('catPrefix').value='';
+  $('catFormTitle').textContent='➕ เพิ่มหมวดใหม่'; $('catFormCancel').style.display='none';
+}
+function catStartEdit(key){
+  var c=(window.SB_CATS||[]).find(function(x){return x.cat_key===key;}); if(!c) return;
+  $('catEditKey').value=c.cat_key; $('catEmoji').value=c.emoji||''; $('catLabel').value=c.label||''; $('catPrefix').value=c.prefix||'';
+  $('catFormTitle').textContent='✏️ แก้ไขหมวด'; $('catFormCancel').style.display='';
+}
+async function catDelete(key, label){
+  if(!confirm('ลบหมวด "'+label+'" ?')) return;
+  try{ var res=await api('deleteStockCategory',{key:key}); if(!res || !res.ok){ toast((res&&res.error)||'ลบไม่ได้'); return; } toast(res.msg||'ลบแล้ว ✓'); await mgrRefreshCategories(); }
+  catch(e){ toast('ผิดพลาด: '+e.message); }
+}
+$('btnMgrCat').addEventListener('click', function(){ catResetForm(); renderCatManager(); $('catMgrModal').classList.add('show'); });
+$('catMgrClose').addEventListener('click', function(){ $('catMgrModal').classList.remove('show'); });
+$('catMgrModal').addEventListener('click', function(e){ if(e.target===$('catMgrModal')) $('catMgrModal').classList.remove('show'); });
+$('catFormCancel').addEventListener('click', catResetForm);
+$('catFormSave').addEventListener('click', async function(){
+  var label=$('catLabel').value.trim(); if(!label){ toast('กรุณากรอกชื่อหมวด'); return; }
+  var data={ label:label, emoji:$('catEmoji').value.trim()||'📦', prefix:($('catPrefix').value.trim()||'').toUpperCase() };
+  var key=$('catEditKey').value; if(key) data.cat_key=key;
+  var btn=this, old=btn.textContent; btn.disabled=true; btn.textContent='⏳ บันทึก...';
+  try{
+    var res=await api('saveStockCategory',{data:data});
+    btn.disabled=false; btn.textContent=old;
+    if(!res || !res.ok){ toast((res&&res.error)||'บันทึกไม่ได้'); return; }
+    toast(res.msg||'บันทึกแล้ว ✓'); catResetForm(); await mgrRefreshCategories();
+  }catch(e){ btn.disabled=false; btn.textContent=old; toast('ผิดพลาด: '+e.message); }
+});
 renderIcons();
 loadStockManage();
 </script>

@@ -229,6 +229,7 @@ create table if not exists public.staff (
   id_card_url     text,                -- อ่อนไหว (staff-docs, signed url)
   doc1_url        text,
   doc2_url        text,
+  edited_at       timestamptz,         -- edge saveAttendStaff เขียนคอลัมน์นี้ (ห้ามลืม!)
   created_at      timestamptz default now()
 );
 

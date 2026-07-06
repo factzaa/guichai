@@ -628,7 +628,81 @@ async function sbAddBusinessExpense(p){
 }
 // ========== เครื่องมือเขียนเพิ่ม: สต๊อก + เข้างาน (ย้ายจาก Apps Script) ==========
 const SB_STOCK_BRANCH = 'Pantip Ngamwongwan';                 // ร้านเดียว — ใช้ค่านี้กับทุกการบันทึกสต๊อก
-const SB_CAT_PREFIX   = { Waffle:'W', KUFF:'K', Drink:'D', Other:'O', Others:'O' };
+const SB_CAT_PREFIX   = { Waffle:'W', KUFF:'K', Drink:'D', Other:'O', Others:'O' };  // legacy fallback
+
+// ===== หมวดสต๊อก (dynamic — จัดการเพิ่ม/แก้/ลบเองได้จากตาราง stock_categories) =====
+window.SB_CATS = window.SB_CATS || [];      // [{cat_key,label,emoji,prefix,sort_order,active}]
+window.SB_CATMAP = window.SB_CATMAP || {};  // { cat_key: label }
+async function sbLoadCats(force){
+  if(!force && window.SB_CATS && window.SB_CATS.length) return window.SB_CATS;
+  var rows = [];
+  try{ rows = await sbFetch('stock_categories?select=*&order=sort_order.asc') || []; }catch(e){ rows = []; }
+  window.SB_CATS = rows;
+  window.SB_CATMAP = {};
+  rows.forEach(function(c){ window.SB_CATMAP[c.cat_key] = c.label; });
+  return rows;
+}
+function sbCatLabel(key){ return (window.SB_CATMAP && window.SB_CATMAP[key]) || key || 'อื่นๆ'; }
+function sbCatPrefix(key){
+  var c = (window.SB_CATS||[]).find(function(x){ return x.cat_key === key; });
+  if(c && c.prefix) return String(c.prefix).toUpperCase();
+  if(SB_CAT_PREFIX[key]) return SB_CAT_PREFIX[key];
+  var m = String(key||'X').match(/[A-Za-z]/);
+  return m ? m[0].toUpperCase() : 'X';
+}
+// สร้างปุ่มชิปหมวดลงในคอนเทนเนอร์ (แทรกหลังปุ่ม "ทั้งหมด" ก่อนชิปพิเศษ)
+async function sbBuildCatChips(containerId, chipClass){
+  chipClass = chipClass || 'stock-cat-chip';
+  var slot = document.getElementById(containerId);
+  if(!slot) return;
+  var cats = await sbLoadCats();
+  slot.querySelectorAll('[data-catdyn]').forEach(function(x){ x.remove(); });
+  var html = (cats||[]).filter(function(c){ return c.active !== false; }).map(function(c){
+    return '<button class="'+chipClass+'" data-catdyn data-cat="'+escHtml(c.cat_key)+'">'
+         + (c.emoji ? escHtml(c.emoji)+' ' : '') + escHtml(c.label) + '</button>';
+  }).join('');
+  var allChip = slot.querySelector('[data-cat="all"]');
+  if(allChip) allChip.insertAdjacentHTML('afterend', html);
+  else slot.insertAdjacentHTML('afterbegin', html);
+}
+// ---- SB_ACTIONS: อ่าน/บันทึก/ลบ หมวด ----
+async function sbGetStockCategories(){ var rows = await sbLoadCats(true); return { ok:true, categories: rows }; }
+async function sbSaveStockCategory(p){
+  var d = (p && p.data) || {};
+  if(!d.label || !String(d.label).trim()) return { ok:false, error:'กรุณากรอกชื่อหมวด' };
+  if(d.cat_key){   // แก้ไข
+    var row = { label:d.label };
+    if(d.emoji !== undefined) row.emoji = d.emoji;
+    if(d.prefix !== undefined) row.prefix = (d.prefix || 'X').toUpperCase();
+    if(d.sort_order !== undefined) row.sort_order = Number(d.sort_order) || 0;
+    if(d.active !== undefined) row.active = !!d.active;
+    var r = await sbPatch('stock_categories', 'cat_key=eq.' + encodeURIComponent(d.cat_key), row);
+    if(!r.ok) return r;
+    await sbLoadCats(true);
+    return { ok:true, msg:'บันทึกหมวดแล้ว ✓' };
+  }
+  // เพิ่มใหม่ — สร้าง cat_key อัตโนมัติถ้าไม่ได้ส่งมา
+  var key = (d.key && String(d.key).trim()) || ('c' + Date.now().toString(36));
+  var cats = await sbLoadCats(true), maxSort = 0;
+  cats.forEach(function(c){ if((c.sort_order||0) > maxSort) maxSort = c.sort_order; });
+  var res = await sbInsert('stock_categories', {
+    cat_key:key, label:d.label, emoji:(d.emoji || '📦'),
+    prefix:(d.prefix || sbCatPrefix(d.label)).toUpperCase(),
+    sort_order:maxSort + 1, active:true
+  });
+  if(!res.ok) return res;
+  await sbLoadCats(true);
+  return { ok:true, msg:'เพิ่มหมวดแล้ว ✓', key:key };
+}
+async function sbDeleteStockCategory(p){
+  var key = p && p.key; if(!key) return { ok:false, error:'ไม่พบหมวด' };
+  var used = await sbFetch('stock_items?select=item_id&category=eq.' + encodeURIComponent(key) + '&limit=1');
+  if(used && used.length) return { ok:false, error:'ลบไม่ได้ — ยังมีรายการใช้หมวดนี้อยู่ (ย้ายรายการไปหมวดอื่นก่อน)' };
+  var res = await sbDelete('stock_categories', 'cat_key=eq.' + encodeURIComponent(key));
+  if(!res.ok) return res;
+  await sbLoadCats(true);
+  return { ok:true, msg:'ลบหมวดแล้ว ✓' };
+}
 
 function sbLocalDate(){ return sbFmtD(new Date()); }
 function sbLocalTime(){ const d=new Date(); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2); }
@@ -785,7 +859,8 @@ async function sbAddStockItem(p){
   const d = (p && p.data) || {};
   if(!d.name) return { ok:false, error:'กรุณากรอกชื่อรายการ' };
   const rows = await sbItemsRaw();
-  const prefix = SB_CAT_PREFIX[d.category] || (String(d.category||'X').match(/[A-Za-z]/) ? String(d.category).match(/[A-Za-z]/)[0].toUpperCase() : 'X');
+  await sbLoadCats();
+  const prefix = sbCatPrefix(d.category);
   let maxNum = 0, maxSort = 0;
   rows.forEach(function(r){
     if(r.item_id && r.item_id.indexOf(prefix) === 0){ const n = parseInt(String(r.item_id).slice(prefix.length), 10); if(!isNaN(n) && n > maxNum) maxNum = n; }
@@ -1080,6 +1155,9 @@ const SB_ACTIONS = {
   saveAttendBranch:  sbSaveAttendBranch,
   getAlerts:         sbGetAlerts,
   checkStockItemUsage: sbCheckStockItemUsage,
+  getStockCategories: sbGetStockCategories,
+  saveStockCategory:  sbSaveStockCategory,
+  deleteStockCategory: sbDeleteStockCategory,
   getRemitPending:   sbGetRemitPending,
   submitRemit:       sbSubmitRemit,
   getRemitHistory:   sbGetRemitHistory
@@ -1194,7 +1272,7 @@ function buildSidebar(currentPage){
     { page:'payments',       href:'payments.html',        icon:'card',      label:'การจ่ายเงิน' },
     { page:'cashRemit',      href:'cash-remit.html',      icon:'cashsend',  label:'เงินสดนำส่ง' },
     { group: '🥟 อื่นๆ' },
-    { page:'assistant',      href:'assistant.html',       icon:'chat',        label:'ผู้ช่วยกุยช่าย' },
+    { page:'assistant',      href:'assistant.html',       icon:'chat',        label:'ผู้ช่วยร้าน' },
     { page:'manual',         href:'manual.html',          icon:'book',    label:'คู่มือการใช้งาน' },
   ];
   function itemHtml(it){
@@ -1464,7 +1542,7 @@ function injectShell(currentPage){
   bindMaruAlerts(currentPage);
 }
 
-// ===== ผู้ช่วยกุยช่าย: ปุ่มลอย + กล่องแชท + เสียง (Web Speech API ฟรี ไม่กินเครดิต) =====
+// ===== ผู้ช่วยร้าน: ปุ่มลอย + กล่องแชท + เสียง (Web Speech API ฟรี ไม่กินเครดิต) =====
 function maruAssistantMarkup(currentPage){
   if(currentPage === 'assistant') return ''; // หน้าเต็มมีแชทอยู่แล้ว ไม่ต้องมีปุ่มลอยซ้ำ
   return ''
@@ -1547,9 +1625,9 @@ function maruAssistantMarkup(currentPage){
    + '.maru-send{width:42px;height:42px;border-radius:50%;border:0;background:#143D26;color:#E6B83C;font-size:17px;cursor:pointer;flex-shrink:0;}'
    + '.maru-send:disabled{opacity:.4;}'
    + '</style>'
-   + '<button class="maru-fab" id="maruFab" aria-label="ผู้ช่วยกุยช่าย"><img src="maru-chick.png" alt="กุยช่าย" onerror="this.replaceWith(document.createTextNode(\'🥟\'))"></button>'
+   + '<button class="maru-fab" id="maruFab" aria-label="ผู้ช่วยร้าน"><img src="maru-chick.png" alt="กุยช่าย" onerror="this.replaceWith(document.createTextNode(\'🥟\'))"></button>'
    + '<div class="maru-ov" id="maruOv"><div class="maru-panel">'
-   +   '<div class="maru-head"><div class="maru-title">🥟 ผู้ช่วยกุยช่าย</div>'
+   +   '<div class="maru-head"><div class="maru-title">🥟 ผู้ช่วยร้าน</div>'
    +     '<button class="maru-set" id="maruSet" title="ตั้งค่าเสียง">⚙</button>'
    +     '<button class="maru-x" id="maruX">✕</button></div>'
    +   '<div class="maru-cfg" id="maruCfg">'
@@ -1561,7 +1639,7 @@ function maruAssistantMarkup(currentPage){
    +   '</div>'
    +   '<div class="maru-msgs" id="maruMsgs"><div class="maru-hi" id="maruHi">'
    +     '<img class="mh-av" src="Logo.png" alt="กุยช่าย">'
-   +     '<div class="mh-t">สวัสดีครับ ผมผู้ช่วยกุยช่าย 🥟</div>'
+   +     '<div class="mh-t">สวัสดีครับ ผมผู้ช่วยร้าน 🥟</div>'
    +     '<div class="mh-s">ถามข้อมูลร้าน คุยเล่น หรือแนบรูปทำโพสต์ขายของก็ได้</div>'
    +     '<div class="mq">'
    +       '<div class="mqg">💰 ยอดขาย</div><div class="mqr">'
@@ -1949,7 +2027,7 @@ function maruDrawPoster(imgEl, logoEl, W, H, poster, styleId){
 }
 
 
-// ===== สร้าง context ของร้านจาก Supabase ให้ผู้ช่วยกุยช่าย (เฉพาะข้อมูลไม่ลับ — เงินเดือน/พนักงานทำที่ Edge) =====
+// ===== สร้าง context ของร้านจาก Supabase ให้ผู้ช่วยร้าน (เฉพาะข้อมูลไม่ลับ — เงินเดือน/พนักงานทำที่ Edge) =====
 async function maruBuildContext(message){
   var m = String(message || '');
   var t = {
@@ -2625,7 +2703,7 @@ function maruBuildAttendFlex(d){
   var typeLabel = d.type === 'in' ? '🟢 เข้างาน' : '🔴 ออกงาน';
   var typeColor = d.type === 'in' ? '#15803D' : '#D02C2C';
   var geofenceLabel = d.inGeofence ? '✓ ในเขตร้าน' : '⚠️ นอกเขตร้าน (' + Math.round(d.distance) + ' m)';
-  var geofenceColor = d.inGeofence ? '#15803D' : '#1E7A45';
+  var geofenceColor = d.inGeofence ? '#15803D' : '#F37316';
   var bubble = { type:'bubble', size:'mega',
     header:{ type:'box', layout:'vertical', spacing:'xs', backgroundColor:'#143D26', paddingAll:'lg', contents:[
       { type:'text', text:'🥟 กุยช่ายสวรรค์', size:'lg', weight:'bold', color:'#E6B83C' },

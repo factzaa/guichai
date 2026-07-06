@@ -67,10 +67,7 @@ table.htbl td.o{color:#B91C1C;font-weight:700;}table.htbl td.w{color:#92400E;fon
       </div>
       <div class="stock-filters" id="stockCatChips" style="background:transparent;padding:0;margin-top:-4px;">
         <button class="stock-cat-chip on" data-cat="all">ทั้งหมด</button>
-        <button class="stock-cat-chip" data-cat="Waffle">🧁 Waffle</button>
-        <button class="stock-cat-chip" data-cat="KUFF">🥐 KUFF</button>
-        <button class="stock-cat-chip" data-cat="Drink">🥤 Drink</button>
-        <button class="stock-cat-chip" data-cat="Other">📦 อื่นๆ</button>
+        <!-- หมวดโหลดจากฐานอัตโนมัติ (sbBuildCatChips) -->
         <button class="stock-cat-chip" data-cat="low" style="background:#FEF3C7;border-color:#FCD34D;color:#92400E;">⚠️ ของใกล้หมด</button>
         <button class="stock-cat-chip" data-cat="out" style="background:#FEE2E2;border-color:#FCA5A5;color:#B91C1C;">🚫 ของหมด</button>
       </div>
@@ -196,21 +193,21 @@ function renderStockList(){
 document.getElementById('stockSearch').addEventListener('input', function(){
   stockData.filter.q = this.value; renderStockList();
 });
-document.querySelectorAll('#stockCatChips .stock-cat-chip').forEach(function(b){
-  b.addEventListener('click', function(){
-    document.querySelectorAll('#stockCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
-    b.classList.add('on');
-    stockData.filter.cat = b.dataset.cat;
-    renderStockList();
-  });
+document.getElementById('stockCatChips').addEventListener('click', function(e){
+  var b = e.target.closest('.stock-cat-chip'); if(!b) return;
+  document.querySelectorAll('#stockCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
+  b.classList.add('on');
+  stockData.filter.cat = b.dataset.cat;
+  renderStockList();
 });
+sbBuildCatChips('stockCatChips');
 
 document.getElementById('stockVtog').addEventListener('click', function(e){ var b=e.target.closest('.vb'); if(!b) return; document.querySelectorAll('#stockVtog .vb').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); viewMode=b.dataset.v; renderStockList(); });
 function printStock(){
   var items=getStockFiltered();
   if(!items.length){ toast('ไม่มีข้อมูลให้พิมพ์'); return; }
-  var L={all:'ทั้งหมด',Waffle:'Waffle',KUFF:'KUFF',Drink:'Drink',Other:'อื่นๆ',low:'ใกล้หมด',out:'หมด'};
-  var CL={Waffle:'Waffle',KUFF:'KUFF',Drink:'Drink',Other:'อื่นๆ',Others:'อื่นๆ'};
+  var L=Object.assign({all:'ทั้งหมด',low:'ใกล้หมด',out:'หมด'}, window.SB_CATMAP||{});
+  var CL=Object.assign({}, window.SB_CATMAP||{});
   var cat=L[stockData.filter.cat]||stockData.filter.cat;
   var counts={}; items.forEach(function(it){ counts[it.category]=(counts[it.category]||0)+1; });
   var low=0,out=0,rows=[],curCat=null;

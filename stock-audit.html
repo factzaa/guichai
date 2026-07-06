@@ -104,10 +104,7 @@
 
       <div class="stock-filters" id="auCatChips" style="background:transparent;padding:0;">
         <button class="stock-cat-chip on" data-cat="all">ทั้งหมด</button>
-        <button class="stock-cat-chip" data-cat="Waffle">🧁 Waffle</button>
-        <button class="stock-cat-chip" data-cat="KUFF">🥐 KUFF</button>
-        <button class="stock-cat-chip" data-cat="Drink">🥤 Drink</button>
-        <button class="stock-cat-chip" data-cat="Other">📦 อื่นๆ</button>
+        <!-- หมวดโหลดจากฐานอัตโนมัติ (sbBuildCatChips) -->
         <button class="stock-cat-chip" data-cat="counted" style="background:#DBEAFE;border-color:#93C5FD;color:#1E3A8A;">📝 นับแล้ว</button>
       </div>
       <div class="stock-filters">
@@ -150,14 +147,13 @@ function getAuditFiltered(){
     return true;
   });
 }
-var AU_CL={Waffle:'Waffle',KUFF:'KUFF',Drink:'Drink',Other:'อื่นๆ',Others:'อื่นๆ'};
 function printCountSheet(){
   var items=getAuditFiltered();
   if(!items.length){ toast('ไม่มีรายการให้พิมพ์'); return; }
   var counts={}; items.forEach(function(it){ counts[it.category]=(counts[it.category]||0)+1; });
   var rows=[],cur=null;
   items.forEach(function(it){
-    var c=it.category||''; if(c!==cur){ cur=c; rows.push({ head:(AU_CL[c]||c||'อื่นๆ')+' ('+(counts[c]||0)+')' }); }
+    var c=it.category||''; if(c!==cur){ cur=c; rows.push({ head:sbCatLabel(c)+' ('+(counts[c]||0)+')' }); }
     rows.push({ l: it.name, r: 'จริง:______', sub: 'ในระบบ '+it.balance+' '+(it.unit||'') });
   });
   var staff=document.getElementById('auStaff').value.trim();
@@ -169,7 +165,7 @@ function printAuditResult(){
   var counts={}; items.forEach(function(it){ counts[it.category]=(counts[it.category]||0)+1; });
   var match=0,diffC=0,rows=[],cur=null;
   items.forEach(function(it){
-    var c=it.category||''; if(c!==cur){ cur=c; rows.push({ head:(AU_CL[c]||c||'อื่นๆ')+' ('+(counts[c]||0)+')' }); }
+    var c=it.category||''; if(c!==cur){ cur=c; rows.push({ head:sbCatLabel(c)+' ('+(counts[c]||0)+')' }); }
     var actual=parseFloat(au.actuals[it.id]); var diff=Math.round((actual-it.balance)*100)/100;
     var tag = Math.abs(diff)<0.01 ? '✓' : ((diff>0?'+':'')+diff);
     if(Math.abs(diff)<0.01) match++; else diffC++;
@@ -297,14 +293,14 @@ function updateSummary(){
 }
 
 // Filter chips + search
-document.querySelectorAll('#auCatChips .stock-cat-chip').forEach(function(b){
-  b.addEventListener('click', function(){
-    document.querySelectorAll('#auCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
-    b.classList.add('on');
-    au.filter.cat = b.dataset.cat;
-    render();
-  });
+document.getElementById('auCatChips').addEventListener('click', function(e){
+  var b = e.target.closest('.stock-cat-chip'); if(!b) return;
+  document.querySelectorAll('#auCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
+  b.classList.add('on');
+  au.filter.cat = b.dataset.cat;
+  render();
 });
+sbBuildCatChips('auCatChips');
 document.getElementById('auSearch').addEventListener('input', function(){ au.filter.q = this.value; render(); });
 
 // Save
