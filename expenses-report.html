@@ -234,8 +234,8 @@
 // ⚠️  กุยช่ายสวรรค์ — แก้ URL + KEY ตรงนี้เมื่อมี Supabase ของแบรนด์ใหม่
 //    ตอนนี้ยังชี้ไปฐานข้อมูลเดิมของ Maru (ข้อมูลจะปนกัน)
 // ============================================================
-  const SB_URL = 'https://sfdahyvekfcxoprkshko.supabase.co';
-  const SB_KEY = 'sb_publishable_632DkQ4uOHjIGWr-_c7hCA_WgFHe3jT';
+  const SB_URL = 'https://nmrdgdzlraxffcaizclr.supabase.co';
+  const SB_KEY = 'sb_publishable_mWMlYxXgd1CwcJAV3eLkwg__fUKXxSZ';
   async function sbFetch(path){
     const r = await fetch(SB_URL + '/rest/v1/' + path, { headers:{ apikey:SB_KEY, Authorization:'Bearer ' + SB_KEY } });
     if(!r.ok) throw new Error('Supabase ' + r.status + ': ' + (await r.text()).slice(0,150));

@@ -10,8 +10,8 @@
 // ⚠️  กุยช่ายสวรรค์ — แก้ URL + KEY ตรงนี้เมื่อมี Supabase ของแบรนด์ใหม่
 //    ตอนนี้ยังชี้ไปฐานข้อมูลเดิมของ Maru (ข้อมูลจะปนกัน)
 // ============================================================
-  const SB_URL = 'https://sfdahyvekfcxoprkshko.supabase.co';
-  const SB_KEY = 'sb_publishable_632DkQ4uOHjIGWr-_c7hCA_WgFHe3jT';
+  const SB_URL = 'https://nmrdgdzlraxffcaizclr.supabase.co';
+  const SB_KEY = 'sb_publishable_mWMlYxXgd1CwcJAV3eLkwg__fUKXxSZ';
   const SB_CH = [
     { key: 'cash', label: 'เงินสด', group: 'store' },
     { key: 'transfer', label: 'เงินโอน', group: 'store' },

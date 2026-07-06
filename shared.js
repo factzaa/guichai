@@ -127,8 +127,8 @@ function apiSWR(action, params, onData){
 // ⚠️  กุยช่ายสวรรค์ — แก้ URL + KEY ตรงนี้เมื่อมี Supabase ของแบรนด์ใหม่
 //    ตอนนี้ยังชี้ไปฐานข้อมูลเดิมของ Maru (ข้อมูลจะปนกัน)
 // ============================================================
-const SB_URL = 'https://sfdahyvekfcxoprkshko.supabase.co';
-const SB_KEY = 'sb_publishable_632DkQ4uOHjIGWr-_c7hCA_WgFHe3jT';
+const SB_URL = 'https://nmrdgdzlraxffcaizclr.supabase.co';
+const SB_KEY = 'sb_publishable_mWMlYxXgd1CwcJAV3eLkwg__fUKXxSZ';
 const EDGE_URL = SB_URL + '/functions/v1/secure-api';   // Edge Function สำหรับ action อ่อนไหว (เงินเดือน/พนักงาน)
 const EDGE_ACTIONS = { getPayrollStatus:1, markPaid:1, getStaffDetail:1, verifyStaffPin:1, saveAttendStaff:1, askAI:1, genPromoCaption:1, genPromoImage:1, confirmRemit:1, notifyLine:1, ttsSpeak:1, execStockWrite:1, editStockMovement:1 };
 const SB_CH = [
