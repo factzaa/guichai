@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>รายงานเข้า-ออกงาน · กุยช่ายสวรรค์</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* Range picker */
+.ranges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.rg{border:1.5px solid var(--line);background:#fff;color:var(--ink);padding:7px 14px;border-radius:20px;
+  font-family:'Kanit';font-weight:600;font-size:12.5px;cursor:pointer;white-space:nowrap;}
+.rg.on{background:linear-gradient(180deg,#EEC85E,#CBA236);color:#12351F;border-color:#C6982A;}
+
+.datebar{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:flex;
+  justify-content:space-between;align-items:center;margin-bottom:14px;font-family:'Kanit';font-weight:600;font-size:13px;}
+.datebar input[type=date]{background:transparent;border:0;color:var(--ink);font-family:'Kanit';font-size:13px;}
+.datebar .sep{color:var(--ink-2);}
+
+/* Filter */
+.filter-card{background:#fff;border-radius:14px;padding:12px;margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.filter-card label{font-size:11.5px;color:var(--ink-2);font-weight:600;margin-right:4px;}
+.filter-card select{border:1.5px solid var(--line);border-radius:9px;padding:7px 10px;font-size:13px;
+  font-family:'Kanit';background:#fff;flex:1;min-width:140px;}
+
+.chips{display:flex;gap:6px;}
+.tchip{border:1.5px solid var(--line);background:#fff;color:var(--ink);padding:5px 12px;border-radius:18px;
+  font-family:'Kanit';font-weight:600;font-size:12px;cursor:pointer;}
+.tchip.on.in{background:#15803D;color:#fff;border-color:#15803D;}
+.tchip.on.out{background:#B91C1C;color:#fff;border-color:#B91C1C;}
+.tchip.on.all{background:linear-gradient(180deg,#EEC85E,#CBA236);color:#12351F;border-color:#C6982A;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.kpi{background:#fff;border-radius:12px;padding:11px 13px;text-align:center;}
+.kpi .v{font-family:'Kanit';font-weight:800;font-size:24px;color:var(--ink);line-height:1;}
+.kpi .l{font-size:11px;color:var(--ink-2);margin-top:3px;}
+.kpi.in .v{color:#15803D;}
+.kpi.out .v{color:#B91C1C;}
+
+/* Group by date */
+.date-group{margin-bottom:18px;}
+.date-group h3{font-family:'Kanit';font-weight:700;font-size:14px;color:var(--ink);margin:0 0 8px;
+  padding-left:8px;border-left:3px solid var(--yellow);}
+.date-group .day-count{font-size:11px;color:var(--ink-2);font-weight:500;margin-left:6px;}
+
+/* Log card */
+.log-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.log-card{background:#fff;border-radius:14px;overflow:hidden;cursor:pointer;transition:.15s;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.log-card:active{transform:scale(.98);}
+.log-card .img-box{aspect-ratio:1/1;background:#143D26;position:relative;}
+.log-card .img-box img{width:100%;height:100%;object-fit:cover;display:block;}
+.log-card .img-box .no-img{position:absolute;inset:0;display:grid;place-items:center;color:#666;font-size:32px;}
+.log-card .img-box .type-badge{position:absolute;top:8px;left:8px;padding:3px 10px;border-radius:10px;
+  font-family:'Kanit';font-weight:700;font-size:11px;color:#fff;}
+.log-card .img-box .type-badge.in{background:#15803D;}
+.log-card .img-box .type-badge.out{background:#B91C1C;}
+.log-card .img-box .geo-badge{position:absolute;top:8px;right:8px;padding:3px 8px;border-radius:10px;
+  font-family:'Kanit';font-weight:700;font-size:10px;background:rgba(0,0,0,.65);color:#fff;}
+.log-card .img-box .geo-badge.warn{background:rgba(30,122,69,.95);}
+.log-card .info{padding:10px 11px;}
+.log-card .time{font-family:'Kanit';font-weight:800;font-size:18px;color:var(--ink);line-height:1;}
+.log-card .name{font-family:'Kanit';font-weight:600;font-size:12.5px;color:var(--ink);margin-top:3px;}
+.log-card .addr{font-size:10.5px;color:var(--ink-2);margin-top:3px;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* Empty state */
+.empty{text-align:center;padding:40px 20px;color:var(--ink-2);}
+.empty .em{font-size:48px;margin-bottom:10px;opacity:.6;}
+.empty .t{font-family:'Kanit';font-weight:600;font-size:15px;color:var(--ink);}
+.empty .s{font-size:13px;margin-top:4px;}
+
+/* Lightbox */
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:100;padding:14px;}
+.lb.show{display:flex;}
+.lb img{max-width:100%;max-height:80vh;border-radius:10px;display:block;}
+.lb .close{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,.15);color:#fff;border:0;font-size:22px;cursor:pointer;display:grid;place-items:center;}
+.lb .info{position:absolute;bottom:14px;left:14px;right:14px;color:#fff;font-family:'Kanit';
+  background:rgba(0,0,0,.6);padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;}
+.lb .info b{color:#E6B83C;}
+
+/* Loading */
+.loading{text-align:center;color:var(--ink-2);padding:30px 20px;font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <h1>รายงานเข้า-ออกงาน</h1>
+    <div class="sub">กุยช่ายสวรรค์ · ดูประวัติพร้อมรูป</div>
+  </div>
+
+  <div class="sheet">
+
+    <div class="ranges" id="ranges">
+      <button class="rg" data-r="today">วันนี้</button>
+      <button class="rg" data-r="7">7 วัน</button>
+      <button class="rg" data-r="30">30 วัน</button>
+      <button class="rg on" data-r="month">เดือนนี้</button>
+    </div>
+
+    <div class="datebar">
+      <input type="date" id="dStart">
+      <span class="sep">ถึง</span>
+      <input type="date" id="dEnd">
+    </div>
+
+    <div class="filter-card">
+      <label>พนักงาน:</label>
+      <select id="staffFilter"><option value="">ทุกคน</option></select>
+      <div class="chips" id="typeChips">
+        <button class="tchip on all" data-t="all">ทั้งหมด</button>
+        <button class="tchip in" data-t="in">🟢 เข้า</button>
+        <button class="tchip out" data-t="out">🔴 ออก</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="v" id="kTotal">0</div><div class="l">รายการทั้งหมด</div></div>
+      <div class="kpi in"><div class="v" id="kIn">0</div><div class="l">🟢 เข้างาน</div></div>
+      <div class="kpi out"><div class="v" id="kOut">0</div><div class="l">🔴 ออกงาน</div></div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin:2px 0 10px;"><button class="csvb print" id="attPrintBtn">🖨️ พิมพ์รายงาน</button></div>
+    <div id="reportList">
+      <div class="loading">กำลังโหลด...</div>
+    </div>
+
+    <div class="foot">🥟 คลิกรูปเพื่อขยาย</div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lb" id="lightbox">
+  <button class="close" id="lbClose">✕</button>
+  <img id="lbImg" alt="">
+  <div class="info" id="lbInfo"></div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+injectShell('attendReport');
+registerSW();
+
+let allStaff = [], allLogs = [];
+let filter = { type: 'all', staffId: '' };
+
+const $ = function(id){return document.getElementById(id);};
+
+// Range presets
+function setRange(r){
+  const today = new Date();
+  const fmt2 = function(d){
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  };
+  let start = today, end = today;
+  if(r === '7'){ start = new Date(today); start.setDate(start.getDate()-6); }
+  else if(r === '30'){ start = new Date(today); start.setDate(start.getDate()-29); }
+  else if(r === 'month'){ start = new Date(today.getFullYear(), today.getMonth(), 1); }
+  $('dStart').value = fmt2(start);
+  $('dEnd').value = fmt2(end);
+}
+
+document.querySelectorAll('.rg').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    setRange(b.dataset.r);
+    loadReport();
+  });
+});
+$('dStart').addEventListener('change', function(){ document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');}); loadReport(); });
+$('dEnd').addEventListener('change', function(){ document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');}); loadReport(); });
+
+document.querySelectorAll('.tchip').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.tchip').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    filter.type = b.dataset.t;
+    render();
+  });
+});
+
+$('staffFilter').addEventListener('change', function(){ filter.staffId = this.value; render(); });
+
+function loadStaff(){
+  apiSWR('getAttendStaff', { includeInactive: true }, function(r){
+    allStaff = r.staff || [];
+    const sel = $('staffFilter');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">ทุกคน</option>' + allStaff.map(function(s){
+      return '<option value="'+s.id+'">'+escHtml(s.name + (s.nickname?' ('+s.nickname+')':''))+'</option>';
+    }).join('');
+    sel.value = cur;
+  }).catch(function(){ /* silent */ });
+}
+
+function loadReport(){
+  $('reportList').innerHTML = '<div class="loading">กำลังโหลด...</div>';
+  apiSWR('getAttendReport', { start: $('dStart').value, end: $('dEnd').value }, function(r){
+    allLogs = r.logs || [];
+    render();
+  }).catch(function(err){
+    $('reportList').innerHTML = '<div class="empty"><div class="em">⚠️</div><div class="t">โหลดไม่ได้</div><div class="s">'+escHtml(err.message)+'</div></div>';
+  });
+}
+
+function render(){
+  // ฟิลเตอร์
+  const filtered = allLogs.filter(function(log){
+    if(filter.type !== 'all' && log.type !== filter.type) return false;
+    if(filter.staffId && log.staffId !== filter.staffId) return false;
+    return true;
+  });
+
+  // KPI
+  $('kTotal').textContent = filtered.length;
+  $('kIn').textContent = filtered.filter(function(x){return x.type==='in';}).length;
+  $('kOut').textContent = filtered.filter(function(x){return x.type==='out';}).length;
+
+  // ว่างไหม?
+  const box = $('reportList');
+  if(!filtered.length){
+    box.innerHTML = '<div class="empty"><div class="em">📭</div><div class="t">ไม่มีรายการในช่วงนี้</div><div class="s">ลองเปลี่ยนช่วงวันที่หรือตัวกรอง</div></div>';
+    return;
+  }
+
+  // จัดกลุ่มตามวันที่
+  const groups = {};
+  filtered.forEach(function(log){
+    if(!groups[log.date]) groups[log.date] = [];
+    groups[log.date].push(log);
+  });
+  const dates = Object.keys(groups).sort().reverse();
+
+  box.innerHTML = dates.map(function(date){
+    const logs = groups[date];
+    const dt = new Date(date+'T00:00:00');
+    const dows = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+    const dateLabel = logs[0].dateDM + ' · วัน' + dows[dt.getDay()];
+    return '<div class="date-group">'
+      +'<h3>'+dateLabel+' <span class="day-count">('+logs.length+' รายการ)</span></h3>'
+      +'<div class="log-grid">'
+      + logs.map(function(log, idx){
+        const typeBadge = log.type === 'in' ? '<div class="type-badge in">🟢 เข้า</div>' : '<div class="type-badge out">🔴 ออก</div>';
+        const geoBadge = log.inGeofence
+          ? '<div class="geo-badge">✓ ในเขต</div>'
+          : '<div class="geo-badge warn">⚠️ '+Math.round(log.distance)+'m</div>';
+        const img = log.imgUrl
+          ? '<img src="'+log.imgUrl+'" alt="" loading="lazy">'
+          : '<div class="no-img">🖼</div>';
+        return '<div class="log-card" data-d="'+date+'" data-i="'+idx+'">'
+          +'<div class="img-box">'+img+typeBadge+geoBadge+'</div>'
+          +'<div class="info">'
+            +'<div class="time">'+String(log.time).slice(0,5)+'</div>'
+            +'<div class="name">'+escHtml(log.staff)+'</div>'
+            +'<div class="addr">📍 '+escHtml(log.address || '-')+'</div>'
+          +'</div>'
+        +'</div>';
+      }).join('')
+      +'</div></div>';
+  }).join('');
+
+  // bind click
+  box.querySelectorAll('.log-card').forEach(function(c){
+    c.addEventListener('click', function(){
+      const date = c.dataset.d;
+      const idx = parseInt(c.dataset.i);
+      openLightbox(groups[date][idx]);
+    });
+  });
+}
+
+// Lightbox
+function openLightbox(log){
+  if(!log.imgUrl){ toast('ไม่มีรูปสำหรับรายการนี้'); return; }
+  $('lbImg').src = log.imgUrl;
+  const typeLabel = log.type === 'in' ? '🟢 เข้างาน' : '🔴 ออกงาน';
+  const geo = log.inGeofence ? '✓ ในเขตร้าน' : '⚠️ นอกเขต ('+Math.round(log.distance)+'m)';
+  $('lbInfo').innerHTML = '<b>'+typeLabel+' · '+String(log.time).slice(0,5)+'</b><br>'
+    +'👤 '+escHtml(log.staff)+' · '+log.dateDM+'<br>'
+    +'📍 '+escHtml(log.address || '-')+'<br>'
+    +'<small>'+geo+'</small>';
+  $('lightbox').classList.add('show');
+}
+$('lbClose').addEventListener('click', function(){ $('lightbox').classList.remove('show'); });
+$('lightbox').addEventListener('click', function(e){ if(e.target===$('lightbox')) $('lightbox').classList.remove('show'); });
+
+// init
+function printAttend(){
+  var filtered = allLogs.filter(function(log){
+    if(filter.type!=='all' && log.type!==filter.type) return false;
+    if(filter.staffId && log.staffId!==filter.staffId) return false;
+    return true;
+  });
+  if(!filtered.length){ toast('ไม่มีรายการให้พิมพ์'); return; }
+  var groups={}; filtered.forEach(function(l){ (groups[l.date]=groups[l.date]||[]).push(l); });
+  var dows=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  var dates=Object.keys(groups).sort().reverse();
+  var rows=[], nIn=0, nOut=0;
+  dates.forEach(function(date){
+    var logs=groups[date]; var dt=new Date(date+'T00:00:00');
+    rows.push({ head: logs[0].dateDM+' · วัน'+dows[dt.getDay()] });
+    logs.slice().sort(function(a,b){ return String(a.time).localeCompare(String(b.time)); }).forEach(function(log){
+      if(log.type==='in') nIn++; else nOut++;
+      var tg = log.type==='in'?'เข้า':'ออก';
+      var geo = log.inGeofence ? '✓ ในเขต' : ('⚠ นอกเขต '+Math.round(log.distance)+'m');
+      rows.push({ l: log.staff+' ('+tg+')', r: String(log.time).slice(0,5), sub: geo });
+    });
+  });
+  var staffName = (filter.staffId && $('staffFilter').selectedOptions && $('staffFilter').selectedOptions[0]) ? $('staffFilter').selectedOptions[0].textContent : 'ทุกคน';
+  maruPrintSlip({ title:'รายงานเข้า-ออกงาน', meta:['ช่วง '+($('dStart').value||'')+' ถึง '+($('dEnd').value||''), 'พนักงาน: '+staffName], rows:rows, summary:'เข้า '+nIn+' · ออก '+nOut+' · รวม '+filtered.length });
+}
+document.getElementById('attPrintBtn').addEventListener('click', printAttend);
+setRange('month');
+renderIcons();
+loadStaff();
+loadReport();
+</script>
+</body>
+</html>

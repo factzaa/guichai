@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>แดชบอร์ดสต๊อก · กุยช่ายสวรรค์</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* Range chips */
+.ranges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.rg{border:1.5px solid var(--line);background:#fff;color:var(--ink);padding:7px 14px;border-radius:20px;
+  font-family:'Kanit';font-weight:600;font-size:12.5px;cursor:pointer;white-space:nowrap;}
+.rg.on{background:linear-gradient(180deg,#EEC85E,#CBA236);color:#12351F;border-color:#C6982A;}
+
+.datebar{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:flex;
+  justify-content:space-between;align-items:center;margin-bottom:14px;font-family:'Kanit';font-weight:600;font-size:13px;}
+.datebar input[type=date]{background:transparent;border:0;color:var(--ink);font-family:'Kanit';font-size:13px;}
+.datebar .sep{color:#9C8F7A;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+.kpi{background:#fff;border-radius:13px;padding:13px 14px;}
+.kpi .h{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-2);font-weight:600;}
+.kpi .h .em{font-size:14px;}
+.kpi .v{font-family:'Kanit';font-weight:800;font-size:24px;color:var(--ink);line-height:1;margin-top:4px;}
+.kpi .v small{font-size:13px;font-weight:600;color:var(--ink-2);margin-left:3px;}
+.kpi .sub{font-size:11px;color:var(--ink-2);margin-top:2px;}
+.kpi.wd{border-top:3px solid #EF4444;}  .kpi.wd .v{color:#B91C1C;}
+.kpi.rc{border-top:3px solid #22C55E;}  .kpi.rc .v{color:#15803D;}
+.kpi.ws{border-top:3px solid #1E7A45;}  .kpi.ws .v{color:#155E38;}
+.kpi.mv{border-top:3px solid #3B82F6;}  .kpi.mv .v{color:#1E40AF;}
+
+/* Status pills row */
+.status-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.spill{background:#fff;border-radius:10px;padding:7px 12px;font-size:12px;font-family:'Kanit';font-weight:600;flex:1;text-align:center;min-width:80px;}
+.spill .n{font-family:'Kanit';font-weight:800;font-size:18px;display:block;line-height:1;margin-bottom:2px;}
+.spill .l{font-size:10.5px;color:var(--ink-2);font-weight:500;}
+.spill.ok .n{color:#15803D;}
+.spill.warn .n{color:#1E7A45;}
+.spill.bad .n{color:#B91C1C;}
+.spill.dead .n{color:#6B7280;}
+
+/* Section card */
+.sec-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:14px;}
+.sec-card .h{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-family:'Kanit';font-weight:700;font-size:14.5px;color:var(--ink);}
+.sec-card .h .em{font-size:18px;}
+.sec-card .h .badge{margin-left:auto;background:#F2EEDD;color:var(--ink-2);font-size:11px;font-weight:600;padding:2px 8px;border-radius:8px;}
+
+/* Top item bar */
+.top-list{display:flex;flex-direction:column;gap:8px;}
+.top-row{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;}
+.top-row .rk{font-family:'Kanit';font-weight:700;font-size:13px;color:var(--ink-2);text-align:center;}
+.top-row .rk.r1{color:#F59E0B;font-size:14px;}
+.top-row .rk.r2{color:#9CA3AF;}
+.top-row .rk.r3{color:#B45309;}
+.top-row .nm{font-size:13px;color:var(--ink);font-family:'Kanit';font-weight:600;line-height:1.3;}
+.top-row .nm small{color:var(--ink-2);font-weight:500;}
+.top-row .qty{font-family:'Kanit';font-weight:800;color:var(--ink);font-size:14px;text-align:right;white-space:nowrap;}
+.top-row .qty small{color:var(--ink-2);font-weight:500;font-size:11px;}
+.top-bar{grid-column:2/-1;height:5px;background:#F2EEDD;border-radius:3px;overflow:hidden;margin-top:3px;}
+.top-bar .fill{height:100%;border-radius:3px;}
+.top-bar .fill.wd{background:linear-gradient(90deg,#EF4444,#B91C1C);}
+.top-bar .fill.rc{background:linear-gradient(90deg,#22C55E,#15803D);}
+.top-bar .fill.ws{background:linear-gradient(90deg,#F59E0B,#155E38);}
+
+/* Daily movement chart (inline SVG) */
+.chart{width:100%;height:180px;}
+.chart-legend{display:flex;gap:14px;justify-content:center;margin-top:8px;font-size:12px;}
+.chart-legend .lg{display:flex;align-items:center;gap:5px;font-family:'Kanit';font-weight:600;color:var(--ink);}
+.chart-legend .lg .dot{width:10px;height:10px;border-radius:50%;}
+.chart-legend .lg.wd .dot{background:#EF4444;}
+.chart-legend .lg.rc .dot{background:#22C55E;}
+
+/* Weekday pattern bars */
+.dow-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.dow-col{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.dow-col .bar-wrap{width:100%;height:80px;display:flex;flex-direction:column;justify-content:flex-end;}
+.dow-col .bar{background:linear-gradient(180deg,#E6B83C,#1E7A45);border-radius:5px 5px 0 0;min-height:3px;}
+.dow-col .lbl{font-size:11px;color:var(--ink-2);font-family:'Kanit';font-weight:600;}
+.dow-col .num{font-size:10.5px;color:var(--ink);font-family:'Kanit';font-weight:700;}
+
+/* Forecast/Dead stock */
+.fc-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;margin-bottom:5px;}
+.fc-row.crit{background:#FEF2F2;border-left:3px solid #EF4444;}
+.fc-row.warn{background:#FFFBEB;border-left:3px solid #F59E0B;}
+.fc-row.ok{background:#F0FDF4;border-left:3px solid #22C55E;}
+.fc-row.dead{background:#F3F4F6;border-left:3px solid #9CA3AF;}
+.fc-row .info{flex:1;min-width:0;}
+.fc-row .nm{font-family:'Kanit';font-weight:600;font-size:13px;color:var(--ink);line-height:1.25;}
+.fc-row .meta{font-size:11px;color:var(--ink-2);margin-top:2px;}
+.fc-row .meta b{color:var(--ink);}
+.fc-row .days{text-align:right;flex:none;}
+.fc-row .days .d{font-family:'Kanit';font-weight:800;font-size:18px;line-height:1;}
+.fc-row .days .l{font-size:10px;color:var(--ink-2);}
+.fc-row.crit .days .d{color:#B91C1C;}
+.fc-row.warn .days .d{color:#155E38;}
+.fc-row.ok .days .d{color:#15803D;}
+
+/* Empty */
+.empty-mini{text-align:center;padding:14px;color:var(--ink-2);font-size:12.5px;}
+.empty-mini .em{font-size:28px;display:block;margin-bottom:5px;opacity:.5;}
+
+.loading{text-align:center;padding:40px 20px;color:var(--ink-2);font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <h1>แดชบอร์ดสต๊อก</h1>
+    <div class="sub">กุยช่ายสวรรค์ · ความเคลื่อนไหว + วิเคราะห์</div>
+  </div>
+
+  <div class="sheet">
+
+    <div class="ranges" id="ranges">
+      <button class="rg" data-r="today">วันนี้</button>
+      <button class="rg" data-r="7">7 วัน</button>
+      <button class="rg" data-r="30">30 วัน</button>
+      <button class="rg on" data-r="month">เดือนนี้</button>
+    </div>
+    <div class="datebar">
+      <input type="date" id="dStart">
+      <span class="sep">ถึง</span>
+      <input type="date" id="dEnd">
+    </div>
+
+    <div id="content"><div class="loading">กำลังโหลด...</div></div>
+
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+injectShell('stockDashboard');
+registerSW();
+
+const $ = function(id){return document.getElementById(id);};
+let dashData = null;
+
+function setRange(r){
+  const today = new Date();
+  const fmt2 = function(d){
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  };
+  let start = today, end = today;
+  if(r === '7'){ start = new Date(today); start.setDate(start.getDate()-6); }
+  else if(r === '30'){ start = new Date(today); start.setDate(start.getDate()-29); }
+  else if(r === 'month'){ start = new Date(today.getFullYear(), today.getMonth(), 1); }
+  $('dStart').value = fmt2(start);
+  $('dEnd').value = fmt2(end);
+}
+
+document.querySelectorAll('.rg').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    setRange(b.dataset.r);
+    loadDashboard();
+  });
+});
+$('dStart').addEventListener('change', function(){
+  document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');});
+  loadDashboard();
+});
+$('dEnd').addEventListener('change', function(){
+  document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');});
+  loadDashboard();
+});
+
+function loadDashboard(){
+  $('content').innerHTML = '<div class="loading">กำลังโหลด...</div>';
+  apiSWR('getStockDashboard', { start: $('dStart').value, end: $('dEnd').value }, function(r){
+    dashData = r;
+    render();
+  }).catch(function(err){
+    $('content').innerHTML = '<div class="loading" style="color:var(--red);">โหลดไม่ได้: '+escHtml(err.message)+'</div>';
+  });
+}
+
+function render(){
+  const s = dashData.summary;
+  const days = dashData.range.days;
+
+  let html = '';
+
+  // === KPI ===
+  html += '<div class="kpi-grid">'
+    +'<div class="kpi wd"><div class="h"><span class="em">📤</span> เบิกออก</div>'
+      +'<div class="v">'+s.totalWdTx+'<small>ครั้ง</small></div>'
+      +'<div class="sub">รวม '+fmtNum(s.totalWdQty)+' หน่วย · เฉลี่ย '+s.avgWdPerDay+'/วัน</div></div>'
+    +'<div class="kpi rc"><div class="h"><span class="em">📥</span> รับเข้า</div>'
+      +'<div class="v">'+s.totalRcTx+'<small>ครั้ง</small></div>'
+      +'<div class="sub">รวม '+fmtNum(s.totalRcQty)+' หน่วย</div></div>'
+    +'<div class="kpi ws"><div class="h"><span class="em">🗑</span> ของเสีย</div>'
+      +'<div class="v">'+fmtNum(s.totalWasted)+'<small>หน่วย</small></div>'
+      +'<div class="sub">ในช่วง '+days+' วัน</div></div>'
+    +'<div class="kpi mv"><div class="h"><span class="em">🔄</span> มีการเคลื่อนไหว</div>'
+      +'<div class="v">'+s.movedItems+'<small>/'+s.activeItems+'</small></div>'
+      +'<div class="sub">จากรายการที่ใช้งาน '+s.activeItems+' รายการ</div></div>'
+  +'</div>';
+
+  // === Status pills ===
+  html += '<div class="status-row">'
+    +'<div class="spill ok"><span class="n">'+(s.activeItems-s.lowStockItems-s.outOfStockItems)+'</span><span class="l">✓ ปกติ</span></div>'
+    +'<div class="spill warn"><span class="n">'+s.lowStockItems+'</span><span class="l">⚠️ ใกล้หมด</span></div>'
+    +'<div class="spill bad"><span class="n">'+s.outOfStockItems+'</span><span class="l">🚫 หมดสต๊อก</span></div>'
+    +'<div class="spill dead"><span class="n">'+s.deadItems+'</span><span class="l">💤 ไม่เคลื่อนไหว</span></div>'
+  +'</div>';
+
+  // === Daily Movement Chart ===
+  html += '<div class="sec-card"><div class="h"><span class="em">📈</span> ความเคลื่อนไหวรายวัน'
+    +'<span class="badge">'+dashData.dailyMovement.length+' วันที่มีกิจกรรม</span></div>';
+  if(dashData.dailyMovement.length === 0){
+    html += '<div class="empty-mini"><span class="em">📊</span>ไม่มีความเคลื่อนไหวในช่วงนี้</div>';
+  } else {
+    html += renderDailyChart(dashData.dailyMovement)
+      +'<div class="chart-legend">'
+        +'<div class="lg wd"><span class="dot"></span> เบิกออก</div>'
+        +'<div class="lg rc"><span class="dot"></span> รับเข้า</div>'
+      +'</div>';
+  }
+  html += '</div>';
+
+  // === Weekday Pattern ===
+  const totalWdDow = dashData.weekdayPattern.reduce(function(a,b){return a+b.count;}, 0);
+  if (totalWdDow > 0) {
+    html += '<div class="sec-card"><div class="h"><span class="em">📅</span> ความถี่การเบิกตามวัน<span class="badge">รายสัปดาห์</span></div>'
+      + renderWeekday(dashData.weekdayPattern)
+    +'</div>';
+  }
+
+  // === Top withdrawn ===
+  html += '<div class="sec-card"><div class="h"><span class="em">🏆</span> Top รายการที่เบิกมากที่สุด<span class="badge">'+dashData.topWithdrawn.length+' รายการ</span></div>'
+    + renderTopList(dashData.topWithdrawn, 'wdQty', 'wd', 'wdTx')
+  +'</div>';
+
+  // === Forecast — ของที่น่าจะหมดเร็ว ===
+  if (dashData.forecast.length > 0) {
+    html += '<div class="sec-card"><div class="h"><span class="em">⏰</span> ของที่น่าจะหมดเร็ว (ตามอัตราใช้จริง)</div>'
+      + dashData.forecast.map(function(f){
+        const st = f.status || (f.daysLeft!=null && f.daysLeft<=3 ? 'critical' : 'low');
+        const cls = (st==='out'||st==='critical') ? 'crit' : (st==='low' ? 'warn' : 'ok');
+        const noRate = (f.daysLeft==null);
+        const dLabel = noRate ? '—' : (f.daysLeft>=100?'100+':f.daysLeft);
+        const dUnit  = noRate ? '' : 'วัน';
+        const bm = f.belowMin ? ' · 🔔ต่ำกว่าจุดเตือน '+(f.minStock||0) : '';
+        return '<div class="fc-row '+cls+'">'
+          +'<div class="info"><div class="nm">'+escHtml(f.name)+'</div>'
+            +'<div class="meta">เหลือ <b>'+f.balance+' '+escHtml(f.unit)+'</b> · ใช้ '+(noRate?'0':f.avgDaily)+'/วัน'+bm+'</div></div>'
+          +'<div class="days"><div class="d">'+dLabel+'</div><div class="l">'+dUnit+'</div></div>'
+        +'</div>';
+      }).join('')
+    +'</div>';
+  }
+
+  // === Top Received ===
+  if (dashData.topReceived.length > 0) {
+    html += '<div class="sec-card"><div class="h"><span class="em">📥</span> Top รายการที่รับเข้าบ่อย<span class="badge">'+dashData.topReceived.length+' รายการ</span></div>'
+      + renderTopList(dashData.topReceived, 'rcQty', 'rc', 'rcTx')
+    +'</div>';
+  }
+
+  // === Top Wasted ===
+  if (dashData.topWasted.length > 0) {
+    html += '<div class="sec-card"><div class="h"><span class="em">🗑</span> รายการที่มีของเสียมากที่สุด</div>'
+      + renderTopList(dashData.topWasted, 'wasted', 'ws')
+    +'</div>';
+  }
+
+  // === Dead Stock ===
+  if (dashData.deadStock.length > 0) {
+    html += '<div class="sec-card"><div class="h"><span class="em">💤</span> รายการที่ไม่เคลื่อนไหว<span class="badge">มีของเหลือ</span></div>'
+      + '<div style="font-size:12px;color:var(--ink-2);margin-bottom:8px;">รายการเหล่านี้<b>มีของในสต๊อก</b>แต่ไม่มีการเบิก/รับเข้า ในช่วงเวลานี้ — พิจารณาว่ายังจำเป็นต้องมีหรือไม่</div>'
+      + dashData.deadStock.map(function(d){
+        return '<div class="fc-row dead">'
+          +'<div class="info"><div class="nm">'+escHtml(d.name)+'</div>'
+            +'<div class="meta">หมวด: '+escHtml(d.category)+'</div></div>'
+          +'<div class="days"><div class="d" style="color:#6B7280;">'+d.balance+'</div><div class="l">'+escHtml(d.unit)+'</div></div>'
+        +'</div>';
+      }).join('')
+    +'</div>';
+  }
+
+  $('content').innerHTML = html;
+}
+
+// ===== Render helpers =====
+function fmtNum(n){
+  return (Math.round(n*100)/100).toLocaleString('en-US');
+}
+
+function renderTopList(items, qtyKey, barCls, txKey){
+  if(!items || !items.length) return '<div class="empty-mini"><span class="em">📭</span>ไม่มีข้อมูล</div>';
+  const max = Math.max.apply(null, items.map(function(x){return x[qtyKey];}));
+  return '<div class="top-list">'+items.map(function(it, i){
+    const pct = max > 0 ? (it[qtyKey]/max*100) : 0;
+    const rkCls = i < 3 ? ' r'+(i+1) : '';
+    const txInfo = txKey ? '<small> · '+it[txKey]+' ครั้ง</small>' : '';
+    return '<div class="top-row">'
+      +'<div class="rk'+rkCls+'">'+(i+1)+'</div>'
+      +'<div class="nm">'+escHtml(it.name)+'<small> ('+escHtml(it.category)+')</small></div>'
+      +'<div class="qty">'+fmtNum(it[qtyKey])+'<small> '+escHtml(it.unit)+'</small>'+txInfo+'</div>'
+      +'<div></div><div class="top-bar"><div class="fill '+barCls+'" style="width:'+pct+'%"></div></div>'
+    +'</div>';
+  }).join('')+'</div>';
+}
+
+function renderDailyChart(data){
+  // คำนวณ scale + render เป็น SVG line chart
+  if(data.length === 0) return '';
+  const W = 360, H = 160, pad = {l: 28, r: 8, t: 8, b: 22};
+  const maxV = Math.max.apply(null, data.map(function(d){return Math.max(d.withdraws, d.receives);}));
+  const innerW = W - pad.l - pad.r, innerH = H - pad.t - pad.b;
+  const xStep = data.length > 1 ? innerW / (data.length - 1) : 0;
+  const yScale = function(v){ return pad.t + innerH - (v/(maxV||1) * innerH); };
+
+  // x ticks (สูงสุด 6 ticks)
+  const tickStep = Math.max(1, Math.ceil(data.length / 6));
+
+  // y grid lines (4 lines)
+  let yGrid = '';
+  for(let i = 0; i <= 4; i++){
+    const v = maxV * i / 4;
+    const y = yScale(v);
+    yGrid += '<line x1="'+pad.l+'" y1="'+y+'" x2="'+(W-pad.r)+'" y2="'+y+'" stroke="#F0E4C4" stroke-width="1"/>';
+    yGrid += '<text x="'+(pad.l-3)+'" y="'+(y+3)+'" font-size="9" fill="#9CA3AF" font-family="Kanit" text-anchor="end">'+Math.round(v)+'</text>';
+  }
+
+  // Lines
+  const wdPath = data.map(function(d, i){
+    return (i===0?'M':'L')+(pad.l + i*xStep)+','+yScale(d.withdraws);
+  }).join(' ');
+  const rcPath = data.map(function(d, i){
+    return (i===0?'M':'L')+(pad.l + i*xStep)+','+yScale(d.receives);
+  }).join(' ');
+
+  // Dots
+  let dots = '';
+  data.forEach(function(d, i){
+    const x = pad.l + i*xStep;
+    if (d.withdraws > 0) dots += '<circle cx="'+x+'" cy="'+yScale(d.withdraws)+'" r="3" fill="#EF4444"/>';
+    if (d.receives > 0) dots += '<circle cx="'+x+'" cy="'+yScale(d.receives)+'" r="3" fill="#22C55E"/>';
+  });
+
+  // X-axis labels
+  let xLabels = '';
+  data.forEach(function(d, i){
+    if(i % tickStep === 0 || i === data.length-1){
+      const x = pad.l + i*xStep;
+      xLabels += '<text x="'+x+'" y="'+(H-pad.b+12)+'" font-size="9" fill="#9CA3AF" font-family="Kanit" text-anchor="middle">'+d.dateDM.substring(0,5)+'</text>';
+    }
+  });
+
+  return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">'
+    + yGrid
+    + '<path d="'+wdPath+'" fill="none" stroke="#EF4444" stroke-width="2"/>'
+    + '<path d="'+rcPath+'" fill="none" stroke="#22C55E" stroke-width="2"/>'
+    + dots
+    + xLabels
+    +'</svg>';
+}
+
+function renderWeekday(weekday){
+  const max = Math.max.apply(null, weekday.map(function(d){return d.count;}));
+  return '<div class="dow-grid">'+weekday.map(function(d){
+    const pct = max > 0 ? (d.count/max*100) : 0;
+    const height = Math.max(3, pct * 0.78);
+    return '<div class="dow-col">'
+      +'<div class="num">'+d.count+'</div>'
+      +'<div class="bar-wrap"><div class="bar" style="height:'+height+'px"></div></div>'
+      +'<div class="lbl">'+d.dow+'</div>'
+    +'</div>';
+  }).join('')+'</div>';
+}
+
+renderIcons();
+setRange('month');
+loadDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>รายงานสรุปค่าใช้จ่าย · กุยช่ายสวรรค์</title>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="shared.css">
+<style>
+  :root{--yellow:#E6B83C;--cream:#FFFCEF;--ink:#143D26;--ink-2:#5A5247;--line:#E8DFC4;--red:#D02C2C;--green:#1E9E50;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:'Sarabun',sans-serif;background:#FAF6E8;color:var(--ink);min-height:100vh;}
+  .app{max-width:1100px;margin:0 auto;padding:0 0 60px;}
+
+  .head{background:linear-gradient(180deg,#E6B83C,#C6982A);color:#12351F;padding:20px 18px 22px;padding-left:62px;border-radius:0 0 24px 24px;}
+  .head .top{display:flex;align-items:center;gap:12px;}
+  .head .top img{width:44px;height:44px;border-radius:11px;}
+  .head h1{font-family:'Kanit';font-weight:700;font-size:19px;color:#143D26;margin:0;line-height:1.2;}
+  .head .sub{font-size:12px;color:#12351F;margin-top:2px;}
+
+  .filters{background:#fff;border-radius:0;padding:14px 18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);position:sticky;top:0;z-index:10;}
+  .filters .field{display:flex;flex-direction:column;gap:4px;}
+  .filters label{font-size:11px;color:var(--ink-2);font-weight:600;}
+  .filters input,.filters select{border:1.5px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13px;
+    font-family:'Kanit';background:#fff;}
+  .filters .ranges{display:flex;gap:6px;align-items:flex-end;flex:1;flex-wrap:wrap;}
+  .filters .rg{border:1.5px solid var(--line);background:#fff;color:var(--ink);padding:8px 12px;border-radius:9px;
+    font-family:'Kanit';font-weight:600;font-size:12.5px;cursor:pointer;}
+  .filters .rg.on{background:linear-gradient(180deg,#EEC85E,#CBA236);color:#12351F;border-color:#C6982A;}
+  .filters .btn-go{background:var(--yellow);color:var(--ink);border:0;font-family:'Kanit';font-weight:700;
+    padding:9px 16px;border-radius:9px;cursor:pointer;font-size:13px;}
+
+  .body{padding:16px 14px;}
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:18px;}
+  .kpi{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  .kpi .l{font-size:11px;color:var(--ink-2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  .kpi .v{font-family:'Kanit';font-weight:700;font-size:24px;color:var(--ink);margin-top:4px;}
+  .kpi.red .v{color:var(--red);}
+  .kpi.green .v{color:var(--green);}
+  .kpi .sub{font-size:11px;color:var(--ink-2);margin-top:2px;}
+
+  /* ---------- KPI Dashboard for Manager ---------- */
+  .mgr-kpi{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:18px;
+    color:var(--ink);box-shadow:0 4px 16px rgba(120,86,0,.10);}
+  .mgr-kpi .mh{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .mgr-kpi .mh .em{font-size:22px;}
+  .mgr-kpi .mh .tl{font-family:'Kanit';font-weight:700;font-size:17px;color:#143D26;}
+  .mgr-kpi .mh .ds{font-size:12px;color:var(--ink-2);margin-top:1px;}
+  .mgr-kpi .gauges{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
+  .gauge{background:#FFFAEC;border:1px solid var(--line);border-radius:14px;padding:16px 18px;}
+  .gauge .gt{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px;}
+  .gauge .gt .lbl{font-family:'Kanit';font-weight:600;font-size:13px;color:var(--ink-2);}
+  .gauge .gt .pill{font-family:'Kanit';font-weight:700;font-size:11px;padding:3px 10px;border-radius:20px;color:#fff;}
+  .gauge .gt .pill.good{background:#1E9E50;}
+  .gauge .gt .pill.warn{background:#1E7A45;}
+  .gauge .gt .pill.bad{background:#D02C2C;}
+  .gauge .val{font-family:'Kanit';font-weight:800;font-size:30px;line-height:1;margin-bottom:8px;}
+  .gauge .val .small{font-size:18px;color:#8A8170;font-weight:500;margin-left:3px;}
+  .gauge.good .val{color:#1E9E50;}
+  .gauge.warn .val{color:#1E7A45;}
+  .gauge.bad  .val{color:#D02C2C;}
+  .gauge .bar-wrap{position:relative;height:10px;background:#EFE7CF;border-radius:6px;overflow:visible;margin:14px 0 8px;}
+  .gauge .bar{position:absolute;top:0;left:0;height:100%;border-radius:6px;transition:width .8s cubic-bezier(.2,.8,.2,1);
+    background:linear-gradient(90deg,#1E9E50,#5EE6A4);}
+  .gauge.warn .bar{background:linear-gradient(90deg,#1E7A45,#45A16E);}
+  .gauge.bad  .bar{background:linear-gradient(90deg,#D02C2C,#FF7878);}
+  .gauge .target-mark{position:absolute;top:-3px;width:2px;height:16px;background:#B8891F;border-radius:2px;}
+  .gauge .target-mark::after{content:attr(data-label);position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+    font-size:9.5px;font-weight:700;color:#B8891F;white-space:nowrap;font-family:'Kanit';}
+  .gauge .gfoot{font-size:12px;color:var(--ink-2);line-height:1.4;}
+  .gauge .gfoot b{color:var(--ink);font-family:'Kanit';font-weight:600;}
+
+  .insight-box{margin-top:16px;background:rgba(230,184,60,.1);border:1px solid rgba(230,184,60,.25);
+    border-radius:12px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;}
+  .insight-box.good{background:rgba(30,158,80,.12);border-color:rgba(94,230,164,.3);}
+  .insight-box.warn{background:rgba(30,122,69,.12);border-color:rgba(255,176,74,.35);}
+  .insight-box.bad {background:rgba(208,44,44,.15);border-color:rgba(255,120,120,.4);}
+  .insight-box .em2{font-size:18px;flex:none;line-height:1.3;}
+  .insight-box .txt{font-size:13px;color:var(--ink-2);line-height:1.5;}
+  .insight-box .txt b{color:#143D26;font-family:'Kanit';font-weight:700;}
+  .insight-box.bad .txt b{color:#FF9898;}
+  .insight-box.good .txt b{color:#1E9E50;}
+
+  @media (max-width:560px){
+    .mgr-kpi{padding:18px 14px;}
+    .mgr-kpi .gauges{grid-template-columns:1fr;}
+    .gauge .val{font-size:26px;}
+  }
+
+  .group{margin-bottom:24px;}
+  .group-h{font-family:'Kanit';font-weight:700;font-size:14px;color:var(--ink-2);margin:0 4px 10px;
+    display:flex;align-items:center;gap:8px;}
+  .group-h .dot{width:8px;height:8px;border-radius:50%;background:var(--ink);}
+  .group-h .cnt{margin-left:auto;font-weight:500;color:var(--ink-2);font-size:12px;}
+
+  .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+  .item{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);
+    display:flex;flex-direction:column;transition:.2s;}
+  .item:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.1);}
+  .item .pic{aspect-ratio:1;background:#F2EEDD url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="%23BFB59A" stroke-width="1.5"%3E%3Crect x="3" y="3" width="18" height="18" rx="2"/%3E%3Ccircle cx="8.5" cy="8.5" r="1.5"/%3E%3Cpolyline points="21 15 16 10 5 21"/%3E%3C/svg%3E') no-repeat center;
+    cursor:pointer;position:relative;background-size:50px;}
+  .item .pic img{width:100%;height:100%;object-fit:cover;display:block;}
+  .item .badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);color:#fff;font-size:10.5px;
+    font-weight:600;padding:3px 8px;border-radius:6px;font-family:'Kanit';}
+  .item .badge.biz{background:rgba(208,44,44,.85);}
+  .item .info{padding:10px 13px 12px;}
+  .item .nm{font-family:'Kanit';font-weight:600;font-size:14px;color:var(--ink);line-height:1.3;
+    overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .item .meta{display:flex;justify-content:space-between;align-items:center;margin-top:6px;}
+  .item .dt{font-size:11.5px;color:var(--ink-2);}
+  .item .amt{font-family:'Kanit';font-weight:700;font-size:15px;color:var(--red);}
+
+  .empty{text-align:center;padding:40px 20px;color:var(--ink-2);}
+  .empty .ic{font-size:40px;margin-bottom:8px;}
+  .loading{text-align:center;padding:40px;color:var(--ink-2);}
+
+  /* Lightbox */
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;
+    z-index:100;padding:18px;cursor:pointer;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;box-shadow:0 4px 30px rgba(0,0,0,.6);}
+  .lightbox .lb-close{position:absolute;top:18px;right:18px;background:rgba(255,255,255,.15);color:#fff;border:0;
+    width:42px;height:42px;border-radius:50%;font-size:22px;cursor:pointer;backdrop-filter:blur(8px);}
+  .lightbox .lb-info{position:absolute;bottom:18px;left:18px;right:18px;background:rgba(0,0,0,.7);color:#fff;
+    padding:12px 16px;border-radius:12px;backdrop-filter:blur(8px);}
+  .lightbox .lb-info .nm{font-family:'Kanit';font-weight:700;font-size:15px;}
+  .lightbox .lb-info .meta{font-size:12.5px;color:#D4CFC4;margin-top:3px;display:flex;gap:12px;flex-wrap:wrap;}
+  .lightbox .lb-info .amt{color:#E6B83C;font-family:'Kanit';font-weight:700;}
+
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#143D26;color:#E6B83C;
+    padding:12px 18px;border-radius:14px;font-family:'Kanit';font-weight:600;font-size:13.5px;opacity:0;transition:.25s;z-index:50;}
+  .toast.show{opacity:1;}
+
+  @media (max-width:560px){
+    .head .sub{font-size:11px;}
+    .filters{flex-direction:column;align-items:stretch;}
+    .filters .ranges{flex:none;}
+    .summary{grid-template-columns:repeat(2,1fr);}
+    .kpi .v{font-size:18px;}
+    .items{grid-template-columns:repeat(2,1fr);gap:8px;}
+    .item .nm{font-size:13px;}
+    .item .amt{font-size:13.5px;}
+  }
+</style>
+</head>
+<body>
+<!-- เมนู (self-contained — ไม่โหลด shared.js กันชน api ซ้ำ) -->
+<button class="hamburger" id="hamburger" aria-label="เมนู"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+<div class="sidebar-backdrop" id="sbBackdrop"></div>
+<aside class="sidebar" id="sidebar"><div class="sb-head"><img src="icon-192.png" alt=""><div><div class="sb-title">กุยช่ายสวรรค์</div><div class="sb-sub">ระบบบริหารร้าน</div></div><button class="sb-close" id="sbClose">✕</button></div><nav class="sb-nav"><a class="sb-item" href="index.html"><span class="si" data-icon="home"></span>หน้าแรก</a><div class="sb-card"><div class="sb-cap">⭐ ทำประจำวัน</div><a class="sb-item" href="records.html#report"><span class="si" data-icon="clipboard"></span>บันทึกรายงานสิ้นวัน</a><a class="sb-item" href="records.html#bizexp"><span class="si" data-icon="wallet"></span>บันทึกค่าใช้จ่าย</a><a class="sb-item" href="stock-withdraw.html"><span class="si" data-icon="pkgout"></span>เบิกของ</a><a class="sb-item" href="stock-receive.html"><span class="si" data-icon="pkgin"></span>รับของเข้า</a><a class="sb-item" href="attend.html"><span class="si" data-icon="clock"></span>บันทึกเข้างาน</a><a class="sb-item" href="stock-close.html"><span class="si" data-icon="moon"></span>ปิดร้าน (สรุปสต๊อก)</a></div><div class="sb-card"><div class="sb-cap">📊 รายงาน</div><a class="sb-item" href="records.html#dash"><span class="si" data-icon="bars"></span>แดชบอร์ดยอดขาย</a><a class="sb-item active" href="expenses-report.html"><span class="si" data-icon="pie"></span>รายงานสรุปค่าใช้จ่าย</a><a class="sb-item" href="stock-dashboard.html"><span class="si" data-icon="boxes"></span>แดชบอร์ดสต๊อก</a><a class="sb-item" href="stock-history.html"><span class="si" data-icon="history"></span>ประวัติเคลื่อนไหวสต๊อก</a><a class="sb-item" href="stock-view.html"><span class="si" data-icon="store"></span>ตรวจสต๊อก</a><a class="sb-item" href="attend-report.html"><span class="si" data-icon="users"></span>รายงานเข้า-ออกงาน</a><a class="sb-item" href="stock-audit-report.html"><span class="si" data-icon="listcheck"></span>ประวัติออดิท</a></div><div class="sb-card"><div class="sb-cap">⚙️ จัดการ / ตั้งค่า</div><a class="sb-item" href="stock-manage.html"><span class="si" data-icon="editlist"></span>จัดการรายการสต๊อก</a><a class="sb-item" href="stock-audit.html"><span class="si" data-icon="search"></span>ออดิทสต๊อก</a><a class="sb-item" href="attend-setup.html"><span class="si" data-icon="usercog"></span>จัดการพนักงาน/สาขา</a><a class="sb-item" href="payments.html"><span class="si" data-icon="card"></span>การจ่ายเงิน</a><a class="sb-item" href="cash-remit.html"><span class="si" data-icon="cashsend"></span>เงินสดนำส่ง</a></div><div class="sb-card"><div class="sb-cap">🥟 อื่นๆ</div><a class="sb-item" href="assistant.html"><span class="si" data-icon="chat"></span>ผู้ช่วยกุยช่าย</a><a class="sb-item" href="manual.html"><span class="si" data-icon="book"></span>คู่มือการใช้งาน</a></div></nav><div class="sb-foot">🥟 ข้อมูลเก็บใน Supabase</div></aside>
+<script>(function(){var h=document.getElementById("hamburger"),sb=document.getElementById("sidebar"),bd=document.getElementById("sbBackdrop"),cl=document.getElementById("sbClose");function op(){sb.classList.add("show");bd.classList.add("show");}function cls(){sb.classList.remove("show");bd.classList.remove("show");}if(h)h.addEventListener("click",op);if(bd)bd.addEventListener("click",cls);if(cl)cl.addEventListener("click",cls);})();</script>
+
+
+<div class="app">
+  <div class="head">
+    <div class="top">
+      <img src="icon-192.png" alt="">
+      <div>
+        <h1>📋 รายงานสรุปค่าใช้จ่าย</h1>
+        <div class="sub">กุยช่ายสวรรค์ · พร้อมหลักฐานทุกรายการ</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="field">
+      <label>จากวันที่</label>
+      <input type="date" id="fStart">
+    </div>
+    <div class="field">
+      <label>ถึงวันที่</label>
+      <input type="date" id="fEnd">
+    </div>
+    <div class="field">
+      <label>ประเภท</label>
+      <select id="fType">
+        <option value="all">ทั้งหมด</option>
+        <option value="pos">ค่าใช้จ่ายจากรอบขาย (POS)</option>
+        <option value="biz">ค่าใช้จ่ายระหว่างวัน (สั่งของ/วัตถุดิบ)</option>
+      </select>
+    </div>
+    <div class="ranges">
+      <button class="rg" data-r="7">7 วัน</button>
+      <button class="rg" data-r="30">30 วัน</button>
+      <button class="rg on" data-r="month">เดือนนี้</button>
+      <button class="rg" data-r="90">90 วัน</button>
+    </div>
+    <button class="btn-go" id="goLoad">ดูรายงาน</button>
+  </div>
+
+  <div class="body">
+    <div id="mgrKpi"></div>
+    <div class="summary" id="summary"></div>
+    <div id="results"><div class="loading">กำลังโหลด...</div></div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lbClose">✕</button>
+  <img id="lbImg" alt="">
+  <div class="lb-info" id="lbInfo"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxM4wS8A69veJY-4YTXJg2nbQKC-AaG88VDLSfp_SHX9SsUf2yhd6xv4ICKJPyVHnLDeg/exec';
+
+  // === KPI เป้าหมาย (สำหรับวัดผลงานผู้จัดการ) ===
+  const KPI_COST_RATIO_MAX  = 30;        // ค่าใช้จ่ายต้องไม่เกิน 30% ของยอดขาย
+  const KPI_DAILY_SALES_MIN = 3666.67;   // ยอดขายเฉลี่ยต่อวันต้องไม่ต่ำกว่า ฿3,666.67
+  const KPI_MONTHLY_SALES   = 110000;    // (อ้างอิง) ยอดขายต่อเดือนเป้าหมาย
+
+  function toast(msg){
+    const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');},2400);
+  }
+  function fmt(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function baht(n){return '฿'+Math.round(Number(n)||0).toLocaleString('en-US');}
+
+  // ===== Supabase (ย้ายจาก Apps Script) =====
+// ============================================================
+// ⚠️  กุยช่ายสวรรค์ — แก้ URL + KEY ตรงนี้เมื่อมี Supabase ของแบรนด์ใหม่
+//    ตอนนี้ยังชี้ไปฐานข้อมูลเดิมของ Maru (ข้อมูลจะปนกัน)
+// ============================================================
+  const SB_URL = 'https://sfdahyvekfcxoprkshko.supabase.co';
+  const SB_KEY = 'sb_publishable_632DkQ4uOHjIGWr-_c7hCA_WgFHe3jT';
+  async function sbFetch(path){
+    const r = await fetch(SB_URL + '/rest/v1/' + path, { headers:{ apikey:SB_KEY, Authorization:'Bearer ' + SB_KEY } });
+    if(!r.ok) throw new Error('Supabase ' + r.status + ': ' + (await r.text()).slice(0,150));
+    return r.json();
+  }
+  function sbDM(s){ const p = String(s).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function sbDateTimeDM(v){ if(!v) return ''; const d = new Date(v); if(isNaN(d.getTime())) return ''; const p = function(n){ return ('0'+n).slice(-2); }; return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+  async function sbGetExpensesReport(prm){
+    const start = prm.start || '0000-01-01', end = prm.end || '9999-12-31', type = prm.type || 'all';
+    const [expRows, salesRows] = await Promise.all([
+      sbFetch('expenses?select=exp_date,item,amount,receipt_url,type,created_at'),
+      sbFetch('sales?select=sale_date,total')
+    ]);
+    const items = []; let total = 0, posTotal = 0, bizTotal = 0, totalExpAll = 0;
+    expRows.forEach(function(r){
+      const d = r.exp_date; if(d < start || d > end) return;
+      const t = r.type || 'pos';
+      totalExpAll += Number(r.amount) || 0;
+      if(type !== 'all' && t !== type) return;
+      const amt = Number(r.amount) || 0;
+      items.push({ date:d, dateDM:sbDM(d), item:r.item || '', amount:amt, url:r.receipt_url || '', type:t, ts:sbDateTimeDM(r.created_at) });
+      total += amt; if(t === 'biz') bizTotal += amt; else posTotal += amt;
+    });
+    items.sort(function(a,b){ return b.date.localeCompare(a.date); });
+    let totalSales = 0, daysWithSales = 0;
+    salesRows.forEach(function(r){ const d = r.sale_date; if(d < start || d > end) return; const tt = Number(r.total)||0; if(tt > 0){ totalSales += tt; daysWithSales++; } });
+    const sD = new Date(start+'T00:00:00'), eD = new Date(end+'T00:00:00');
+    const daysInRange = Math.max(1, Math.round((eD - sD)/86400000) + 1);
+    return { items:items,
+      summary:{ count:items.length, total:total, byType:{ pos:posTotal, biz:bizTotal } },
+      sales:{ total:totalSales, daysWithSales:daysWithSales, daysInRange:daysInRange, totalExpenseAll:totalExpAll } };
+  }
+
+  async function api(action, params){
+    if(action === 'getExpensesReport') return await sbGetExpensesReport(params || {});
+    // เผื่อ action อื่น (ปัจจุบันไม่มีการเรียก) — ยังคง fallback เดิมไว้
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(Object.assign({action:action},params||{}))
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    return data;
+  }
+
+  // ตั้งวันที่เริ่มต้น (30 วันย้อนหลัง)
+  function initDates(){
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    document.getElementById('fStart').value = fmt(start);
+    document.getElementById('fEnd').value = fmt(today);
+  }
+  initDates();
+
+  // Range buttons
+  document.querySelectorAll('.rg').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      const today = new Date();
+      const d = new Date(today);
+      if(b.dataset.r==='7') d.setDate(d.getDate()-6);
+      else if(b.dataset.r==='30') d.setDate(d.getDate()-29);
+      else if(b.dataset.r==='90') d.setDate(d.getDate()-89);
+      else if(b.dataset.r==='month') d.setDate(1);
+      document.getElementById('fStart').value = fmt(d);
+      document.getElementById('fEnd').value = fmt(today);
+      load();
+    });
+  });
+
+  document.getElementById('goLoad').addEventListener('click', load);
+  document.getElementById('fType').addEventListener('change', load);
+
+  function groupByMonth(items){
+    const groups = {};
+    const monthLabels = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    items.forEach(function(e){
+      const parts = e.date.split('-');
+      const key = parts[0]+'-'+parts[1];
+      const label = monthLabels[parseInt(parts[1])-1] + ' ' + (parseInt(parts[0])+543).toString().slice(-2);
+      if(!groups[key]) groups[key] = { label:label, items:[], total:0 };
+      groups[key].items.push(e);
+      groups[key].total += Number(e.amount)||0;
+    });
+    return Object.keys(groups).sort().reverse().map(function(k){return groups[k];});
+  }
+
+  async function load(){
+    const start = document.getElementById('fStart').value;
+    const end = document.getElementById('fEnd').value;
+    const type = document.getElementById('fType').value;
+    document.getElementById('results').innerHTML = '<div class="loading">กำลังโหลด...</div>';
+    document.getElementById('summary').innerHTML = '';
+    document.getElementById('mgrKpi').innerHTML = '';
+    try{
+      const res = await api('getExpensesReport', { start:start, end:end, type:type });
+      renderManagerKPI(res.sales || {}, res.summary || {});
+      renderSummary(res.summary, type);
+      renderItems(res.items || []);
+    }catch(err){
+      document.getElementById('results').innerHTML = '<div class="empty"><div class="ic">⚠️</div>โหลดไม่ได้: '+err.message+'</div>';
+    }
+  }
+
+  function renderManagerKPI(sales, summary){
+    const totalSales = Number(sales.total) || 0;
+    const totalExpAll = Number(sales.totalExpenseAll) || 0;
+    const daysWithSales = Math.max(1, Number(sales.daysWithSales) || 0);
+    const daysInRange = Math.max(1, Number(sales.daysInRange) || 0);
+
+    // ถ้ายังไม่มียอดขายเลยในช่วงนี้ ก็ไม่ต้องโชว์ KPI
+    if (totalSales <= 0) {
+      document.getElementById('mgrKpi').innerHTML = '';
+      return;
+    }
+
+    // ข้อความช่วงวันที่ที่กำลังดู
+    const startDM = (document.getElementById('fStart').value || '').split('-').reverse().join('/');
+    const endDM   = (document.getElementById('fEnd').value   || '').split('-').reverse().join('/');
+    const rangeLabel = startDM + ' - ' + endDM + ' (' + daysInRange + ' วัน)';
+
+    // คำนวณ
+    const ratio = (totalExpAll / totalSales) * 100; // %
+    const avgDaily = totalSales / daysWithSales;
+
+    // -- Cost Ratio status --
+    let costStatus, costPill, costMsg;
+    if (ratio <= KPI_COST_RATIO_MAX) {
+      costStatus = 'good'; costPill = '✓ อยู่ในเกณฑ์';
+      costMsg = 'บริหารค่าใช้จ่ายได้ดี <b>ต่ำกว่าเป้า ' + (KPI_COST_RATIO_MAX - ratio).toFixed(1) + '%</b>';
+    } else if (ratio <= KPI_COST_RATIO_MAX + 5) {
+      costStatus = 'warn'; costPill = '! เกินเป้าเล็กน้อย';
+      const excess = totalExpAll - (totalSales * KPI_COST_RATIO_MAX / 100);
+      costMsg = 'เกินเป้า <b>' + (ratio - KPI_COST_RATIO_MAX).toFixed(1) + '%</b> · ต้องลดค่าใช้จ่ายลง <b>'+baht(excess)+'</b> เพื่อเข้าเป้า';
+    } else {
+      costStatus = 'bad'; costPill = '⚠ เกินเป้ามาก';
+      const excess = totalExpAll - (totalSales * KPI_COST_RATIO_MAX / 100);
+      costMsg = 'ค่าใช้จ่ายสูงเกินไป <b>' + (ratio - KPI_COST_RATIO_MAX).toFixed(1) + '%</b> · ต้องลดทันที <b>'+baht(excess)+'</b>';
+    }
+
+    // -- Sales Target status --
+    let salesStatus, salesPill, salesMsg;
+    const salesPct = (avgDaily / KPI_DAILY_SALES_MIN) * 100;
+    if (avgDaily >= KPI_DAILY_SALES_MIN) {
+      salesStatus = 'good'; salesPill = '✓ ทำได้เกินเป้า';
+      salesMsg = 'ยอดขายเฉลี่ยสูงกว่าเป้า <b>'+(salesPct-100).toFixed(1)+'%</b>';
+    } else if (salesPct >= 80) {
+      salesStatus = 'warn'; salesPill = '! ใกล้เป้า';
+      const gap = (KPI_DAILY_SALES_MIN - avgDaily) * daysWithSales;
+      salesMsg = 'ต่ำกว่าเป้า <b>'+(100-salesPct).toFixed(1)+'%</b> · ต้องเร่งยอดอีก <b>'+baht(gap)+'</b> ในช่วงนี้';
+    } else {
+      salesStatus = 'bad'; salesPill = '⚠ ต่ำกว่าเป้ามาก';
+      const gap = (KPI_DAILY_SALES_MIN - avgDaily) * daysWithSales;
+      salesMsg = 'ยอดขายต่ำกว่าเป้า <b>'+(100-salesPct).toFixed(1)+'%</b> · ต้องเพิ่ม <b>'+baht(gap)+'</b>';
+    }
+
+    // bar widths (clamp)
+    const costBarPct = Math.min(100, ratio / (KPI_COST_RATIO_MAX * 1.5) * 100); // max bar = 1.5x target
+    const targetPosOnCostBar = (KPI_COST_RATIO_MAX / (KPI_COST_RATIO_MAX * 1.5)) * 100; // ≈ 66.67%
+    const salesBarPct = Math.min(100, salesPct);
+
+    // -- Insight box (รวมข้อความสำหรับผู้จัดการ) --
+    let insightCls, insightEm, insightTxt;
+    if (costStatus === 'good' && salesStatus === 'good') {
+      insightCls = 'good'; insightEm = '🎉';
+      insightTxt = '<b>ทำได้ดีเยี่ยม!</b> ทั้งยอดขายและการควบคุมค่าใช้จ่ายอยู่ในเกณฑ์เป้าหมาย ผู้จัดการมีสิทธิรับ<b>อินเซนทีฟเต็มจำนวน</b>';
+    } else if (costStatus === 'bad' && salesStatus === 'bad') {
+      insightCls = 'bad'; insightEm = '🚨';
+      insightTxt = '<b>ต้องปรับปรุงด่วน</b> ทั้งยอดขายต่ำและค่าใช้จ่ายสูงเกินเป้า · ตรวจสอบสาเหตุและวางแผนแก้ไขทันที';
+    } else if (costStatus === 'bad' || costStatus === 'warn') {
+      insightCls = 'warn'; insightEm = '💰';
+      insightTxt = '<b>ต้องควบคุมค่าใช้จ่าย</b> ตรวจสอบยอดสั่งของให้พอดีกับยอดขาย ลดของเหลือทิ้ง และดูแลให้พนักงานใช้วัตถุดิบอย่างประหยัด';
+    } else {
+      insightCls = 'warn'; insightEm = '📈';
+      insightTxt = '<b>ต้องเร่งยอดขาย</b> เพิ่มโปรโมชั่น ขยายช่องทาง delivery หรือเพิ่มเมนูดึงดูดลูกค้า';
+    }
+
+    const html =
+      '<div class="mgr-kpi">'
+      + '<div class="mh"><span class="em">🎯</span><div><div class="tl">สถานะการบริหารร้าน</div>'
+      + '<div class="ds">ช่วง: <b style="color:#E6B83C;">'+rangeLabel+'</b> · คำนวณตามตัวกรองด้านบน</div></div></div>'
+      + '<div class="gauges">'
+        // Cost Ratio gauge
+        + '<div class="gauge '+costStatus+'">'
+          + '<div class="gt"><span class="lbl">ค่าใช้จ่าย / ยอดขาย</span><span class="pill '+costStatus+'">'+costPill+'</span></div>'
+          + '<div class="val">'+ratio.toFixed(1)+'<span class="small">%</span></div>'
+          + '<div class="bar-wrap"><div class="bar" style="width:'+costBarPct+'%"></div>'
+          + '<div class="target-mark" data-label="เป้า ≤'+KPI_COST_RATIO_MAX+'%" style="left:'+targetPosOnCostBar+'%"></div></div>'
+          + '<div class="gfoot">ค่าใช้จ่ายรวม <b>'+baht(totalExpAll)+'</b> · ยอดขาย <b>'+baht(totalSales)+'</b></div>'
+        + '</div>'
+        // Sales Target gauge
+        + '<div class="gauge '+salesStatus+'">'
+          + '<div class="gt"><span class="lbl">ยอดขายเฉลี่ย/วัน</span><span class="pill '+salesStatus+'">'+salesPill+'</span></div>'
+          + '<div class="val">'+baht(avgDaily).replace('฿','฿')+'</div>'
+          + '<div class="bar-wrap"><div class="bar" style="width:'+salesBarPct+'%"></div>'
+          + '<div class="target-mark" data-label="เป้า '+baht(KPI_DAILY_SALES_MIN)+'" style="left:100%"></div></div>'
+          + '<div class="gfoot">เปิดร้าน <b>'+daysWithSales+' วัน</b> · ยอดขายรวม <b>'+baht(totalSales)+'</b></div>'
+        + '</div>'
+      + '</div>'
+      // Insight box
+      + '<div class="insight-box '+insightCls+'"><span class="em2">'+insightEm+'</span><div class="txt">'+insightTxt+' · '+costMsg+' · '+salesMsg+'</div></div>'
+      + '</div>';
+
+    document.getElementById('mgrKpi').innerHTML = html;
+
+    // animate bar fill
+    setTimeout(function(){
+      document.querySelectorAll('.mgr-kpi .bar').forEach(function(b){
+        const w = b.style.width; b.style.width = '0'; void b.offsetWidth; b.style.width = w;
+      });
+    }, 50);
+  }
+
+  function renderSummary(s, type){
+    if(!s) return;
+    const bt = s.byType || {};
+    let html = '';
+    html += '<div class="kpi red"><div class="l">รวมค่าใช้จ่าย</div><div class="v">'+baht(s.total)+'</div><div class="sub">'+(s.count||0)+' รายการ</div></div>';
+    if(type === 'all'){
+      html += '<div class="kpi"><div class="l">จากรอบขาย (POS)</div><div class="v">'+baht(bt.pos)+'</div></div>';
+      html += '<div class="kpi"><div class="l">สั่งของ/วัตถุดิบ</div><div class="v">'+baht(bt.biz)+'</div></div>';
+    }
+    const avg = s.count ? Math.round(s.total/s.count) : 0;
+    html += '<div class="kpi"><div class="l">เฉลี่ย/รายการ</div><div class="v">'+baht(avg)+'</div></div>';
+    document.getElementById('summary').innerHTML = html;
+  }
+
+  function renderItems(items){
+    if(!items.length){
+      document.getElementById('results').innerHTML = '<div class="empty"><div class="ic">📭</div>ไม่มีค่าใช้จ่ายในช่วงที่เลือก</div>';
+      return;
+    }
+    const groups = groupByMonth(items);
+    let html = '';
+    groups.forEach(function(g){
+      html += '<div class="group">';
+      html += '<div class="group-h"><span class="dot"></span>'+g.label+'<span class="cnt">'+g.items.length+' รายการ · รวม '+baht(g.total)+'</span></div>';
+      html += '<div class="items">';
+      g.items.forEach(function(e){
+        const isBiz = e.type === 'biz';
+        const badgeText = isBiz ? 'สั่งของ' : 'POS';
+        const badgeCls = isBiz ? 'badge biz' : 'badge';
+        const pic = e.url
+          ? '<div class="pic" data-img="'+e.url+'" data-nm="'+escapeAttr(e.item)+'" data-dt="'+e.dateDM+'" data-amt="'+e.amount+'"><img src="'+e.url+'" alt="" loading="lazy"><span class="'+badgeCls+'">'+badgeText+'</span></div>'
+          : '<div class="pic"><span class="'+badgeCls+'">'+badgeText+'</span></div>';
+        html += '<div class="item">'+pic
+          +'<div class="info"><div class="nm">'+escapeHtml(e.item||'(ไม่มีชื่อรายการ)')+'</div>'
+          +'<div class="meta"><span class="dt">'+e.dateDM+'</span><span class="amt">'+baht(e.amount)+'</span></div></div></div>';
+      });
+      html += '</div></div>';
+    });
+    document.getElementById('results').innerHTML = html;
+
+    // bind lightbox
+    document.querySelectorAll('.pic[data-img]').forEach(function(el){
+      el.addEventListener('click', function(){ openLightbox(el.dataset.img, el.dataset.nm, el.dataset.dt, el.dataset.amt); });
+    });
+  }
+
+  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function escapeAttr(s){ return String(s||'').replace(/"/g,'&quot;'); }
+
+  function openLightbox(url, nm, dt, amt){
+    document.getElementById('lbImg').src = url;
+    document.getElementById('lbInfo').innerHTML = '<div class="nm">'+escapeHtml(nm)+'</div><div class="meta"><span>'+dt+'</span><span class="amt">'+baht(amt)+'</span></div>';
+    document.getElementById('lightbox').classList.add('show');
+  }
+  document.getElementById('lightbox').addEventListener('click', function(e){
+    if(e.target === this || e.target.id === 'lbClose') this.classList.remove('show');
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') document.getElementById('lightbox').classList.remove('show');
+  });
+
+  // Register service worker (PWA support)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
+
+  load();
+</script>
+<script>
+(function(){
+  var IS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
+  var IC={
+    edit:    IS+'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+    receipt: IS+'<path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>',
+    dash:    IS+'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+    trend:   IS+'<polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>',
+    home: IS+'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg>',
+    clipboard: IS+'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 11h6"/><path d="M9 15h4"/></svg>',
+    wallet: IS+'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.1"/></svg>',
+    pkgout: IS+'<path d="M4 14v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/></svg>',
+    pkgin: IS+'<path d="M4 14v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/></svg>',
+    clock: IS+'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    moon: IS+'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
+    boxes: IS+'<path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>',
+    history: IS+'<path d="M3.5 9a9 9 0 1 1-.5 5"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/></svg>',
+    users: IS+'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 5.2a3 3 0 0 1 0 5.8"/><path d="M18.5 20a5 5 0 0 0-2.8-4.5"/></svg>',
+    listcheck: IS+'<path d="M4 7h10"/><path d="M4 12h10"/><path d="M4 17h6"/><path d="M15 16.5l2 2 4-4.5"/></svg>',
+    editlist: IS+'<path d="M4 6h9"/><path d="M4 12h6"/><path d="M4 18h6"/><path d="M14.5 15.5 21 9l-2.2-2.2L12.3 13.3l-.3 2.5z"/></svg>',
+    search: IS+'<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>',
+    usercog: IS+'<circle cx="9" cy="8" r="3"/><path d="M3.5 20a5.6 5.6 0 0 1 9.5-4"/><circle cx="18" cy="17" r="2.3"/><path d="M18 13.6v1M18 19.4v1M21.1 17h-1M15.9 17h-1"/></svg>',
+    card: IS+'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg>',
+    cashsend: IS+'<rect x="2" y="6" width="14" height="9" rx="1.5"/><circle cx="9" cy="10.5" r="2"/><path d="M18 11h4"/><path d="M20 9l2 2-2 2"/></svg>',
+    pie: IS+'<path d="M21 12A9 9 0 1 0 12 21"/><path d="M12 3v9h9a9 9 0 0 0-9-9z"/></svg>',
+    bars: IS+'<line x1="6" y1="20" x2="6" y2="12"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="9"/><line x1="3" y1="20" x2="21" y2="20"/></svg>',
+    chat: IS+'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg>',
+    book: IS+'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+    store:   IS+'<path d="M3 9l2-5h14l2 5"/><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/><path d="M9 21V12h6v9"/></svg>',
+    check:   IS+'<polyline points="20 6 9 17 4 12"/></svg>',
+    chat:    IS+'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg>',
+    book:    IS+'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'
+  };
+  document.querySelectorAll('#sidebar [data-icon]').forEach(function(el){ var n=el.getAttribute('data-icon'); if(IC[n]) el.innerHTML=IC[n]; });
+})();
+</script>
+<script>(function(){function put(v){var els=document.querySelectorAll(".sb-foot");for(var i=0;i<els.length;i++){if(els[i].querySelector(".appver"))continue;var d=document.createElement("div");d.className="appver";d.style.cssText="margin-top:5px;opacity:.65;font-size:10.5px;";d.textContent=v?("เวอร์ชัน "+v):"";els[i].appendChild(d);}}if(!("caches" in window)){put("");return;}caches.keys().then(function(keys){var best=0,bv="";keys.forEach(function(k){var m=String(k).match(/guichai-v(\d+)/);if(m){var n=parseInt(m[1],10);if(n>best){best=n;bv="v"+n;}}});put(bv);}).catch(function(){put("");});})();</script>
+</body>
+</html>

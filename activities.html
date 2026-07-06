@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>กิจกรรมทั้งหมด · กุยช่ายสวรรค์</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* Range chips */
+.ranges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.rg{border:1.5px solid var(--line);background:#fff;color:var(--ink);padding:7px 14px;border-radius:20px;
+  font-family:'Kanit';font-weight:600;font-size:12.5px;cursor:pointer;white-space:nowrap;}
+.rg.on{background:var(--ink);color:#E6B83C;border-color:var(--ink);}
+
+.datebar{background:#143D26;color:#fff;border-radius:14px;padding:10px 14px;display:flex;
+  justify-content:space-between;align-items:center;margin-bottom:14px;font-family:'Kanit';font-weight:600;font-size:13px;}
+.datebar input[type=date]{background:transparent;border:0;color:#fff;font-family:'Kanit';font-size:13px;}
+.datebar .sep{color:#9C8F7A;}
+
+/* Type filter chips */
+.types{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.tc{border:1.5px solid var(--line);background:#fff;padding:6px 11px;border-radius:18px;
+  font-family:'Kanit';font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;color:var(--ink);}
+.tc .em{margin-right:3px;}
+.tc.on{background:var(--ink);color:#E6B83C;border-color:var(--ink);}
+
+/* KPI Counts */
+.cnt-row{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;}
+.cnt{background:#fff;border-radius:10px;padding:7px 11px;text-align:center;min-width:64px;flex:none;}
+.cnt .n{font-family:'Kanit';font-weight:800;font-size:16px;color:var(--ink);line-height:1;}
+.cnt .l{font-size:10.5px;color:var(--ink-2);margin-top:3px;font-family:'Kanit';font-weight:600;}
+
+/* Date group */
+.date-group{margin-bottom:18px;}
+.date-group .dhdr{font-family:'Kanit';font-weight:700;font-size:14px;color:var(--ink);margin:0 0 8px;
+  padding-left:8px;border-left:3px solid var(--yellow);display:flex;align-items:center;gap:8px;}
+.date-group .dhdr small{font-size:11px;color:var(--ink-2);font-weight:500;}
+
+/* Activity card */
+.act-list{background:#fff;border-radius:14px;overflow:hidden;}
+.act{display:flex;align-items:flex-start;gap:11px;padding:12px 14px;border-bottom:1px solid #F2EEDD;}
+.act:last-child{border-bottom:0;}
+.act .ico{width:36px;height:36px;border-radius:11px;background:#F6F0DB;display:grid;place-items:center;font-size:17px;flex:none;}
+.act .info{flex:1;min-width:0;}
+.act .info .t{font-family:'Kanit';font-weight:600;font-size:13.5px;line-height:1.3;}
+.act .info .d{font-size:11.5px;color:var(--ink-2);margin-top:2px;line-height:1.35;}
+.act .tm{font-family:'Kanit';font-weight:700;font-size:12px;color:var(--ink-2);text-align:right;white-space:nowrap;flex:none;}
+
+/* Empty */
+.empty{text-align:center;padding:50px 20px;color:var(--ink-2);}
+.empty .em{font-size:48px;margin-bottom:10px;opacity:.5;}
+.empty .t{font-family:'Kanit';font-weight:600;font-size:15px;color:var(--ink);}
+
+.loading{text-align:center;padding:40px;color:var(--ink-2);font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <h1>กิจกรรมทั้งหมด</h1>
+    <div class="sub">ไทม์ไลน์รวมทุกประเภท</div>
+  </div>
+
+  <div class="sheet">
+
+    <div class="ranges" id="ranges">
+      <button class="rg on" data-r="today">วันนี้</button>
+      <button class="rg" data-r="7">7 วัน</button>
+      <button class="rg" data-r="30">30 วัน</button>
+      <button class="rg" data-r="month">เดือนนี้</button>
+    </div>
+    <div class="datebar">
+      <input type="date" id="dStart">
+      <span class="sep">ถึง</span>
+      <input type="date" id="dEnd">
+    </div>
+
+    <div class="types" id="typeFilter">
+      <button class="tc on" data-t="all"><span class="em">📋</span>ทั้งหมด</button>
+      <button class="tc" data-t="attend"><span class="em">⏰</span>เข้า-ออกงาน</button>
+      <button class="tc" data-t="withdraw"><span class="em">📤</span>เบิก</button>
+      <button class="tc" data-t="receive"><span class="em">📥</span>รับเข้า</button>
+      <button class="tc" data-t="sales"><span class="em">💰</span>ยอดขาย</button>
+      <button class="tc" data-t="expense"><span class="em">🧾</span>ค่าใช้จ่าย</button>
+      <button class="tc" data-t="close"><span class="em">🌙</span>ปิดร้าน</button>
+      <button class="tc" data-t="audit"><span class="em">🔍</span>ออดิท</button>
+    </div>
+
+    <div id="counts" class="cnt-row" style="display:none;"></div>
+
+    <div id="content"><div class="loading">กำลังโหลด...</div></div>
+
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+injectShell('activities');
+registerSW();
+
+let allActivities = [];
+let currentType = 'all';
+const $ = function(id){return document.getElementById(id);};
+
+function setRange(r){
+  const today = new Date();
+  const fmt2 = function(d){
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  };
+  let start = today, end = today;
+  if(r === '7'){ start = new Date(today); start.setDate(start.getDate()-6); }
+  else if(r === '30'){ start = new Date(today); start.setDate(start.getDate()-29); }
+  else if(r === 'month'){ start = new Date(today.getFullYear(), today.getMonth(), 1); }
+  $('dStart').value = fmt2(start);
+  $('dEnd').value = fmt2(end);
+}
+
+document.querySelectorAll('.rg').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    setRange(b.dataset.r);
+    loadActivities();
+  });
+});
+$('dStart').addEventListener('change', function(){ document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');}); loadActivities(); });
+$('dEnd').addEventListener('change', function(){ document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');}); loadActivities(); });
+
+document.querySelectorAll('.tc').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.tc').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    currentType = b.dataset.t;
+    render();
+  });
+});
+
+function loadActivities(){
+  $('content').innerHTML = '<div class="loading">กำลังโหลด...</div>';
+  apiSWR('getActivityFeed', { start: $('dStart').value, end: $('dEnd').value }, function(r){
+    allActivities = r.activities || [];
+    render();
+  }).catch(function(err){
+    $('content').innerHTML = '<div class="empty"><div class="em">⚠️</div><div class="t">โหลดไม่ได้</div></div>';
+  });
+}
+
+function matchType(act, filterType){
+  if (filterType === 'all') return true;
+  if (filterType === 'attend') return act.type === 'attend_in' || act.type === 'attend_out';
+  return act.type === filterType;
+}
+
+function render(){
+  // นับ counts per type
+  const counts = {
+    all: allActivities.length,
+    attend: 0, withdraw: 0, receive: 0,
+    sales: 0, expense: 0, close: 0, audit: 0
+  };
+  allActivities.forEach(function(a){
+    if (a.type === 'attend_in' || a.type === 'attend_out') counts.attend++;
+    else if (counts[a.type] !== undefined) counts[a.type]++;
+  });
+
+  // render counts row
+  const cntDef = [
+    {k:'all', em:'📋', lbl:'ทั้งหมด'},
+    {k:'attend', em:'⏰', lbl:'เข้า-ออก'},
+    {k:'withdraw', em:'📤', lbl:'เบิก'},
+    {k:'receive', em:'📥', lbl:'รับเข้า'},
+    {k:'sales', em:'💰', lbl:'ยอดขาย'},
+    {k:'expense', em:'🧾', lbl:'ค่าใช้จ่าย'},
+    {k:'close', em:'🌙', lbl:'ปิดร้าน'},
+    {k:'audit', em:'🔍', lbl:'ออดิท'}
+  ];
+  $('counts').style.display = '';
+  $('counts').innerHTML = cntDef.map(function(c){
+    return '<div class="cnt"><div class="n">'+counts[c.k]+'</div><div class="l">'+c.em+' '+c.lbl+'</div></div>';
+  }).join('');
+
+  // filter
+  const filtered = allActivities.filter(function(a){ return matchType(a, currentType); });
+
+  if (!filtered.length) {
+    $('content').innerHTML = '<div class="empty"><div class="em">📭</div><div class="t">ไม่มีกิจกรรมในช่วงนี้</div></div>';
+    return;
+  }
+
+  // group by date
+  const groups = {};
+  filtered.forEach(function(a){
+    if(!groups[a.date]) groups[a.date] = [];
+    groups[a.date].push(a);
+  });
+  const dates = Object.keys(groups).sort().reverse();
+  const dows = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+
+  $('content').innerHTML = dates.map(function(d){
+    const dObj = new Date(d+'T00:00:00');
+    const dt = groups[d][0].dateDM + ' · วัน' + dows[dObj.getDay()];
+    return '<div class="date-group">'
+      +'<div class="dhdr">'+dt+' <small>('+groups[d].length+' กิจกรรม)</small></div>'
+      +'<div class="act-list">'
+      + groups[d].map(function(a){
+        return '<div class="act">'
+          +'<div class="ico">'+a.icon+'</div>'
+          +'<div class="info">'
+            +'<div class="t" style="color:'+a.color+';">'+escHtml(a.title)+'</div>'
+            +(a.detail ? '<div class="d">'+escHtml(a.detail)+'</div>' : '')
+          +'</div>'
+          +(a.time ? '<div class="tm">'+a.time+'</div>' : '')
+        +'</div>';
+      }).join('')
+    +'</div></div>';
+  }).join('');
+}
+
+renderIcons();
+setRange('today');
+loadActivities();
+</script>
+</body>
+</html>

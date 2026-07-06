@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>เบิกของ · กุยช่ายสวรรค์</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* Operations row */
+.op-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.op-row{background:#fff;border-radius:11px;padding:10px 12px;display:flex;gap:8px;align-items:center;border-left:3px solid transparent;}
+.op-row.has{border-left-color:var(--teal);background:#F0FDFA;}
+.op-row .nm{flex:1;min-width:0;font-family:'Kanit';font-weight:600;font-size:13.5px;color:var(--ink);line-height:1.25;}
+.op-row .nm .u{font-size:11px;color:var(--ink-2);font-weight:500;margin-left:5px;}
+.op-row .nm .mp{font-size:10px;font-weight:600;background:#FEF3C7;color:#92400E;padding:1px 6px;border-radius:6px;margin-left:5px;}
+.op-row .iv{display:flex;align-items:center;gap:5px;flex:none;}
+.op-row .iv input{width:70px;border:1.5px solid var(--line);border-radius:8px;padding:7px 8px;font-size:14px;
+  font-family:'Kanit';font-weight:700;text-align:right;background:#fff;}
+.op-row .iv input:focus{outline:none;border-color:var(--teal);}
+.op-row .iv .qbtn{width:28px;height:28px;border:1.5px solid var(--line);background:#fff;border-radius:7px;
+  cursor:pointer;font-size:14px;font-weight:700;color:var(--ink);}
+.op-row .iv .qbtn:active{background:#F6F0DB;}
+
+.op-bar{position:sticky;bottom:0;background:#fff;border-radius:14px 14px 0 0;padding:12px 14px;
+  box-shadow:0 -4px 14px rgba(0,0,0,.08);margin-top:14px;display:flex;align-items:center;gap:10px;}
+.op-bar .cnt{flex:1;font-family:'Kanit';font-weight:600;font-size:13px;color:var(--ink-2);}
+.op-bar .cnt b{color:var(--ink);font-size:15px;}
+.op-bar button{flex:none;padding:10px 18px;border:0;border-radius:10px;font-family:'Kanit';font-weight:700;
+  font-size:14px;cursor:pointer;background:var(--yellow);color:var(--ink);box-shadow:0 3px 10px rgba(198,152,42,.4);}
+.op-bar button:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <h1>เบิกของ</h1>
+    <div class="sub">กุยช่ายสวรรค์ · บันทึกระหว่างวัน</div>
+  </div>
+
+  <div class="sheet">
+    <div class="card">
+      <div class="h"><span class="ic" style="background:linear-gradient(135deg,#3DD5DC,#1B98A4);" data-icon="edit"></span>เบิกของ (ระหว่างวัน)</div>
+      <p style="font-size:13px;color:var(--ink-2);margin-bottom:12px;line-height:1.5;">
+        ใช้เมื่อเบิกของออกจากสต๊อกร้านไปใช้/ขาย เบิกได้หลายครั้งต่อวัน
+      </p>
+
+      <div class="staff-box">
+        <label>ผู้บันทึก</label>
+        <input type="text" id="wdStaff" placeholder="ชื่อพนักงาน">
+      </div>
+
+      <div class="stock-filters" id="wdCatChips" style="background:transparent;padding:0;">
+        <button class="stock-cat-chip on" data-cat="all">ทั้งหมด</button>
+        <button class="stock-cat-chip" data-cat="Waffle">🧁 Waffle</button>
+        <button class="stock-cat-chip" data-cat="KUFF">🥐 KUFF</button>
+        <button class="stock-cat-chip" data-cat="Drink">🥤 Drink</button>
+        <button class="stock-cat-chip" data-cat="Other">📦 อื่นๆ</button>
+      </div>
+      <button type="button" id="jumpMlog" class="mlog-jump">✏️ แก้ไข / ลบ รายการล่าสุด</button>
+
+      <div class="stock-filters">
+        <input type="search" id="wdSearch" placeholder="ค้นหารายการ...">
+      </div>
+
+      <div class="op-list" id="wdList"><div style="text-align:center;color:var(--ink-2);padding:20px;font-size:13px;">กำลังโหลด...</div></div>
+    </div>
+    <div id="moveEditor"></div>
+  </div>
+
+  <div class="op-bar" id="wdBar" style="display:none;">
+    <div class="cnt"><b id="wdCount">0</b> รายการ พร้อมบันทึก</div>
+    <button id="wdSaveBtn">บันทึกเบิก</button>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+injectShell('stockWithdraw');
+registerSW();
+
+const wd = { items: [], qty: {}, filter: { cat:'all', q:'' } };
+
+function load(){
+  const box = document.getElementById('wdList');
+  box.innerHTML = '<div style="text-align:center;color:var(--ink-2);padding:20px;font-size:13px;">กำลังโหลด...</div>';
+  apiSWR('getStockItems', {}, function(res){
+      wd.items = (res.items||[]).filter(function(x){return x.active!==false;});
+      render();
+    })
+    .catch(function(err){
+      box.innerHTML = '<div style="color:var(--red);padding:14px;font-size:13px;">โหลดไม่ได้: '+escHtml(err.message)+'</div>';
+    });
+}
+
+function render(){
+  const q = (wd.filter.q||'').toLowerCase();
+  const cat = wd.filter.cat;
+  const filtered = wd.items.filter(function(it){
+    if(cat!=='all' && it.category!==cat) return false;
+    if(q && it.name.toLowerCase().indexOf(q)<0) return false;
+    return true;
+  });
+  const box = document.getElementById('wdList');
+  if(!filtered.length){ box.innerHTML = '<div style="text-align:center;color:var(--ink-2);padding:20px;font-size:13px;">ไม่พบรายการ</div>'; return; }
+  box.innerHTML = filtered.map(function(it){
+    const v = wd.qty[it.id] || '';
+    const has = v && parseFloat(v) > 0;
+    const modeP = it.mode==='count' ? '<span class="mp">โหมด: ชั่งกรัม</span>' : '<span class="mp" style="background:#EEF1F5;color:#5A5247;">โหมด: นับชิ้น</span>';
+    return '<div class="op-row '+(has?'has':'')+'" data-id="'+it.id+'">'
+      +'<div class="nm">'+escHtml(it.name)+'<span class="u">('+escHtml(it.unit)+')</span>'+modeP+'</div>'
+      +'<div class="iv">'
+        +'<button type="button" class="qbtn" data-op="dec">−</button>'
+        +'<input type="number" inputmode="decimal" step="any" min="0" data-id="'+it.id+'" value="'+v+'" placeholder="0">'
+        +'<button type="button" class="qbtn" data-op="inc">+</button>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+  box.querySelectorAll('input[type=number]').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      const id = inp.dataset.id;
+      const v = parseFloat(inp.value)||0;
+      if(v>0) wd.qty[id] = inp.value; else delete wd.qty[id];
+      const row = inp.closest('.op-row');
+      if(row){ row.classList.toggle('has', v>0); }
+      updateBar();
+    });
+  });
+  box.querySelectorAll('.qbtn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      const inp = btn.parentElement.querySelector('input[type=number]');
+      const cur = parseFloat(inp.value)||0;
+      const next = btn.dataset.op==='inc' ? cur+1 : Math.max(0, cur-1);
+      inp.value = next || '';
+      inp.dispatchEvent(new Event('input'));
+    });
+  });
+  updateBar();
+}
+
+function updateBar(){
+  const cnt = Object.keys(wd.qty).filter(function(k){return parseFloat(wd.qty[k])>0;}).length;
+  document.getElementById('wdCount').textContent = cnt;
+  document.getElementById('wdBar').style.display = cnt>0 ? 'flex' : 'none';
+}
+
+// Filter chips + search
+document.querySelectorAll('#wdCatChips .stock-cat-chip').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#wdCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    wd.filter.cat = b.dataset.cat;
+    render();
+  });
+});
+document.getElementById('wdSearch').addEventListener('input', function(){ wd.filter.q = this.value; render(); });
+
+// Save
+document.getElementById('wdSaveBtn').addEventListener('click', function(){
+  const staff = document.getElementById('wdStaff').value.trim();
+  if(!staff){ toast('กรุณากรอกชื่อผู้บันทึก'); return; }
+  const items = Object.keys(wd.qty).filter(function(id){return parseFloat(wd.qty[id])>0;})
+    .map(function(id){return {id:id, amount:parseFloat(wd.qty[id])};});
+  if(!items.length){ toast('ยังไม่ได้เลือกรายการ'); return; }
+  const btn = this; btn.disabled=true; btn.textContent='กำลังบันทึก...';
+  api('addStockWithdraw', { data:{ staff:staff, items:items } })
+    .then(function(res){
+      toast(res.msg||'บันทึกแล้ว ✓');
+      var _me=document.getElementById('moveEditor'); if(_me&&_me._reload) _me._reload();
+      wd.qty = {};
+      document.getElementById('wdSearch').value = '';
+      wd.filter.q = '';
+      render();
+      btn.disabled=false; btn.textContent='บันทึกเบิก';
+    })
+    .catch(function(err){
+      toast('ผิดพลาด: '+err.message);
+      btn.disabled=false; btn.textContent='บันทึกเบิก';
+    });
+});
+
+renderIcons();
+mountMoveLog('withdraw', document.getElementById('moveEditor'));
+(function(){var jb=document.getElementById('jumpMlog'); if(jb) jb.addEventListener('click',function(){var m=document.getElementById('moveEditor'); if(m){ m.scrollIntoView({behavior:'smooth',block:'start'}); m.classList.add('mlog-flash'); setTimeout(function(){m.classList.remove('mlog-flash');},1200); }});})();
+load();
+</script>
+</body>
+</html>

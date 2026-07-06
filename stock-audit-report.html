@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>ประวัติออดิทสต๊อก · กุยช่ายสวรรค์</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="shared.css">
+
+<style>
+.ranges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.rg{border:1.5px solid var(--line);background:#fff;color:var(--ink);padding:7px 14px;border-radius:20px;
+  font-family:'Kanit';font-weight:600;font-size:12.5px;cursor:pointer;white-space:nowrap;}
+.rg.on{background:var(--ink);color:#E6B83C;border-color:var(--ink);}
+
+.datebar{background:#143D26;color:#fff;border-radius:14px;padding:10px 14px;display:flex;
+  justify-content:space-between;align-items:center;margin-bottom:14px;font-family:'Kanit';font-weight:600;font-size:13px;}
+.datebar input[type=date]{background:transparent;border:0;color:#fff;font-family:'Kanit';font-size:13px;}
+.datebar .sep{color:var(--ink-2);}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.kpi{background:#fff;border-radius:12px;padding:11px 10px;text-align:center;}
+.kpi .v{font-family:'Kanit';font-weight:800;font-size:23px;color:var(--ink);line-height:1;}
+.kpi .l{font-size:10.5px;color:var(--ink-2);margin-top:4px;line-height:1.3;}
+.kpi.diff .v{color:#B91C1C;}
+.kpi.adj .v{color:#7C3AED;}
+
+.date-group{margin-bottom:18px;}
+.date-group h3{font-family:'Kanit';font-weight:700;font-size:14px;color:var(--ink);margin:0 0 8px;
+  padding-left:8px;border-left:3px solid var(--yellow);}
+
+/* Session card = 1 ครั้งที่กดออดิท */
+.sess{background:#fff;border-radius:14px;padding:13px 14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.sess .sh{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.sess .stime{font-family:'Kanit';font-weight:800;font-size:17px;color:var(--ink);line-height:1;}
+.sess .sby{font-size:12px;color:var(--ink-2);margin-top:3px;}
+.sess .sbadge{font-family:'Kanit';font-weight:700;font-size:11px;padding:4px 10px;border-radius:11px;white-space:nowrap;}
+.sess .sbadge.ok{background:#DCFCE7;color:#15803D;}
+.sess .sbadge.diff{background:#FEE2E2;color:#B91C1C;}
+.sess .scount{font-size:11.5px;color:var(--ink-2);margin-top:7px;padding-top:8px;border-top:1px dashed var(--line);}
+
+.ai{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:9px 0;border-top:1px solid #F2EEE3;}
+.ai:first-of-type{border-top:0;}
+.ai-nm{font-family:'Kanit';font-weight:600;font-size:13px;color:var(--ink);flex:1;min-width:120px;}
+.ai-val{font-size:11.5px;color:var(--ink-2);}
+.ai-diff{font-family:'Kanit';font-weight:800;font-size:13px;padding:2px 9px;border-radius:8px;}
+.ai-diff.pos{background:#DCFCE7;color:#15803D;}
+.ai-diff.neg{background:#FEE2E2;color:#B91C1C;}
+.ai-adj{font-size:10px;font-weight:700;font-family:'Kanit';background:#EDE9FE;color:#7C3AED;padding:2px 7px;border-radius:7px;}
+.ai-rs{flex-basis:100%;font-size:11px;color:var(--ink-2);background:#FAF8F1;border-radius:7px;padding:5px 9px;}
+
+.empty{text-align:center;padding:40px 20px;color:var(--ink-2);}
+.empty .em{font-size:48px;margin-bottom:10px;opacity:.6;}
+.empty .t{font-family:'Kanit';font-weight:600;font-size:15px;color:var(--ink);}
+.empty .s{font-size:13px;margin-top:4px;}
+.loading{text-align:center;color:var(--ink-2);padding:30px 20px;font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <h1>ประวัติออดิทสต๊อก</h1>
+    <div class="sub">กุยช่ายสวรรค์ · ดูย้อนหลังว่าตรวจเมื่อไหร่ · ปรับยอดอะไร</div>
+  </div>
+
+  <div class="sheet">
+
+    <div class="ranges" id="ranges">
+      <button class="rg" data-r="today">วันนี้</button>
+      <button class="rg" data-r="7">7 วัน</button>
+      <button class="rg" data-r="30">30 วัน</button>
+      <button class="rg on" data-r="month">เดือนนี้</button>
+    </div>
+
+    <div class="datebar">
+      <input type="date" id="dStart">
+      <span class="sep">ถึง</span>
+      <input type="date" id="dEnd">
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="v" id="kSess">0</div><div class="l">ครั้งที่ตรวจ</div></div>
+      <div class="kpi diff"><div class="v" id="kDiff">0</div><div class="l">รายการมีส่วนต่าง</div></div>
+      <div class="kpi adj"><div class="v" id="kAdj">0</div><div class="l">รายการปรับยอด</div></div>
+    </div>
+
+    <div id="list">
+      <div class="loading">กำลังโหลด...</div>
+    </div>
+
+    <div class="foot">🥟 แต่ละการ์ด = ออดิท 1 ครั้ง · แสดงเฉพาะรายการที่มีส่วนต่าง</div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+injectShell('stockAuditReport');
+registerSW();
+
+const $ = function(id){return document.getElementById(id);};
+let records = [];
+
+function setRange(r){
+  const today = new Date();
+  const fmt2 = function(d){
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  };
+  let start = today, end = today;
+  if(r === '7'){ start = new Date(today); start.setDate(start.getDate()-6); }
+  else if(r === '30'){ start = new Date(today); start.setDate(start.getDate()-29); }
+  else if(r === 'month'){ start = new Date(today.getFullYear(), today.getMonth(), 1); }
+  $('dStart').value = fmt2(start);
+  $('dEnd').value = fmt2(end);
+}
+
+document.querySelectorAll('.rg').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    setRange(b.dataset.r);
+    load();
+  });
+});
+$('dStart').addEventListener('change', function(){ document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');}); load(); });
+$('dEnd').addEventListener('change', function(){ document.querySelectorAll('.rg').forEach(function(x){x.classList.remove('on');}); load(); });
+
+function load(){
+  $('list').innerHTML = '<div class="loading">กำลังโหลด...</div>';
+  apiSWR('getStockAuditHistory', { start: $('dStart').value, end: $('dEnd').value }, function(r){
+    records = r.records || [];
+    render();
+  }).catch(function(err){
+    $('list').innerHTML = '<div class="empty"><div class="em">⚠️</div><div class="t">โหลดไม่ได้</div><div class="s">'+escHtml(err.message)+'</div></div>';
+  });
+}
+
+function fmtNum(n){
+  n = Number(n) || 0;
+  return (Math.round(n*100)/100).toLocaleString('en-US');
+}
+
+function render(){
+  // KPI
+  const sess = {}; let diffN = 0, adjN = 0;
+  records.forEach(function(r){
+    sess[r.session] = 1;
+    if(Math.abs(r.diff) > 0.01) diffN++;
+    if(r.adjusted) adjN++;
+  });
+  $('kSess').textContent = Object.keys(sess).length;
+  $('kDiff').textContent = diffN;
+  $('kAdj').textContent = adjN;
+
+  if(!records.length){
+    $('list').innerHTML = '<div class="empty"><div class="em">🔍</div><div class="t">ยังไม่มีประวัติออดิท</div><div class="s">ในช่วงวันที่เลือก</div></div>';
+    return;
+  }
+
+  // จัดกลุ่ม: วันที่ → session (ครั้งที่กดออดิท)
+  const byDate = {}, dateOrder = [];
+  records.forEach(function(r){
+    if(!byDate[r.date]){ byDate[r.date] = { dateDM: r.dateDM, sessions: {}, order: [] }; dateOrder.push(r.date); }
+    const g = byDate[r.date];
+    if(!g.sessions[r.session]){ g.sessions[r.session] = { time: r.time, staff: r.staff, items: [] }; g.order.push(r.session); }
+    g.sessions[r.session].items.push(r);
+  });
+
+  let html = '';
+  dateOrder.forEach(function(d){
+    const g = byDate[d];
+    html += '<div class="date-group"><h3>'+escHtml(g.dateDM)+'</h3>';
+    g.order.forEach(function(skey){
+      const s = g.sessions[skey];
+      const total = s.items.length;
+      const diffs = s.items.filter(function(x){ return Math.abs(x.diff) > 0.01; });
+      const matched = total - diffs.length;
+      const badge = diffs.length
+        ? '<span class="sbadge diff">ส่วนต่าง '+diffs.length+'</span>'
+        : '<span class="sbadge ok">ตรงทั้งหมด</span>';
+
+      html += '<div class="sess">'
+        + '<div class="sh"><div><div class="stime">'+escHtml(s.time || '-')+' น.</div>'
+        + '<div class="sby">โดย '+escHtml(s.staff)+'</div></div>'+badge+'</div>';
+
+      diffs.forEach(function(it){
+        const pos = it.diff > 0;
+        html += '<div class="ai">'
+          + '<div class="ai-nm">'+escHtml(it.name)+'</div>'
+          + '<div class="ai-val">ระบบ '+fmtNum(it.system)+' → นับจริง '+fmtNum(it.actual)+'</div>'
+          + '<div class="ai-diff '+(pos?'pos':'neg')+'">'+(pos?'+':'')+fmtNum(it.diff)+'</div>'
+          + (it.adjusted ? '<span class="ai-adj">🔧 ปรับยอดแล้ว</span>' : '')
+          + (it.reason ? '<div class="ai-rs">เหตุผล: '+escHtml(it.reason)+'</div>' : '')
+          + '</div>';
+      });
+
+      html += '<div class="scount">ตรวจ '+total+' รายการ · ตรงระบบ '+matched+' รายการ'
+        + (diffs.length ? '' : ' · ไม่มีส่วนต่าง')+'</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  $('list').innerHTML = html;
+}
+
+setRange('month');
+load();
+</script>
+</body>
+</html>

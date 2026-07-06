@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ทดสอบแจ้งเตือน LINE · กุยช่ายสวรรค์</title>
+<style>
+  body{font-family:'Sarabun',sans-serif;background:#FFFBF0;color:#143D26;max-width:560px;margin:0 auto;padding:18px;}
+  h1{font-family:'Kanit',sans-serif;font-size:20px;}
+  .warn{background:#FEF3C7;border:1px solid #FCD34D;color:#92400E;border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.6;margin-bottom:16px;}
+  button{width:100%;border:0;border-radius:14px;padding:14px;font-family:'Kanit',sans-serif;font-weight:700;font-size:15px;
+    background:linear-gradient(180deg,#EEC85E,#CBA236);color:#143D26;cursor:pointer;margin-bottom:10px;box-shadow:0 3px 9px rgba(198,152,42,.35);}
+  button.all{background:#143D26;color:#E6B83C;}
+  button:disabled{opacity:.5;}
+  .log{background:#fff;border:1px solid #E8DFC4;border-radius:12px;padding:12px;margin-top:14px;font-size:13px;line-height:1.7;min-height:60px;white-space:pre-wrap;}
+  .ok{color:#15803D;font-weight:700;} .er{color:#B91C1C;font-weight:700;}
+</style>
+</head>
+<body>
+  <h1>🧪 ทดสอบแจ้งเตือน LINE</h1>
+  <div class="warn">⚠️ ส่งจริงเข้ากลุ่มที่ตั้งไว้ใน <b>LINE_GROUP_ID</b><br>
+    ก่อนทดสอบ แนะนำเปลี่ยน LINE_GROUP_ID เป็น <b>กลุ่มทดสอบ</b> (มีแค่คุณ+บอท) ก่อน แล้วค่อยเปลี่ยนกลับ</div>
+
+  <button onclick="t('daily')">1) รายงานสรุปยอดสิ้นวัน</button>
+  <button onclick="t('stock')">2) ปิดร้าน (สรุปเบิก)</button>
+  <button onclick="t('audit')">3) ออดิทสต๊อก</button>
+  <button onclick="t('attend')">4) เข้า-ออกงาน</button>
+  <button class="all" onclick="t('all')">▶ ส่งทดสอบทั้ง 4 แบบ</button>
+
+  <div class="log" id="log">ผลการทดสอบจะแสดงที่นี่…</div>
+
+<script src="shared.js"></script>
+<script>
+var logEl = document.getElementById('log');
+function log(html){ logEl.innerHTML += html + '\n'; }
+function clr(){ logEl.innerHTML = ''; }
+var today = (new Date()).toISOString().slice(0,10);
+
+function sampleDaily(){
+  var sales = { cash:2500, transfer:1800, thaihelp:600, lineman:1200, grab:950, shopee:480, robinhood:350 };
+  var total = 0; for(var k in sales) total += sales[k];
+  var totalExp = 320;
+  var recon = { openingCash:1000, cashIn:0, refund:0, actualCash:3650, closeStaff:'ทดสอบระบบ' };
+  return maruBuildDailyFlex({ date:today, sales:sales, note:'🧪 ข้อความทดสอบ — ไม่ใช่ยอดจริง' }, total, totalExp, recon);
+}
+function sampleStock(){
+  var itemsArr = [
+    { id:'W001', name:'แป้งวาฟเฟิลวานิลลา', category:'Waffle', unit:'ถุง', minStock:5, active:true },
+    { id:'K001', name:'ไส้กรอก', category:'KUFF', unit:'แพ็ค', minStock:3, active:true },
+    { id:'D001', name:'นมข้นจืด', category:'Drink', unit:'กระป๋อง', minStock:6, active:true }
+  ];
+  var rows = [
+    { item_id:'W001', item_name:'แป้งวาฟเฟิลวานิลลา', waste:0, balance:4, used:6 },
+    { item_id:'K001', item_name:'ไส้กรอก', waste:1, balance:8, used:3 },
+    { item_id:'D001', item_name:'นมข้นจืด', waste:0, balance:2, used:5 }
+  ];
+  return maruBuildStockFlex(today, 'Pantip Ngamwongwan', 'ทดสอบระบบ', itemsArr, rows);
+}
+function sampleAudit(){
+  var auditRows = [
+    { item_name:'แป้งวาฟเฟิลวานิลลา', diff:0 },
+    { item_name:'ไส้กรอก', diff:-2 },
+    { item_name:'นมข้นจืด', diff:1 }
+  ];
+  return maruBuildAuditFlex(today, 'Pantip Ngamwongwan', 'ทดสอบระบบ', auditRows, 2);
+}
+function sampleAttend(){
+  return maruBuildAttendFlex({ date:today, time:'09:30', type:'in', name:'พนักงานทดสอบ', nick:'เทส',
+    branch:'Pantip Ngamwongwan', address:'ทดสอบที่อยู่ · ถนนงามวงศ์วาน', imgUrl:'', inGeofence:true, distance:12 });
+}
+
+var BUILDERS = { daily:sampleDaily, stock:sampleStock, audit:sampleAudit, attend:sampleAttend };
+var LABELS = { daily:'รายงานสิ้นวัน', stock:'ปิดร้าน', audit:'ออดิท', attend:'เข้า-ออกงาน' };
+
+async function send(kind){
+  try{
+    var flex = BUILDERS[kind]();
+    var r = await maruNotifyLine([flex]);
+    if(r && r.ok) log('<span class="ok">✓ ส่งสำเร็จ</span> · ' + LABELS[kind] + ' (HTTP ' + (r.status||'200') + ')');
+    else log('<span class="er">✗ ส่งไม่สำเร็จ</span> · ' + LABELS[kind] + ' — ' + ((r&&(r.error||r.body))||'ไม่ทราบสาเหตุ'));
+  }catch(e){ log('<span class="er">✗ error</span> · ' + LABELS[kind] + ' — ' + (e.message||e)); }
+}
+async function t(kind){
+  clr();
+  var btns = document.querySelectorAll('button'); btns.forEach(function(b){ b.disabled = true; });
+  if(kind === 'all'){
+    var order = ['daily','stock','audit','attend'];
+    for(var i=0;i<order.length;i++){ await send(order[i]); await new Promise(function(r){ setTimeout(r, 700); }); }
+    log('— ส่งครบทั้ง 4 แบบแล้ว —');
+  } else { await send(kind); }
+  btns.forEach(function(b){ b.disabled = false; });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>การจ่ายเงิน · กุยช่ายสวรรค์</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="shared.css">
+<style>
+.tabs2{display:flex;gap:6px;margin-bottom:14px;}
+.tab2{flex:1;border:1.5px solid var(--line);background:#fff;color:var(--ink);padding:9px;border-radius:11px;
+  font-family:'Kanit';font-weight:700;font-size:13.5px;cursor:pointer;}
+.tab2.on{background:var(--ink);color:#E6B83C;border-color:var(--ink);}
+.tab2 .cnt{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;line-height:18px;}
+.tab2.on .cnt{background:#E6B83C;color:#143D26;}
+
+.pcard{background:#fff;border-radius:14px;padding:13px 14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.pcard .top{display:flex;align-items:center;gap:10px;}
+.pcard .av{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#FFE08A,#E6B83C);
+  display:flex;align-items:center;justify-content:center;font-family:'Kanit';font-weight:800;color:#143D26;font-size:16px;}
+.pcard .nm{flex:1;font-family:'Kanit';font-weight:700;font-size:14.5px;color:var(--ink);}
+.pcard .big{font-family:'Kanit';font-weight:800;font-size:15px;color:var(--ink);}
+.pcard .sub{font-size:11.5px;color:var(--ink-2);margin-top:2px;}
+.alone{color:#B45309;font-weight:600;}
+
+.daylist{margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);display:none;}
+.daylist.show{display:block;}
+.day{display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0;color:var(--ink);}
+.day .b{color:var(--ink-2);font-size:11px;}
+.toggle{font-size:12px;color:#2563EB;cursor:pointer;margin-top:6px;display:inline-block;}
+
+.paybtn{margin-top:10px;width:100%;background:#E6B83C;color:#143D26;border:0;padding:10px;border-radius:10px;
+  font-family:'Kanit';font-weight:800;font-size:13.5px;cursor:pointer;}
+.paybtn.done{background:#DCFCE7;color:#15803D;cursor:default;}
+
+.cyc{display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid #F2EEE3;}
+.cyc:first-of-type{border-top:0;}
+.cyc .ci{flex:1;}
+.cyc .cl{font-family:'Kanit';font-weight:600;font-size:13px;color:var(--ink);}
+.cyc .cd{font-size:11px;color:var(--ink-2);margin-top:1px;}
+.cyc.due{background:#FEF2F2;margin:0 -6px;padding:9px 6px;border-radius:9px;border-top:0;}
+.badge{font-family:'Kanit';font-weight:700;font-size:11px;padding:3px 9px;border-radius:10px;white-space:nowrap;}
+.badge.paid{background:#DCFCE7;color:#15803D;}
+.badge.unpaid{background:#FEE2E2;color:#B91C1C;}
+.badge.wait{background:#F2EEDD;color:#6B5F4A;}
+.minipay{background:#143D26;color:#E6B83C;border:0;padding:6px 12px;border-radius:9px;font-family:'Kanit';font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;}
+
+.empty{text-align:center;padding:36px 20px;color:var(--ink-2);}
+.empty .em{font-size:44px;margin-bottom:8px;opacity:.6;}
+.loading{text-align:center;color:var(--ink-2);padding:30px;font-size:13px;}
+.note{font-size:11.5px;color:var(--ink-2);background:#FAF8F1;border-radius:9px;padding:9px 11px;margin-bottom:12px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <h1>การจ่ายเงิน</h1>
+    <div class="sub">กุยช่ายสวรรค์ · ติดตามสถานะจ่าย · กันลืม</div>
+  </div>
+  <div class="sheet">
+    <div class="note">🔒 หน้านี้แสดงเฉพาะ <b>สถานะจ่าย/ยังไม่จ่าย</b> และจำนวนวัน — ไม่แสดงยอดเงิน (เรทอยู่ในชีต) · ข้อมูลไม่ถูกส่งเข้า LINE</div>
+
+    <div class="tabs2">
+      <button class="tab2 on" data-tab="pt">พาร์ทไทม์ <span class="cnt" id="cntPt" style="display:none;">0</span></button>
+      <button class="tab2" data-tab="ft">ประจำ <span class="cnt" id="cntFt" style="display:none;">0</span></button>
+    </div>
+
+    <div id="paneP"><div class="loading">กำลังโหลด...</div></div>
+    <div id="paneF" style="display:none;"></div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+injectShell('payments');
+registerSW();
+const $ = function(id){return document.getElementById(id);};
+let payData = null;
+let ownerCode = '';
+
+function showGate(msg){
+  let g = document.getElementById('pwGate');
+  if(!g){
+    g = document.createElement('div');
+    g.id = 'pwGate';
+    g.style.cssText = 'position:fixed;inset:0;background:rgba(20,61,38,.96);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;';
+    g.innerHTML = '<div style="background:#fff;border-radius:18px;padding:26px 22px;max-width:340px;width:100%;text-align:center;box-sizing:border-box;">'
+      + '<div style="font-size:40px;">\uD83D\uDD12</div>'
+      + '<h3 style="font-family:Kanit;margin:8px 0 4px;color:#143D26;">หน้าเงินเดือน</h3>'
+      + '<p style="color:#6B5F4A;font-size:13px;margin:0 0 16px;">ใส่รหัสเจ้าของเพื่อเข้าดู</p>'
+      + '<input id="pwInput" type="password" inputmode="numeric" maxlength="12" placeholder="รหัสเจ้าของ" style="width:100%;box-sizing:border-box;text-align:center;font-size:20px;letter-spacing:4px;padding:12px;border:1.5px solid #E5DFD2;border-radius:12px;font-family:Kanit;">'
+      + '<div id="pwErr" style="color:#D02C2C;font-size:13px;min-height:18px;margin-top:8px;"></div>'
+      + '<button id="pwBtn" style="width:100%;margin-top:6px;background:#143D26;color:#E6B83C;border:none;padding:13px;border-radius:12px;font-family:Kanit;font-weight:700;font-size:15px;cursor:pointer;">ปลดล็อก</button>'
+      + '</div>';
+    document.body.appendChild(g);
+    const submit = function(){
+      ownerCode = document.getElementById('pwInput').value.trim();
+      if(!ownerCode){ document.getElementById('pwErr').textContent = 'กรุณาใส่รหัส'; return; }
+      document.getElementById('pwErr').textContent = '';
+      document.getElementById('pwBtn').textContent = 'กำลังตรวจ...';
+      load();
+    };
+    document.getElementById('pwBtn').addEventListener('click', submit);
+    document.getElementById('pwInput').addEventListener('keydown', function(e){ if(e.key==='Enter') submit(); });
+  }
+  g.style.display = 'flex';
+  const btn = document.getElementById('pwBtn'); if(btn) btn.textContent = 'ปลดล็อก';
+  const er = document.getElementById('pwErr'); if(er) er.textContent = msg || '';
+  setTimeout(function(){ const i = document.getElementById('pwInput'); if(i){ i.value=''; i.focus(); } }, 50);
+}
+function hideGate(){ const g = document.getElementById('pwGate'); if(g) g.style.display = 'none'; }
+
+document.querySelectorAll('.tab2').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.tab2').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    const t = b.dataset.tab;
+    $('paneP').style.display = t==='pt'?'block':'none';
+    $('paneF').style.display = t==='ft'?'block':'none';
+  });
+});
+
+function av(s){ return escHtml((s.nickname||s.name||'?').charAt(0)); }
+
+async function load(){
+  if(!ownerCode){ showGate(); return; }
+  $('paneP').innerHTML = '<div class="loading">กำลังโหลด...</div>';
+  try{
+    payData = await api('getPayrollStatus', { ownerCode: ownerCode });
+    hideGate();
+    render();
+  }catch(err){
+    ownerCode = '';
+    showGate('รหัสไม่ถูกต้อง หรือโหลดไม่ได้');
+  }
+}
+
+function render(){
+  renderPT();
+  renderFT();
+}
+
+function renderPT(){
+  const list = (payData.partTime||[]);
+  const owe = list.filter(function(s){return s.daysToPay>0;});
+  if(owe.length){ $('cntPt').textContent = owe.length; $('cntPt').style.display='inline-block'; }
+  else $('cntPt').style.display='none';
+
+  if(!list.length){ $('paneP').innerHTML = '<div class="empty"><div class="em">🧍</div>ยังไม่มีพนักงานพาร์ทไทม์</div>'; return; }
+
+  $('paneP').innerHTML = list.map(function(s){
+    const has = s.daysToPay>0;
+    const since = s.lastPaidUpTo ? ('หลังจ่ายล่าสุด '+fmtDM(s.lastPaidUpTo)) : (s.countFrom ? ('ตั้งแต่ '+fmtDM(s.countFrom)) : 'ทั้งหมด');
+    const dayRows = s.days.map(function(d){
+      return '<div class="day"><span>'+d.dateDM+(d.alone?' <span class="alone">🌟 มาคนเดียว</span>':'')+'</span><span class="b">'+escHtml(d.branch||'')+'</span></div>';
+    }).join('');
+    return '<div class="pcard">'
+      +'<div class="top"><div class="av">'+av(s)+'</div>'
+        +'<div style="flex:1;"><div class="nm">'+escHtml(s.name)+(s.nickname?' ('+escHtml(s.nickname)+')':'')+'</div>'
+        +'<div class="sub">'+since+'</div></div></div>'
+      + (has
+          ? '<div style="margin-top:9px;"><span class="big">ค้างจ่าย '+s.daysToPay+' วัน</span>'
+            + (s.aloneDays>0?' · <span class="alone">มาคนเดียว '+s.aloneDays+' วัน</span>':'')+'</div>'
+            + (s.days.length?'<span class="toggle" data-toggle="'+s.id+'">ดูรายวัน ▾</span><div class="daylist" id="dl'+s.id+'">'+dayRows+'</div>':'')
+            + '<button class="paybtn" data-pay="'+s.id+'">✓ บันทึกจ่ายแล้ว ('+s.daysToPay+' วัน)</button>'
+          : '<div style="margin-top:9px;"><span class="badge paid">ไม่มีวันค้างจ่าย</span></div>')
+    +'</div>';
+  }).join('');
+
+  $('paneP').querySelectorAll('[data-toggle]').forEach(function(t){
+    t.addEventListener('click', function(){
+      const dl = $('dl'+t.dataset.toggle); dl.classList.toggle('show');
+      t.textContent = dl.classList.contains('show')?'ซ่อนรายวัน ▴':'ดูรายวัน ▾';
+    });
+  });
+  $('paneP').querySelectorAll('[data-pay]').forEach(function(b){
+    b.addEventListener('click', function(){ payPT(b.dataset.pay); });
+  });
+}
+
+function renderFT(){
+  const list = (payData.fullTime||[]);
+  let dueCount = 0;
+  list.forEach(function(s){ s.cycles.forEach(function(c){ if(c.due && !c.paid) dueCount++; }); });
+  if(dueCount){ $('cntFt').textContent = dueCount; $('cntFt').style.display='inline-block'; }
+  else $('cntFt').style.display='none';
+
+  if(!list.length){ $('paneF').innerHTML = '<div class="empty"><div class="em">🧍</div>ยังไม่มีพนักงานประจำ</div>'; return; }
+
+  $('paneF').innerHTML = list.map(function(s){
+    // เรียงงวดใหม่สุดก่อน
+    const cyc = s.cycles.slice().reverse().map(function(c){
+      let badge;
+      if(c.paid) badge = '<span class="badge paid">จ่ายแล้ว'+(c.paidDate?' '+fmtDM(c.paidDate):'')+'</span>';
+      else if(c.due) badge = '<button class="minipay" data-fp="'+s.id+'|'+c.key+'">✓ จ่าย</button>';
+      else badge = '<span class="badge wait">ยังไม่ถึงกำหนด</span>';
+      return '<div class="cyc'+((c.due&&!c.paid)?' due':'')+'">'
+        +'<div class="ci"><div class="cl">'+escHtml(c.label)+'</div>'
+        +'<div class="cd">กำหนดจ่าย '+c.payDateDM+(c.due&&!c.paid?' · <b style="color:#B91C1C;">เลยกำหนด</b>':'')+'</div></div>'
+        + badge +'</div>';
+    }).join('');
+    return '<div class="pcard">'
+      +'<div class="top"><div class="av">'+av(s)+'</div>'
+        +'<div class="nm">'+escHtml(s.name)+(s.nickname?' ('+escHtml(s.nickname)+')':'')+'</div></div>'
+      +'<div style="margin-top:6px;">'+cyc+'</div>'
+    +'</div>';
+  }).join('');
+
+  $('paneF').querySelectorAll('[data-fp]').forEach(function(b){
+    b.addEventListener('click', function(){ payFT(b.dataset.fp); });
+  });
+}
+
+function fmtDM(d){ const p=String(d).split('-'); return p.length===3?(p[2]+'/'+p[1]):d; }
+
+async function payPT(id){
+  const s = payData.partTime.find(function(x){return x.id===id;});
+  if(!s) return;
+  if(!confirm('บันทึกจ่าย '+(s.nickname||s.name)+' จำนวน '+s.daysToPay+' วัน'+(s.aloneDays>0?' (มาคนเดียว '+s.aloneDays+' วัน)':'')+' ?\nระบบจะนับวันใหม่ตั้งแต่พรุ่งนี้เป็นต้นไป')) return;
+  try{
+    const r = await api('markPaid', { data: { staffId:id, type:'พาร์ทไทม์', days:s.daysToPay, aloneDays:s.aloneDays, periodStart:s.firstDay }, ownerCode: ownerCode });
+    toast(r.msg || 'บันทึกแล้ว ✓');
+    load();
+  }catch(err){ toast('ผิดพลาด: '+err.message); }
+}
+
+async function payFT(combo){
+  const parts = combo.split('|');
+  const sid = parts[0];
+  const cycleKey = parts.slice(1).join('|');
+  const s = payData.fullTime.find(function(x){return x.id===sid;});
+  const c = s ? s.cycles.find(function(x){return x.key===cycleKey;}) : null;
+  if(!c) return;
+  if(!confirm('บันทึกจ่าย '+(s.nickname||s.name)+'\n'+c.label+' ?')) return;
+  try{
+    const r = await api('markPaid', { data: { staffId:sid, type:'ประจำ', cycleKey:cycleKey, periodStart:c.periodStart, periodEnd:c.periodEnd }, ownerCode: ownerCode });
+    toast(r.msg || 'บันทึกแล้ว ✓');
+    load();
+  }catch(err){ toast('ผิดพลาด: '+err.message); }
+}
+
+load();
+</script>
+</body>
+</html>

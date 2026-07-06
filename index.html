@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>หน้าแรก · กุยช่ายสวรรค์</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="กุยช่ายสวรรค์">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+.greeting{padding:8px 4px 4px;}
+.greeting .hi{font-family:'Kanit';font-weight:700;font-size:18px;color:var(--ink);}
+.greeting .dt{font-size:13px;color:var(--ink-2);margin-top:2px;}
+
+/* Hero */
+.hero{background:#fff;border:1px solid #F0E8D6;border-radius:18px;padding:18px 20px;color:var(--ink);margin-bottom:14px;
+  box-shadow:0 3px 12px rgba(120,86,0,.06);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-30%;right:-20%;width:200px;height:200px;background:radial-gradient(circle, rgba(230,184,60,.18), transparent 70%);}
+.hero .lbl{font-size:12px;color:var(--ink-2);font-family:'Kanit';font-weight:500;}
+.hero .v{font-family:'Kanit';font-weight:800;font-size:36px;color:var(--green);line-height:1.05;margin-top:4px;}
+.hero .compare{margin-top:8px;font-size:12.5px;font-family:'Kanit';font-weight:600;display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:11px;}
+.hero .compare.up{background:#DCFCE7;color:#15803D;}
+.hero .compare.down{background:#FEE2E2;color:#B91C1C;}
+.hero .compare.same{background:#F1EFE8;color:#6B6456;}
+
+/* Alerts */
+.alerts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.alert{display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:12px;cursor:pointer;text-decoration:none;color:inherit;}
+.alert .ic{width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:18px;}
+.alert .info{flex:1;}
+.alert .nm{font-family:'Kanit';font-weight:700;font-size:14px;line-height:1.3;}
+.alert .desc{font-size:11.5px;margin-top:1px;opacity:.85;}
+.alert .arrow{font-size:18px;opacity:.6;}
+.alert.crit{background:#FEE2E2;color:#7F1D1D;}  .alert.crit .ic{background:#EF4444;color:#fff;}
+.alert.warn{background:#FEF3C7;color:#78350F;}  .alert.warn .ic{background:#F59E0B;color:#fff;}
+.alert.info{background:#DBEAFE;color:#1E3A8A;}  .alert.info .ic{background:#3B82F6;color:#fff;}
+
+/* Quick Actions */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+
+.qa{background:#fff;border-radius:17px;border:1px solid #F0E8D6;padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;
+  cursor:pointer;text-decoration:none;color:inherit;border:0;transition:.15s;box-shadow:0 2px 6px rgba(0,0,0,.04);}
+.qa:active{transform:scale(.95);}
+.qa .ic{width:48px;height:48px;display:grid;place-items:center;}
+.qa .ic img{width:100%;height:100%;object-fit:contain;}
+.qa .ic.green{background:linear-gradient(135deg,#86EFAC,#22C55E);}
+.qa .ic.yellow{background:linear-gradient(135deg,#E6B83C,#1E7A45);}
+.qa .ic.blue{background:linear-gradient(135deg,#7DD3FC,#0284C7);}
+.qa .ic.purple{background:linear-gradient(135deg,#C4B5FD,#7C3AED);}
+.qa .lbl{font-family:'Kanit';font-weight:600;font-size:12px;color:var(--ink);text-align:center;line-height:1.25;}
+
+/* Stats Grid */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+.stat-card{background:#fff;border-radius:17px;padding:13px 15px;border:1px solid #F0E8D6;box-shadow:0 3px 11px rgba(120,86,0,.05);}
+.stat-card .h{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-2);font-weight:600;}
+.stat-card .v{font-family:'Kanit';font-weight:800;font-size:22px;color:var(--ink);line-height:1.1;margin-top:4px;}
+.stat-card .v small{font-size:13px;color:var(--ink-2);font-weight:500;}
+.stat-card .sub{font-size:11px;color:var(--ink-2);margin-top:3px;line-height:1.4;}
+.stat-card.sales .v{color:#15803D;}
+.stat-card.expense .v{color:#155E38;}
+.stat-card.attendance .v{color:#1E40AF;}
+.stat-card.waste .v{color:#B91C1C;}
+.mini-chart{width:100%;height:42px;margin-top:6px;}
+
+/* Activity */
+.act-row{display:flex;align-items:center;gap:11px;padding:10px 4px;border-bottom:1px solid #F2EEDD;}
+.act-row:last-child{border-bottom:0;}
+.act-row .ico{width:30px;height:30px;border-radius:9px;background:#F6F0DB;display:grid;place-items:center;font-size:15px;flex:none;}
+.act-row .info{flex:1;min-width:0;}
+.act-row .info .t{font-family:'Kanit';font-weight:600;font-size:13.5px;color:var(--ink);line-height:1.3;}
+.act-row .tm{font-family:'Kanit';font-weight:700;font-size:12px;color:var(--ink-2);}
+
+/* Section */
+.sec{background:#fff;border-radius:14px;padding:14px;margin-bottom:14px;}
+.sec .h{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-family:'Kanit';font-weight:700;font-size:14.5px;color:var(--ink);}
+.sec .h .em{font-size:16px;}
+.sec .h .more{margin-left:auto;font-size:11.5px;color:var(--teal);font-weight:600;text-decoration:none;}
+
+.dl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.dl-grid a{background:#fff;border:1px solid #F0E8D6;padding:11px 12px;border-radius:15px;text-decoration:none;color:var(--ink);font-family:'Kanit';font-weight:600;font-size:12.5px;display:flex;align-items:center;gap:9px;box-shadow:0 2px 8px rgba(120,86,0,.05);}
+.dl-grid a img{width:28px;height:28px;object-fit:contain;flex:none;}
+
+.loading{text-align:center;padding:40px;color:var(--ink-2);font-size:13px;}
+.empty-mini{text-align:center;padding:14px;color:var(--ink-2);font-size:12.5px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head" style="padding-bottom:16px;">
+    <img class="logo" src="Logo.png" alt="กุยช่ายสวรรค์" style="height:112px;width:auto;border-radius:0;margin-bottom:4px;">
+    <div class="sub" style="color:#E7CE92;">ระบบบริหารร้าน</div>
+  </div>
+
+  <div class="sheet">
+
+    <div class="greeting">
+      <div class="hi" id="greet">สวัสดีค่ะ ☀️</div>
+      <div class="dt" id="datetime">-</div>
+    </div>
+
+    <div id="content"><div class="loading">กำลังโหลด...</div></div>
+
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+injectShell('home');
+registerSW();
+
+let home = null;
+const $ = function(id){return document.getElementById(id);};
+
+function setGreeting(){
+  const h = new Date().getHours();
+  let g = 'สวัสดีค่ะ';
+  if (h < 11) g = 'อรุณสวัสดิ์ ☀️';
+  else if (h < 14) g = 'สวัสดีตอนเที่ยง 🍱';
+  else if (h < 18) g = 'สวัสดีตอนบ่าย ☕';
+  else g = 'สวัสดีตอนเย็น 🌙';
+  $('greet').textContent = g;
+  const days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  const months = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const now = new Date();
+  $('datetime').textContent = 'วัน'+days[now.getDay()]+'ที่ '+now.getDate()+' '+months[now.getMonth()]+' '+(now.getFullYear()+543);
+}
+
+function fmtBaht(n){
+  const num = parseFloat(n)||0;
+  return '฿'+Math.round(num).toLocaleString('en-US');
+}
+
+function loadHome(){
+  apiSWR('getHomeDashboard', {}, function(data){
+    home = data;
+    render();
+  }).catch(function(err){
+    $('content').innerHTML = '<div class="loading" style="color:var(--red);">โหลดไม่ได้: '+escHtml(err.message)+'<br><br><small>ตรวจสอบว่ารัน setupStock + setupAttend ครบใน Apps Script แล้ว</small></div>';
+  });
+}
+
+function render(){
+  let html = '';
+  const s = home.sales;
+
+  // Hero — At a Glance
+  let compareCls = 'same', compareText = '—';
+  if (s.compareYesterdayPct > 5) { compareCls = 'up'; compareText = '⬆ +'+s.compareYesterdayPct+'% vs ค่าเฉลี่ย 7 วัน'; }
+  else if (s.compareYesterdayPct < -5) { compareCls = 'down'; compareText = '⬇ '+s.compareYesterdayPct+'% vs ค่าเฉลี่ย 7 วัน'; }
+  else if (s.avg7 > 0) { compareText = '≈ ใกล้เคียงค่าเฉลี่ย ('+(s.compareYesterdayPct>=0?'+':'')+s.compareYesterdayPct+'%)'; }
+
+  html += '<div class="hero">'
+    +'<div class="lbl">💰 ยอดขายเมื่อวาน</div>'
+    +'<div class="v">'+fmtBaht(s.yesterday)+'</div>';
+  if (s.avg7 > 0) {
+    html += '<div class="compare '+compareCls+'">'+compareText+'</div>';
+  } else {
+    html += '<div class="compare same">📝 ยังไม่มีข้อมูลพอเทียบ</div>';
+  }
+  html += '</div>';
+
+  // Alerts
+  const alerts = buildAlerts();
+  if (alerts.length) html += '<div class="alerts">' + alerts.join('') + '</div>';
+
+  // Quick Actions
+  html += '<div class="qa-grid">'
+    +'<a class="qa" href="attend.html"><div class="ic"><img src="ic-attend.png" alt=""></div><div class="lbl">เช็คอิน<br>เข้างาน</div></a>'
+    +'<a class="qa" href="records.html#report"><div class="ic"><img src="ic-record.png" alt=""></div><div class="lbl">บันทึก<br>ยอดวันนี้</div></a>'
+    +'<a class="qa" href="stock-view.html"><div class="ic"><img src="ic-audit.png" alt=""></div><div class="lbl">ตรวจ<br>สต๊อก</div></a>'
+    +'<a class="qa" href="stock-receive.html"><div class="ic"><img src="ic-receive.png" alt=""></div><div class="lbl">รับ<br>ของเข้า</div></a>'
+  +'</div>';
+
+  // Stats Grid
+  const a = home.attendance, e = home.expenses;
+  const presentNames = a.present.map(function(p){return escHtml(p.name);}).join(', ');
+  const sales7sum = s.sales7days.reduce(function(acc,b){return acc+b.sales;}, 0);
+  html += '<div class="stats-grid">'
+    +'<div class="stat-card sales">'
+      +'<div class="h"><span>📈</span> ยอดขาย 7 วัน</div>'
+      +'<div class="v">'+fmtBaht(sales7sum)+'</div>'
+      +'<div class="sub">เฉลี่ย '+fmtBaht(s.avg7)+'/วัน</div>'
+      + renderMiniChart(s.sales7days)
+    +'</div>'
+    +'<div class="stat-card attendance">'
+      +'<div class="h"><span>👥</span> พนักงานวันนี้</div>'
+      +'<div class="v">'+a.checkedIn+'<small>/'+a.total+' คน</small></div>'
+      +'<div class="sub">เข้า '+a.checkedIn+' · ออก '+a.checkedOut+(presentNames?'<br>อยู่ที่ร้าน: '+presentNames:'')+'</div>'
+    +'</div>'
+    +'<div class="stat-card expense">'
+      +'<div class="h"><span>🧾</span> ค่าใช้จ่ายวันนี้</div>'
+      +'<div class="v">'+fmtBaht(e.todayTotal)+'</div>'
+      +'<div class="sub">'+e.todayCount+' รายการ</div>'
+    +'</div>'
+    +'<div class="stat-card waste">'
+      +'<div class="h"><span>📦</span> สถานะสต๊อก</div>'
+      +'<div class="v">'+home.stock.total+'<small> รายการ</small></div>'
+      +'<div class="sub">⚠️ ใกล้หมด '+home.stock.lowStock+' · 🚫 หมด '+home.stock.outOfStock+'</div>'
+    +'</div>'
+  +'</div>';
+
+  // Activity Feed
+  html += '<div class="sec"><div class="h"><span class="em">🕐</span> กิจกรรมวันนี้<a href="activities.html" class="more">ดูทั้งหมด →</a></div>';
+  if (home.activities.length === 0) {
+    html += '<div class="empty-mini">ยังไม่มีกิจกรรมวันนี้</div>';
+  } else {
+    html += home.activities.map(function(act){
+      return '<div class="act-row">'
+        +'<div class="ico">'+act.icon+'</div>'
+        +'<div class="info"><div class="t" style="color:'+act.color+';">'+escHtml(act.text)+'</div></div>'
+        +'<div class="tm">'+(act.time||'')+'</div>'
+      +'</div>';
+    }).join('');
+  }
+  html += '</div>';
+
+  // ลิงก์แดชบอร์ดเต็ม
+  html += '<div class="sec"><div class="h"><span class="em">📊</span> ดูข้อมูลเชิงลึก</div>'
+    +'<div class="dl-grid">'
+      +'<a href="records.html#dash"><img src="ic-sales.png" alt="">แดชบอร์ดยอดขาย</a>'
+      +'<a href="stock-dashboard.html"><img src="ic-overview.png" alt="">แดชบอร์ดสต๊อก</a>'
+      +'<a href="attend-report.html"><img src="ic-attendreport.png" alt="">รายงานเข้า-ออก</a>'
+      +'<a href="expenses-report.html"><img src="ic-expense.png" alt="">รายงานค่าใช้จ่าย</a>'
+    +'</div>'
+  +'</div>';
+
+  $('content').innerHTML = html;
+}
+
+function buildAlerts(){
+  const out = [];
+  const st = home.stock;
+  if (st.outOfStock > 0) {
+    const names = (st.outOfStockItems || []).map(function(it){return it.name;}).slice(0,3).join(', ');
+    out.push('<a class="alert crit" href="stock-view.html">'
+      +'<div class="ic">🚫</div>'
+      +'<div class="info"><div class="nm">ของหมดสต๊อก '+st.outOfStock+' รายการ</div>'
+      +'<div class="desc">'+escHtml(names || '-')+(st.outOfStock>3?' …':'')+'</div></div>'
+      +'<div class="arrow">›</div></a>');
+  }
+  if (st.criticalForecast && st.criticalForecast.length > 0) {
+    const names = st.criticalForecast.slice(0,3).map(function(f){return f.name+' ('+f.daysLeft+'ว.)';}).join(', ');
+    out.push('<a class="alert warn" href="stock-dashboard.html">'
+      +'<div class="ic">⏰</div>'
+      +'<div class="info"><div class="nm">'+st.criticalForecast.length+' รายการจะหมดเร็ว</div>'
+      +'<div class="desc">'+escHtml(names)+'</div></div>'
+      +'<div class="arrow">›</div></a>');
+  }
+  if (st.lowStock > 0) {
+    out.push('<a class="alert warn" href="stock-view.html">'
+      +'<div class="ic">⚠️</div>'
+      +'<div class="info"><div class="nm">ของใกล้หมด '+st.lowStock+' รายการ</div>'
+      +'<div class="desc">ตรวจสอบและเตรียมสั่งเพิ่ม</div></div>'
+      +'<div class="arrow">›</div></a>');
+  }
+  return out;
+}
+
+function renderMiniChart(data){
+  if (!data || data.length === 0) return '';
+  const max = Math.max.apply(null, data.map(function(d){return d.sales;}));
+  if (max === 0) return '<div style="font-size:10px;color:var(--ink-2);margin-top:6px;text-align:center;">ยังไม่มีข้อมูล</div>';
+  const W = 160, H = 36;
+  const pts = data.map(function(d, i){
+    const x = (i / Math.max(1, data.length-1)) * W;
+    const y = H - (d.sales / max) * H;
+    return x + ',' + y;
+  }).join(' ');
+  const lastY = H - (data[data.length-1].sales / max) * H;
+  return '<svg class="mini-chart" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'
+    +'<polyline points="'+pts+'" fill="none" stroke="#15803D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'<circle cx="'+W+'" cy="'+lastY+'" r="3" fill="#15803D"/>'
+    +'</svg>';
+}
+
+renderIcons();
+setGreeting();
+loadHome();
+</script>
+</body>
+</html>

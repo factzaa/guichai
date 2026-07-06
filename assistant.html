@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>ผู้ช่วยกุยช่าย · กุยช่ายสวรรค์</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="shared.css">
+<style>
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 0px);}
+.msgs{flex:1;overflow-y:auto;padding:14px 4px 8px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:82%;padding:10px 13px;border-radius:15px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word;}
+.msg.me{align-self:flex-end;background:#E6B83C;color:#143D26;border-bottom-right-radius:5px;}
+.msg.ai{align-self:flex-start;background:#fff;color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:5px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.msg.err{align-self:center;background:#FEF2F2;color:#B91C1C;font-size:12.5px;border-radius:11px;max-width:90%;text-align:center;}
+.hello{text-align:center;color:var(--ink-2);padding:24px 18px;}
+.hello .em{font-size:46px;margin-bottom:8px;}
+.hello img.em{width:108px;height:auto;display:block;margin:0 auto 8px;filter:drop-shadow(0 4px 10px rgba(120,86,0,.16));}
+.hello .t{font-family:'Kanit';font-weight:700;font-size:16px;color:var(--ink);}
+.hello .s{font-size:12.5px;margin-top:5px;line-height:1.5;}
+.chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:14px;}
+.chip{background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:7px 12px;font-size:12.5px;color:var(--ink);cursor:pointer;font-family:'Sarabun';}
+.chip:active{background:#F6F0DB;}
+.quickq{margin:16px auto 0;max-width:360px;text-align:left;}
+.quickq .qg{font-family:'Kanit';font-weight:700;font-size:12px;color:var(--ink-2);margin:13px 2px 7px;display:flex;align-items:center;gap:5px;}
+.quickq .qrow{display:flex;flex-direction:column;gap:8px;}
+.quickq .chip{width:100%;box-sizing:border-box;text-align:center;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;font-size:13.5px;color:var(--ink);cursor:pointer;font-family:'Sarabun';font-weight:600;transition:.12s;box-shadow:0 1px 3px rgba(120,86,0,.05);}
+.quickq .chip:active{background:#F1E9CE;transform:scale(.98);}
+.quickq .chip:hover{border-color:#F2D58A;}
+.typing{align-self:flex-start;background:#fff;border:1px solid var(--line);border-radius:15px;border-bottom-left-radius:5px;padding:12px 15px;display:flex;gap:4px;}
+.typing span{width:7px;height:7px;border-radius:50%;background:#C9C1AE;animation:bz 1.2s infinite;}
+.typing span:nth-child(2){animation-delay:.2s;} .typing span:nth-child(3){animation-delay:.4s;}
+@keyframes bz{0%,60%,100%{opacity:.3;transform:translateY(0);}30%{opacity:1;transform:translateY(-4px);}}
+.inbar{display:flex;gap:8px;padding:10px 4px calc(10px + env(safe-area-inset-bottom));align-items:flex-end;border-top:1px solid var(--line);background:var(--bg);}
+.inbar textarea{flex:1;resize:none;border:1.5px solid var(--line);border-radius:14px;padding:11px 14px;font-family:'Sarabun';font-size:14px;max-height:120px;line-height:1.4;background:#fff;color:var(--ink);}
+.inbar textarea:focus{outline:none;border-color:#E6B83C;}
+.sendb{width:46px;height:46px;border-radius:50%;border:0;background:linear-gradient(180deg,#EEC85E,#CBA236);color:#143D26;font-size:19px;cursor:pointer;flex-shrink:0;box-shadow:0 3px 9px rgba(198,152,42,.4);}
+.sendb:disabled{opacity:.4;}
+.att-btn{width:40px;height:46px;border:0;background:transparent;font-size:21px;cursor:pointer;flex-shrink:0;line-height:1;padding:0;}
+.att-chip{display:none;align-items:center;gap:9px;margin:0 4px 8px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:7px 10px;}
+.att-chip.show{display:flex;}
+.att-chip img{width:38px;height:38px;border-radius:8px;object-fit:cover;flex:none;}
+.att-chip span{flex:1;min-width:0;font-size:12.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.att-chip button{border:0;background:#F2EEDD;color:var(--ink-2);width:24px;height:24px;border-radius:50%;cursor:pointer;flex:none;font-size:13px;}
+.att-chip .att-thumbs{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0;}
+.att-chip .athumb{position:relative;width:44px;height:44px;flex:none;}
+.att-chip .athumb img{width:100%;height:100%;border-radius:8px;object-fit:cover;}
+.att-chip .athumb button{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#143D26;color:#fff;border:0;font-size:10px;line-height:1;cursor:pointer;padding:0;}
+.cap-card{align-self:stretch;background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.cap-h{font-family:'Kanit';font-weight:700;font-size:13px;color:var(--ink-2);margin-bottom:6px;}
+.cap-b{font-size:13.5px;color:var(--ink);line-height:1.55;white-space:pre-wrap;}
+.cap-copy{margin-top:9px;border:1.5px solid var(--line);background:#F6F0DB;color:var(--ink);font-family:'Kanit';font-weight:600;font-size:12.5px;padding:7px 13px;border-radius:9px;cursor:pointer;}
+.style-btn{border:1.5px solid #ECE6D6;background:#fff;color:#143D26;font-family:'Kanit';font-weight:600;font-size:13px;padding:8px 13px;border-radius:10px;cursor:pointer;}
+.style-btn.on{background:#E6B83C;border-color:#E6B83C;}
+.poster-card{align-self:stretch;background:#fff;border:1px solid var(--line);border-radius:13px;padding:10px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.poster-card img{max-width:100%;border-radius:10px;display:block;margin:0 auto;}
+.poster-card .pl{font-size:12px;color:var(--ink-2);margin:7px 0;font-family:'Kanit';font-weight:600;}
+.poster-dl{display:inline-block;background:#E6B83C;color:#143D26;font-family:'Kanit';font-weight:700;font-size:13px;padding:8px 16px;border-radius:10px;text-decoration:none;}
+.act-card{align-self:stretch;background:#fff;border:1.5px solid #F2D58A;border-radius:14px;padding:12px 14px;box-shadow:0 2px 8px rgba(120,86,0,.1);}
+.act-card .ac-h{font-family:'Kanit';font-weight:700;font-size:14px;color:#143D26;margin-bottom:6px;}
+.act-card .ac-b{font-size:14px;color:#143D26;margin-bottom:8px;}
+.act-card input{width:100%;box-sizing:border-box;border:1.5px solid #E8DFC4;border-radius:10px;padding:9px 11px;font-family:'Sarabun';font-size:14px;margin-bottom:9px;}
+.act-card .ac-btns{display:flex;gap:8px;}
+.act-card .ac-btns button{flex:1;border:0;border-radius:10px;padding:10px;font-family:'Kanit';font-weight:700;font-size:14px;cursor:pointer;}
+.act-card .ac-ok{background:#15803D;color:#fff;}
+.act-card .ac-cancel{background:#F2EEDD;color:#5A5247;}
+.act-card .ac-msg{font-size:12.5px;margin-top:7px;}
+.note{font-size:11px;color:var(--ink-2);text-align:center;padding:2px 10px 6px;}
+</style>
+</head>
+<body>
+<div class="app" style="padding-bottom:0;">
+  <div class="head">
+    <h1>ผู้ช่วยกุยช่าย</h1>
+    <div class="sub">กุยช่ายสวรรค์ · ถาม-คุยได้ทุกเรื่อง</div>
+  </div>
+  <div class="sheet" style="padding-bottom:0;">
+    <div class="chat-wrap">
+      <div class="msgs" id="msgs">
+        <div class="hello" id="hello">
+          <img class="em" src="Logo.png" alt="กุยช่าย" onerror="this.outerHTML='<div class=&quot;em&quot;>🥟</div>'">
+          <div class="t">สวัสดีครับ ผมผู้ช่วยกุยช่าย</div>
+          <div class="s">คุยเล่น ปรึกษา หรือถามอะไรก็ได้เลย<br>เหนื่อยๆ มาคุยเป็นเพื่อนกันได้นะ 😊</div>
+          <div class="quickq" id="chips">
+            <div class="qg">💰 ยอดขาย</div>
+            <div class="qrow">
+              <div class="chip" data-q="ยอดขายวันนี้รวมเท่าไหร่ แยกตามช่องทางด้วย">ยอดขายวันนี้</div>
+              <div class="chip" data-q="ยอด Grab เดือนนี้รวมเท่าไหร่ ขอแยกรายวันด้วย">ยอด Grab เดือนนี้</div>
+              <div class="chip" data-q="เดือนนี้ขายดีที่สุดวันไหน ยอดเท่าไหร่">วันขายดีสุด</div>
+            </div>
+            <div class="qg">📦 สต๊อก</div>
+            <div class="qrow">
+              <div class="chip" data-q="ตอนนี้มีสินค้าอะไรใกล้หมดหรือหมดสต๊อกบ้าง">ของใกล้หมด / หมด</div>
+              <div class="chip" data-q="มีของอะไรที่ควรสั่งซื้อเพิ่มบ้าง">ของที่ต้องสั่งเพิ่ม</div>
+              <div class="chip" data-q="เบิกของล่าสุดรายการอะไร เมื่อไหร่ กี่โมง ใครเบิก">เบิกล่าสุด</div>
+            </div>
+            <div class="qg">🧾 ค่าใช้จ่าย</div>
+            <div class="qrow">
+              <div class="chip" data-q="ค่าใช้จ่ายเดือนนี้รวมเท่าไหร่ คิดเป็นกี่เปอร์เซ็นต์ของยอดขาย">ค่าใช้จ่ายเดือนนี้</div>
+              <div class="chip" data-q="ขอดูรายการค่าใช้จ่ายล่าสุด 5 รายการ พร้อมวันที่และมีใบเสร็จไหม">รายการล่าสุด</div>
+            </div>
+            <div class="qg">⏰ เข้างาน / เงินสด</div>
+            <div class="qrow">
+              <div class="chip" data-q="วันนี้ใครเข้างานบ้าง กี่โมง อยู่ในเขตร้านไหม">ใครเข้างานวันนี้</div>
+              <div class="chip" data-q="ตอนนี้เงินสดรอนำส่งเท่าไหร่ คำนวณจากอะไรบ้าง">เงินสดรอนำส่ง</div>
+            </div>
+            <div class="qg">🎨 ทำโพสต์ / การตลาด</div>
+            <div class="qrow">
+              <div class="chip" data-help="1">ℹ️ วิธีใช้โหมดการตลาด</div>
+              <div class="chip" data-q="ทำโพสต์โปรโมชั่นลด 20% ลงเฟสบุ๊ก">ตัวอย่าง: โพสต์ลดราคา</div>
+              <div class="chip" data-q="เขียนแคปชั่นเปิดเมนูใหม่ ลง LINE">ตัวอย่าง: เปิดเมนูใหม่</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="att-chip" id="attChip">
+        <div class="att-thumbs" id="attThumbs"></div>
+        <button id="attRm" type="button" aria-label="ลบทั้งหมด" title="ลบทั้งหมด">✕</button>
+      </div>
+      <div class="inbar">
+        <button class="att-btn" id="attBtn" type="button" title="แนบรูปทำโพสต์">📎</button>
+        <input type="file" accept="image/*" id="imgInput" multiple style="display:none">
+        <textarea id="inp" rows="1" placeholder="พิมพ์ข้อความ... หรือแนบรูป 📎 ทำโพสต์"></textarea>
+        <button class="sendb" id="send">➤</button>
+      </div>
+      <div class="note">🥟 กุยช่ายดูข้อมูลยอดขาย สต๊อก ค่าใช้จ่าย เข้างาน และเงินสดให้ได้ · ข้อมูลค่าจ้าง/เงินเดือนต้องใส่รหัสเจ้าของ</div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+injectShell('assistant');
+registerSW();
+const $ = function(id){return document.getElementById(id);};
+const msgsEl = $('msgs'), inp = $('inp'), sendBtn = $('send');
+let history = [];   // {role:'user'|'model', text}
+let busy = false;
+// ===== แนบรูป / ทำโพสต์การตลาด =====
+let promoImgs = [];   // [{ imgEl, dataURL, name }]
+const MAX_IMGS = 3;
+const CHAN_LABEL = { facebook:'Facebook', line:'LINE', instagram:'Instagram', tiktok:'TikTok' };
+function chansFrom(t){ var c=[]; if(/เฟส|เฟซ|facebook|\bfb\b/i.test(t))c.push('facebook'); if(/ไลน์|line/i.test(t))c.push('line'); if(/ไอจี|\big\b|instagram|อินสตา/i.test(t))c.push('instagram'); if(/ติ๊?กต็?อก|ติ้กต็อก|tiktok/i.test(t))c.push('tiktok'); return c; }
+function wantsAi(t){ return /วาดรูป|วาดภาพ|สร้างภาพ|แต่งรูป|แต่งภาพ|ทำภาพใหม่|ภาพใหม่|ภาพ ?ai|ai ?image|เจน(เนอ)?เรท|ออกแบบภาพ|ครีเอทภาพ|แต่งฉาก/i.test(t); }
+function isPromo(t){ return /ทำโพสต์|สร้างโพสต์|ขอโพสต์|เขียนโพสต์|โพสต์ขาย|โพสต์โปร|โพสต์ลง|ลงโพสต์|แคปชั่น|caption|ทำโฆษณา|เขียนโฆษณา|ทำโปสเตอร์|ทำป้ายโปร|ลงเฟส|ลงเพจ|ลงไอจี|ลงไลน์|ลง ?ig|ลง ?fb/i.test(t); }
+function clearAtt(){ promoImgs=[]; var chip=$('attChip'); if(chip) chip.classList.remove('show'); var box=$('attThumbs'); if(box) box.innerHTML=''; }
+function renderAttThumbs(){
+  var box=$('attThumbs'); if(!box) return; box.innerHTML='';
+  promoImgs.forEach(function(p, idx){
+    var w=document.createElement('div'); w.className='athumb';
+    var im=document.createElement('img'); im.src=p.dataURL; w.appendChild(im);
+    var b=document.createElement('button'); b.type='button'; b.textContent='✕';
+    b.addEventListener('click', function(){ promoImgs.splice(idx,1); renderAttThumbs(); if(!promoImgs.length){ var c=$('attChip'); if(c) c.classList.remove('show'); } });
+    w.appendChild(b); box.appendChild(w);
+  });
+}
+
+// textarea auto-grow
+inp.addEventListener('input', function(){ inp.style.height='auto'; inp.style.height=Math.min(inp.scrollHeight,120)+'px'; });
+inp.addEventListener('keydown', function(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); doSend(); }
+});
+sendBtn.addEventListener('click', doSend);
+$('chips').querySelectorAll('.chip').forEach(function(c){
+  c.addEventListener('click', function(){ if(c.dataset.help){ showMarketingHelp(); return; } inp.value=(c.dataset.q||c.textContent); doSend(); });
+});
+$('attBtn').addEventListener('click', function(){ $('imgInput').click(); });
+$('imgInput').addEventListener('change', function(){
+  var files=Array.prototype.slice.call(this.files||[]); this.value='';
+  if(!files.length) return;
+  files.forEach(function(fl){
+    if(promoImgs.length>=MAX_IMGS) return;
+    var rd=new FileReader();
+    rd.onload=function(){ var im=new Image(); im.onload=function(){
+      if(promoImgs.length>=MAX_IMGS) return;
+      promoImgs.push({ imgEl:im, dataURL:rd.result, name:fl.name||'รูปแนบ' });
+      $('attChip').classList.add('show'); renderAttThumbs();
+      if(!window.__maruAttHinted){ window.__maruAttHinted=true; addMsg('แนบรูปแล้ว 🥟 พิมพ์สิ่งที่อยากได้ เช่น "ทำโพสต์ลด 20% ลงเฟส" · แนบได้หลายรูป (สูงสุด 3) แล้วพิมพ์ "แต่งรูป" ให้ AI รวมเป็นภาพเดียว เช่น โปร "ซื้อ 2 แถม 1"','ai'); }
+    }; im.src=rd.result; };
+    rd.readAsDataURL(fl);
+  });
+});
+$('attRm').addEventListener('click', clearAtt);
+
+function showMarketingHelp(){
+  var t = '🎨 โหมดการตลาด — วิธีใช้\n\n'
+    + '1) อยากได้โปสเตอร์ กดปุ่ม 📎 แนบรูปสินค้าก่อน (ถ้าอยากได้แค่แคปชั่น ไม่ต้องแนบก็ได้)\n'
+    + '2) พิมพ์สิ่งที่ต้องการ เช่น "ทำโพสต์ลด 20% ลงเฟส" หรือ "เขียนแคปชั่นเปิดเมนูใหม่ ลง LINE"\n'
+    + '   • ระบุช่องทางได้: เฟส / LINE / IG / TikTok (ใส่หลายช่องก็ได้)\n'
+    + '3) กุยช่ายจะร่างแคปชั่นให้ กดปุ่มคัดลอกไปโพสต์ได้เลย\n'
+    + '   • ถ้าแนบรูป จะมีสไตล์โปสเตอร์ 6 แบบให้เลือก กดแล้วได้รูปพร้อมปุ่มดาวน์โหลด\n'
+    + '4) อยากให้ AI แต่งภาพให้สวยขึ้น พิมพ์ "แต่งรูป" (ทำได้เฉพาะจากรูปที่แนบเท่านั้น)\n\n'
+    + 'ลองแนบรูปแล้วพิมพ์ดูได้เลยครับ 🥟';
+  addMsg(t, 'ai');
+}
+async function runPromo(text){
+  var chans=chansFrom(text), wantAi=wantsAi(text);
+  if(wantAi && !promoImgs.length){ addMsg('แต่งรูปได้เฉพาะจากรูปที่แนบมานะครับ 🥟 แนบรูปสินค้าก่อน แล้วสั่ง "แต่งรูป" อีกครั้งได้เลย','err'); return; }
+  showTyping();
+  try{
+    var r=await api('genPromoCaption', { brief:text, channels:chans });
+    hideTyping();
+    if(!(r&&r.ok&&r.captions)){ addMsg((r&&r.error)||'สร้างไม่สำเร็จ ลองใหม่นะครับ','err'); clearAtt(); return; }
+    addMsg('นี่คือโพสต์ที่ร่างให้ครับ 🥟 คัดลอกแคปชั่นไปโพสต์ได้เลย'+(promoImgs.length?' · เลือกสไตล์โปสเตอร์ด้านล่างได้':''),'ai');
+    var caps=r.captions, order=(r.channels&&r.channels.length)?r.channels:Object.keys(caps), shown=0;
+    order.forEach(function(ch){ if(ch==='poster'||ch==='raw')return; if(caps[ch]){ addCaption(CHAN_LABEL[ch]||ch, String(caps[ch])); shown++; } });
+    if(!shown && caps.raw) addMsg(String(caps.raw),'ai');
+    var poster=caps.poster||{};
+    if(promoImgs.length){
+      if(wantAi){
+        addMsg(promoImgs.length>1?'🎨 กำลังรวมรูปที่แนบเป็นภาพเดียวด้วย AI สักครู่นะครับ...':'🎨 กำลังแต่งรูปจากภาพที่แนบด้วย AI สักครู่นะครับ...','ai'); showTyping();
+        var payload={ prompt:text, images: promoImgs.map(function(p){ return { data:(p.dataURL.split(',')[1]||''), mime:(p.dataURL.match(/^data:(.*?);/)||[])[1]||'image/jpeg' }; }) };
+        var ir; try{ ir=await awTimeout(api('genPromoImage',payload),60000); }catch(e){ ir={ok:false,error:'แต่งรูปนานเกินไป/เชื่อมต่อไม่ได้'}; }
+        hideTyping();
+        if(ir&&ir.ok&&ir.image){
+          var aiImg=new Image();
+          aiImg.onload=function(){ addPoster('ภาพแต่งด้วย AI (จากรูปที่แนบ)', ir.image); showPosterPicker(aiImg, poster, chans); };
+          aiImg.onerror=function(){ addMsg('โหลดภาพ AI ไม่ได้ ใช้รูปเดิมทำโปสเตอร์แทนนะครับ','err'); showPosterPicker(promoImgs[0].imgEl, poster, chans); };
+          aiImg.src=ir.image;
+        } else { addMsg((ir&&ir.error)||'แต่งรูปไม่สำเร็จ ใช้รูปเดิมทำโปสเตอร์ได้','err'); showPosterPicker(promoImgs[0].imgEl, poster, chans); }
+      } else { showPosterPicker(promoImgs[0].imgEl, poster, chans); }
+    }
+  }catch(e){ hideTyping(); addMsg('เชื่อมต่อไม่ได้ ลองใหม่นะครับ','err'); }
+  clearAtt();
+}
+function addCaption(label, txt){
+  var w=document.createElement('div'); w.className='cap-card';
+  var h=document.createElement('div'); h.className='cap-h'; h.textContent=label;
+  var b=document.createElement('div'); b.className='cap-b'; b.textContent=txt;
+  var btn=document.createElement('button'); btn.type='button'; btn.className='cap-copy'; btn.textContent='📋 คัดลอก';
+  btn.addEventListener('click', function(){
+    var done=function(){ btn.textContent='✓ คัดลอกแล้ว'; setTimeout(function(){btn.textContent='📋 คัดลอก';},1500); };
+    function fc(){ var ta=document.createElement('textarea'); ta.value=txt; ta.style.cssText='position:fixed;left:-9999px;'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(_){} ta.remove(); done(); }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done).catch(fc); } else fc();
+  });
+  w.appendChild(h); w.appendChild(b); w.appendChild(btn);
+  msgsEl.appendChild(w); msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+function addPoster(label, dataURL){
+  var w=document.createElement('div'); w.className='poster-card';
+  var im=document.createElement('img'); im.src=dataURL; im.alt='โปสเตอร์';
+  var pl=document.createElement('div'); pl.className='pl'; pl.textContent=label;
+  var a=document.createElement('a'); a.className='poster-dl'; a.href=dataURL; a.download='maru-promo.png'; a.textContent='⬇ ดาวน์โหลดรูป';
+  w.appendChild(im); w.appendChild(pl); w.appendChild(a);
+  msgsEl.appendChild(w); msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+function showPosterPicker(imgEl, poster, chans){
+  var needSquare = chans.length===0 || chans.indexOf('facebook')>=0 || chans.indexOf('line')>=0 || chans.indexOf('instagram')>=0;
+  var needVert = chans.indexOf('tiktok')>=0;
+  if(!needSquare && !needVert) needSquare=true;
+  function withLogo(logo){
+    var w=document.createElement('div'); w.className='cap-card';
+    var h=document.createElement('div'); h.className='cap-h'; h.textContent='🎨 เลือกสไตล์โปสเตอร์ (กดได้หลายแบบ)';
+    w.appendChild(h);
+    var row=document.createElement('div'); row.style.cssText='display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;';
+    (window.MARU_POSTER_STYLES||[]).forEach(function(st){
+      var b=document.createElement('button'); b.type='button'; b.className='style-btn'; b.textContent=st.name;
+      b.addEventListener('click', function(){ b.classList.add('on'); renderStyle(imgEl, logo, poster, st.id, st.name, needSquare, needVert); });
+      row.appendChild(b);
+    });
+    w.appendChild(row); msgsEl.appendChild(w); msgsEl.scrollTop=msgsEl.scrollHeight;
+  }
+  if(window.maruEnsureLogo) window.maruEnsureLogo(withLogo); else withLogo(null);
+}
+function renderStyle(imgEl, logo, poster, styleId, styleName, needSquare, needVert){
+  function build(){
+    if(!window.maruDrawPoster) return;
+    if(needSquare){ try{ addPoster(styleName+' · 1:1', window.maruDrawPoster(imgEl, logo, 1080,1080, poster, styleId)); }catch(e){} }
+    if(needVert){ try{ addPoster(styleName+' · 9:16', window.maruDrawPoster(imgEl, logo, 1080,1920, poster, styleId)); }catch(e){} }
+  }
+  if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(build).catch(build); } else build();
+}
+function renderActionCard(pa){
+  var kindTxt = pa.kind === 'receive' ? 'รับเข้า' : 'เบิก';
+  function esc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  var w=document.createElement('div'); w.className='act-card';
+  w.innerHTML='<div class="ac-h">📋 ยืนยัน'+kindTxt+'</div>'
+    +'<div class="ac-b"><b>'+esc(pa.item_name)+'</b> · จำนวน '+esc(pa.qty)+' '+esc(pa.unit||'')+'</div>'
+    +'<input class="ac-name" type="text" placeholder="ชื่อผู้ทำรายการ" value="'+esc(pa.recordedBy||'')+'">'
+    +'<div class="ac-btns"><button class="ac-ok">✓ ยืนยัน'+kindTxt+'</button><button class="ac-cancel">ยกเลิก</button></div>'
+    +'<div class="ac-msg"></div>';
+  msgsEl.appendChild(w); msgsEl.scrollTop=msgsEl.scrollHeight;
+  var nameInp=w.querySelector('.ac-name'), okBtn=w.querySelector('.ac-ok'), cancelBtn=w.querySelector('.ac-cancel'), msg=w.querySelector('.ac-msg'), btns=w.querySelector('.ac-btns');
+  cancelBtn.addEventListener('click', function(){ btns.style.display='none'; msg.style.color='#9A8C6E'; msg.textContent='ยกเลิกแล้ว'; });
+  okBtn.addEventListener('click', function(){
+    var by=(nameInp.value||'').trim(); if(!by){ msg.style.color='#B91C1C'; msg.textContent='กรุณากรอกชื่อผู้ทำรายการ'; return; }
+    okBtn.disabled=true; cancelBtn.disabled=true; okBtn.textContent='กำลังบันทึก...';
+    api('execStockWrite', { kind:pa.kind, itemId:pa.item_id, qty:pa.qty, recordedBy:by, note:pa.note||'' })
+      .then(function(res){ if(res&&res.ok){ btns.style.display='none'; msg.style.color='#15803D'; msg.textContent='✓ '+(res.msg||'บันทึกแล้ว'); } else { okBtn.disabled=false; cancelBtn.disabled=false; okBtn.textContent='✓ ยืนยัน'+kindTxt; msg.style.color='#B91C1C'; msg.textContent=(res&&res.error)||'บันทึกไม่สำเร็จ'; } })
+      .catch(function(e){ okBtn.disabled=false; cancelBtn.disabled=false; okBtn.textContent='✓ ยืนยัน'+kindTxt; msg.style.color='#B91C1C'; msg.textContent='ผิดพลาด: '+(e.message||e); });
+  });
+}
+function addMsg(text, cls){
+  const h=$('hello'); if(h) h.remove();
+  const d=document.createElement('div');
+  d.className='msg '+cls;
+  if(cls==='ai' && window.maruRich){ d.innerHTML = window.maruRich(text); } else { d.textContent=text; }
+  msgsEl.appendChild(d);
+  msgsEl.scrollTop=msgsEl.scrollHeight;
+  return d;
+}
+function showTyping(){
+  const t=document.createElement('div'); t.className='typing'; t.id='typing';
+  t.innerHTML='<span></span><span></span><span></span>';
+  msgsEl.appendChild(t); msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+function hideTyping(){ const t=$('typing'); if(t) t.remove(); }
+
+function awTimeout(p, ms){
+  return new Promise(function(resolve,reject){
+    var to=setTimeout(function(){ reject(new Error('__timeout__')); }, ms);
+    Promise.resolve(p).then(function(v){ clearTimeout(to); resolve(v); }, function(e){ clearTimeout(to); reject(e); });
+  });
+}
+async function doSend(forceText){
+  const text=(typeof forceText==='string')?forceText:inp.value.trim();
+  if(!text || busy) return;
+  busy=true; sendBtn.disabled=true;
+  let handedOff=false;
+  if(typeof forceText!=='string'){ addMsg(text,'me'); inp.value=''; inp.style.height='auto'; }
+  if(promoImgs.length || isPromo(text) || wantsAi(text)){
+    try{ await runPromo(text); } finally { busy=false; sendBtn.disabled=false; }
+    return;
+  }
+  showTyping();
+  try{
+    let owner=''; try{ owner=sessionStorage.getItem('maruOwner')||''; }catch(e){}
+    let asCtx='';
+    try{ asCtx = (window.maruBuildContext ? await window.maruBuildContext(text) : ''); }catch(e){}
+    let r=null, lastErr=null;
+    for(let attempt=0; attempt<2; attempt++){
+      try{ r=await awTimeout(api('askAI', { message:text, history:history, context:asCtx, ownerCode:owner }), 45000); lastErr=null; break; }
+      catch(e){ lastErr=e; if(attempt===0){ await new Promise(function(res){ setTimeout(res,800); }); } }
+    }
+    hideTyping();
+    if(lastErr){ addMsg((lastErr&&lastErr.message==='__timeout__')?'กุยช่ายคิดนานไปหน่อย ลองถามใหม่อีกครั้งนะครับ 🥟':'เชื่อมต่อไม่ได้ ลองใหม่อีกครั้งนะครับ','err'); return; }
+    if(r.ok && r.needOwner){
+      addMsg(r.reply,'ai');
+      const code=prompt('🔒 ใส่รหัสเจ้าของ เพื่อดูข้อมูลค่าจ้าง/เงินเดือน');
+      if(code){
+        try{ sessionStorage.setItem('maruOwner', code); }catch(e){}
+        handedOff=true; busy=false; sendBtn.disabled=false;
+        return doSend(text);
+      }
+    }else if(r.ok){
+      addMsg(r.reply,'ai');
+      history.push({role:'user',text:text});
+      history.push({role:'model',text:r.reply});
+      if(history.length>24) history=history.slice(-24);
+      if(r.pendingAction){ renderActionCard(r.pendingAction); }
+    }else{
+      addMsg(r.error||'ขอโทษครับ ตอบไม่ได้ตอนนี้','err');
+    }
+  }catch(err){
+    hideTyping();
+    addMsg('เชื่อมต่อไม่ได้ ลองใหม่อีกครั้งนะครับ','err');
+  }finally{
+    if(!handedOff){ busy=false; sendBtn.disabled=false; inp.focus(); }
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>คู่มือการใช้งาน · กุยช่ายสวรรค์</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* TOC */
+.toc{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:18px;}
+.toc h3{font-family:'Kanit';font-weight:700;font-size:16px;color:#143D26;margin:0 0 10px;}
+.toc ol{margin:0;padding-left:22px;font-family:'Kanit';font-weight:500;font-size:14px;line-height:1.85;}
+.toc ol a{color:#143D26;text-decoration:none;}
+.toc ol a:hover{color:#C6982A;}
+.toc ol ol{margin-top:3px;padding-left:18px;font-size:13px;font-weight:400;color:var(--ink-2);}
+
+/* Section headers */
+h2.sec{font-family:'Kanit';font-weight:800;font-size:22px;color:var(--ink);margin:32px 0 14px;padding:14px 16px;
+  background:linear-gradient(135deg,#E6B83C,#1E7A45);color:#143D26;border-radius:14px;
+  box-shadow:0 3px 10px rgba(198,152,42,.3);}
+h2.sec.staff{background:linear-gradient(135deg,#22C55E,#15803D);color:#fff;}
+h2.sec.admin{background:linear-gradient(135deg,#A78BFA,#6D28D9);color:#fff;}
+h2.sec.faq{background:linear-gradient(135deg,#3DD5DC,#1B98A4);color:#fff;}
+h2.sec.maru{background:linear-gradient(135deg,#E6B83C,#C6982A);color:#12351F;}
+
+h3.sub{font-family:'Kanit';font-weight:700;font-size:17px;color:var(--ink);margin:24px 0 10px;
+  padding-left:12px;border-left:4px solid var(--yellow);}
+
+h4.step{font-family:'Kanit';font-weight:700;font-size:15px;color:var(--ink);margin:18px 0 8px;
+  background:#F6F0DB;padding:8px 12px;border-radius:9px;}
+
+/* Step list */
+.steps{counter-reset:step;padding-left:0;list-style:none;}
+.steps > li{counter-increment:step;position:relative;padding-left:34px;margin-bottom:14px;font-size:14.5px;line-height:1.6;color:var(--ink);}
+.steps > li::before{content:counter(step);position:absolute;left:0;top:0;width:24px;height:24px;
+  background:var(--yellow);color:var(--ink);border-radius:50%;display:grid;place-items:center;
+  font-family:'Kanit';font-weight:700;font-size:13px;}
+.steps b{color:var(--ink);font-family:'Kanit';font-weight:700;}
+.steps code{background:#F2EEDD;padding:1px 6px;border-radius:5px;font-size:12.5px;color:#92400E;font-family:monospace;}
+
+/* Screenshot frame */
+.screen{margin:12px 0;text-align:center;}
+.screen img{max-width:280px;width:100%;border-radius:14px;border:6px solid #143D26;box-shadow:0 6px 18px rgba(0,0,0,.15);}
+.screen .cap{font-size:12px;color:var(--ink-2);margin-top:6px;font-style:italic;}
+
+/* Tip box */
+.tip{background:#DBEAFE;border-left:4px solid #3B82F6;border-radius:8px;padding:10px 13px;margin:12px 0;font-size:13px;line-height:1.5;color:#1E3A8A;}
+.tip b{color:#1E40AF;}
+.tip::before{content:'💡 ';font-size:15px;}
+
+.warn{background:#FEF3C7;border-left:4px solid #F59E0B;border-radius:8px;padding:10px 13px;margin:12px 0;font-size:13px;line-height:1.5;color:#78350F;}
+.warn b{color:#92400E;}
+.warn::before{content:'⚠️ ';font-size:15px;}
+
+.danger{background:#FEE2E2;border-left:4px solid #EF4444;border-radius:8px;padding:10px 13px;margin:12px 0;font-size:13px;line-height:1.5;color:#7F1D1D;}
+.danger b{color:#B91C1C;}
+.danger::before{content:'🚫 ';font-size:15px;}
+
+.ok{background:#DCFCE7;border-left:4px solid #22C55E;border-radius:8px;padding:10px 13px;margin:12px 0;font-size:13px;line-height:1.5;color:#14532D;}
+.ok b{color:#15803D;}
+.ok::before{content:'✅ ';font-size:15px;}
+
+/* FAQ */
+.faq-item{background:#fff;border-radius:11px;padding:12px 14px;margin-bottom:10px;border-left:3px solid var(--yellow);}
+.faq-item .q{font-family:'Kanit';font-weight:700;font-size:14px;color:var(--ink);margin-bottom:5px;}
+.faq-item .q::before{content:'❓ ';color:#1E7A45;}
+.faq-item .a{font-size:13.5px;color:var(--ink-2);line-height:1.55;}
+.faq-item .a::before{content:'→ ';color:#15803D;font-weight:700;}
+
+/* Card */
+.menu-card{background:#fff;border-radius:12px;padding:13px 14px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;}
+.menu-card .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none;font-size:18px;
+  background:linear-gradient(135deg,#E6B83C,#1E7A45);}
+.menu-card .info .nm{font-family:'Kanit';font-weight:700;font-size:14px;color:var(--ink);}
+.menu-card .info .desc{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-top:2px;}
+
+/* Print button */
+.print-bar{background:#fff;border-radius:14px;padding:14px;margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;}
+.print-bar .pbtn{background:var(--yellow);color:var(--ink);border:0;padding:11px 22px;border-radius:11px;
+  font-family:'Kanit';font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 3px 10px rgba(198,152,42,.4);}
+.print-bar .pbtn.alt{background:#fff;color:#143D26;border:1.5px solid #E8DFC4;}
+
+/* Print mode */
+@media print {
+  .no-print, .hamburger, .sidebar, .sidebar-backdrop, .print-bar, .head, .toast { display: none !important; }
+  body { background: #fff !important; }
+  .app { max-width: none; padding: 0; }
+  .sheet { background: #fff; min-height: auto; padding: 10mm; border-radius: 0; }
+  h2.sec { page-break-before: always; box-shadow: none; }
+  h2.sec:first-of-type { page-break-before: avoid; }
+  .toc { page-break-after: always; }
+  .screen img { max-width: 180px; }
+  .menu-card, .faq-item, .tip, .warn, .danger, .ok { box-shadow: none; break-inside: avoid; }
+  h3.sub, h4.step, .steps > li { break-inside: avoid; }
+}
+
+/* TOC navigation smooth */
+html { scroll-behavior: smooth; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head no-print">
+    <h1>คู่มือการใช้งาน</h1>
+    <div class="sub">กุยช่ายสวรรค์ App · ฉบับสมบูรณ์</div>
+  </div>
+
+  <div class="sheet">
+
+    <!-- ======== ปกหน้า (สำหรับพิมพ์) ======== -->
+    <div style="text-align:center;padding:20px 0;display:none;" class="print-only">
+      <img src="icon-192.png" alt="" style="width:90px;height:90px;border-radius:22px;">
+      <h1 style="font-family:'Kanit';font-size:28px;margin:14px 0 4px;">คู่มือการใช้งาน กุยช่ายสวรรค์ App</h1>
+      <p style="color:#5A5247;font-size:14px;">ระบบบริหารร้านขนม กุยช่ายสวรรค์ · ฉบับพนักงานและผู้จัดการ</p>
+    </div>
+    <style>@media print { .print-only{display:block !important;} }</style>
+
+    <!-- ======== สารบัญ ======== -->
+    <div class="toc">
+      <h3>📑 สารบัญ</h3>
+      <ol>
+        <li><a href="#intro">แอปนี้คืออะไร?</a></li>
+        <li><a href="#install">วิธีติดตั้งบนมือถือ (1 ครั้ง)</a></li>
+        <li><a href="#menu">เมนูทั้งหมดในแอป</a></li>
+        <li><a href="#staff">👥 สำหรับพนักงาน</a>
+          <ol>
+            <li><a href="#morning">🌅 ตอนเช้า — เปิดร้าน</a></li>
+            <li><a href="#midday">📋 ระหว่างวัน</a></li>
+            <li><a href="#evening">🌙 ตอนเย็น — ปิดร้าน</a></li>
+            <li><a href="#remit-staff">💵 นำส่งเงินสด</a></li>
+          </ol>
+        </li>
+        <li><a href="#admin">👔 สำหรับผู้จัดการ</a>
+          <ol>
+            <li><a href="#reports">📊 ดูรายงาน</a></li>
+            <li><a href="#manage-stock">🔧 จัดการสต๊อก</a></li>
+            <li><a href="#manage-staff">👥 จัดการพนักงาน + สาขา</a></li>
+            <li><a href="#remit-owner">💵 ตรวจรับเงินนำส่ง</a></li>
+            <li><a href="#payroll">💰 การจ่ายเงิน / เงินเดือน</a></li>
+          </ol>
+        </li>
+        <li><a href="#maru">🥟 ผู้ช่วยกุยช่าย</a></li>
+        <li><a href="#faq">❓ คำถามที่พบบ่อย</a></li>
+      </ol>
+    </div>
+
+    <!-- ======== Intro ======== -->
+    <h3 class="sub" id="intro">🥟 กุยช่ายสวรรค์ App คืออะไร?</h3>
+    <p style="font-size:14px;line-height:1.7;color:var(--ink);">
+      เป็นระบบบริหารร้าน กุยช่ายสวรรค์ ที่ใช้บน <b>โทรศัพท์มือถือ</b> ทำหน้าที่:
+    </p>
+    <ul style="font-size:14px;line-height:1.85;color:var(--ink);padding-left:20px;">
+      <li>📋 <b>บันทึกเข้า-ออกงาน</b> (พร้อมรูปเซลฟี่ + GPS อัตโนมัติ)</li>
+      <li>📦 <b>จัดการสต๊อกสินค้า</b> (เบิก / รับเข้า / ปิดร้าน / ตรวจนับ)</li>
+      <li>💰 <b>บันทึกยอดขายรายวัน</b> + แดชบอร์ดสรุป</li>
+      <li>🧾 <b>บันทึกค่าใช้จ่ายร้าน</b> + แนบรูปบิล</li>
+      <li>💵 <b>ตรวจสอบเงินสดนำส่ง</b> เข้าบัญชีร้าน</li>
+      <li>🥟 <b>ผู้ช่วยกุยช่าย AI</b> ถามข้อมูลร้าน + ช่วยทำโพสต์ขายของ</li>
+    </ul>
+    <div class="ok">
+      <b>ทุกอย่างเก็บใน Google Sheet ของเจ้าของร้านอัตโนมัติ</b> และส่งแจ้งเตือนเข้า <b>LINE กลุ่ม</b> ทุกเหตุการณ์สำคัญ
+    </div>
+
+    <!-- ======== Install ======== -->
+    <h3 class="sub" id="install">📲 วิธีติดตั้งบนมือถือ (ทำครั้งเดียว)</h3>
+    <h4 class="step">📱 iPhone (iOS)</h4>
+    <ol class="steps">
+      <li>เปิด <b>Safari</b> เข้าเว็บแอป</li>
+      <li>กดปุ่ม <b>Share</b> (รูปกล่องลูกศรขึ้น) ที่ขอบล่าง</li>
+      <li>เลื่อนหา <b>"Add to Home Screen"</b> → กด <b>Add</b></li>
+      <li>ไอคอน กุยช่ายสวรรค์ จะปรากฏที่หน้าจอหลัก เปิดได้เลย</li>
+    </ol>
+    <h4 class="step">🤖 Android</h4>
+    <ol class="steps">
+      <li>เปิด <b>Chrome</b> เข้าเว็บแอป</li>
+      <li>กดปุ่ม <b>⋮ (3 จุด)</b> มุมขวาบน</li>
+      <li>เลือก <b>"Install app"</b> หรือ <b>"Add to home screen"</b></li>
+      <li>กดยืนยัน → ไอคอนจะติดที่หน้าจอหลัก</li>
+    </ol>
+    <div class="tip">
+      หลังติดตั้งแล้ว เปิดได้เหมือนแอปทั่วไป <b>ไม่ต้องเปิด browser</b> และทำงานในโหมด full screen สวยกว่า
+    </div>
+
+    <!-- ======== Menu overview ======== -->
+    <h3 class="sub" id="menu">📋 เมนูทั้งหมดในแอป</h3>
+    <p style="font-size:13.5px;color:var(--ink-2);">กด <b>☰ (3 ขีด)</b> มุมซ้ายบนเพื่อเปิดเมนู</p>
+    <div class="screen">
+      <img src="manual-img/sidebar.jpg" alt="Sidebar">
+      <div class="cap">เมนูทั้งหมดของแอป — แบ่งเป็น 3 หมวด</div>
+    </div>
+
+    <!-- ============================ -->
+    <!-- ====== สำหรับพนักงาน ======= -->
+    <!-- ============================ -->
+    <h2 class="sec staff" id="staff">👥 สำหรับพนักงาน</h2>
+
+    <h3 class="sub" id="morning">🌅 ตอนเช้า — เปิดร้าน</h3>
+
+    <h4 class="step">ขั้นที่ 1 · เช็คอินเข้างาน</h4>
+    <ol class="steps">
+      <li>เปิดแอป → กด <b>☰</b> → เลือก <b>"บันทึกเข้างาน"</b></li>
+      <li>เลือก<b>ชื่อตัวเอง</b>จากรายการ
+        <div class="screen"><img src="manual-img/attend-1-staff.jpg" alt="เลือกพนักงาน"><div class="cap">หน้าเลือกพนักงาน · เลือกชื่อของตัวเอง</div></div>
+      </li>
+      <li>ใส่ <b>PIN 4 หลัก</b> (รหัสประจำตัว ถ้าลืมให้ถามหัวหน้า)
+        <div class="screen"><img src="manual-img/attend-2-pin.jpg" alt="ใส่ PIN"><div class="cap">กดตัวเลข 4 หลัก ระบบจะตรวจอัตโนมัติเมื่อครบ</div></div>
+      </li>
+      <li>แอปจะขออนุญาต <b>กล้อง</b> และ <b>ตำแหน่ง GPS</b> → กด <b>"อนุญาต"</b></li>
+      <li>รอให้ขึ้นข้อความ <b style="color:#15803D;">"✓ ในเขตร้าน"</b> สีเขียว
+        <div class="screen"><img src="manual-img/attend-3-cam.jpg" alt="กล้อง+GPS"><div class="cap">กล้องเปิดและ GPS ระบุว่าอยู่ในเขตร้าน · พร้อมกดลงเวลา</div></div>
+      </li>
+      <li>หันหน้าเข้ากล้อง → กดปุ่ม 🟢 <b>"เข้างาน"</b></li>
+      <li>ระบบจะถ่ายรูป + แสตมป์เวลา + สถานที่ลงบนรูป → บันทึก → ส่ง LINE
+        <div class="screen"><img src="manual-img/attend-4-result.jpg" alt="ผลลัพธ์"><div class="cap">บันทึกสำเร็จ · ส่ง LINE แล้ว ✓</div></div>
+      </li>
+    </ol>
+    <div class="warn">
+      ถ้าขึ้น <b>"⚠️ นอกเขตร้าน (XXX m)"</b> สีส้ม แสดงว่าคุณอาจอยู่นอกบริเวณร้าน — ตรวจสอบให้แน่ใจว่าอยู่หน้าร้านจริงๆ ก่อนกดลงเวลา (แต่ก็ยังลงได้ ระบบจะบันทึกว่าอยู่นอกเขต)
+    </div>
+
+    <h4 class="step">ขั้นที่ 2 · ตรวจสต๊อกของก่อนขาย</h4>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"ตรวจสต๊อก"</b></li>
+      <li>ดูของที่<b>ใกล้หมด</b> (แถบสีเหลือง) หรือ<b>หมดแล้ว</b> (แถบสีแดง)</li>
+      <li>ถ้าพบของหมด/ใกล้หมด → <b>แจ้งหัวหน้า</b>เพื่อสั่งของเพิ่ม</li>
+    </ol>
+    <div class="screen"><img src="manual-img/stock-view.jpg" alt="ตรวจสต๊อก"><div class="cap">รายการสต๊อก · แถบสีบอกสถานะ (ปกติ/ใกล้หมด/หมด)</div></div>
+
+    <!-- ============== ระหว่างวัน ============== -->
+    <h3 class="sub" id="midday">📋 ระหว่างวัน</h3>
+
+    <h4 class="step">เบิกของ (เมื่อหยิบของจากคลังหลังร้านมาใช้)</h4>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"เบิกของ"</b></li>
+      <li>กรอก<b>ชื่อตัวเอง</b>ในช่อง "ผู้บันทึก"</li>
+      <li>เลือกหมวด (Waffle / KUFF / Drink / อื่นๆ) → ค้นหาหรือเลื่อนหารายการ</li>
+      <li>ใส่<b>จำนวน</b>ที่เบิก (กด <code>+</code>/<code>−</code> หรือพิมพ์)</li>
+      <li>เลือกได้หลายรายการในครั้งเดียว → กด <b>"บันทึกเบิก"</b></li>
+    </ol>
+    <div class="screen"><img src="manual-img/stock-withdraw.jpg" alt="เบิกของ"><div class="cap">หน้าเบิกของ · แถวที่เลือกจะมีเส้นฟ้าซ้าย</div></div>
+    <div class="tip">
+      <b>เบิกได้หลายครั้งต่อวัน</b> ไม่ต้องรอสะสมไว้ทีเดียว เบิกแล้วบันทึกเลยจะแม่นยำที่สุด
+    </div>
+
+    <h4 class="step">รับของเข้า (เมื่อซัพพลายเออร์ส่งของมาที่ร้าน)</h4>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"รับของเข้า"</b></li>
+      <li>กรอกชื่อพนักงาน</li>
+      <li>📎 กด <b>"แนบรูปบิล"</b> → ถ่ายรูปบิลเก็บไว้เป็นหลักฐาน</li>
+      <li>เลือกรายการ + จำนวนที่รับเข้า</li>
+      <li>กด <b>"บันทึกรับเข้า"</b></li>
+    </ol>
+    <div class="screen"><img src="manual-img/stock-receive.jpg" alt="รับของเข้า"><div class="cap">หน้ารับของเข้า · มีปุ่มแนบรูปบิล</div></div>
+    <div class="warn">
+      <b>นับของให้ครบก่อนเซ็นรับ</b> ถ้าบิลไม่ตรงกับของจริง ให้แจ้งซัพพลายเออร์ทันที
+    </div>
+
+    <h4 class="step">บันทึกยอดขายและค่าใช้จ่าย</h4>
+    <ol class="steps">
+      <li>หน้าหลัก ("บันทึกรายงานสิ้นวัน") → กรอกยอดขายแต่ละช่องทาง (เงินสด/โอน/แอปเดลิเวอรี)</li>
+      <li>เพิ่มค่าใช้จ่ายที่เกิดขึ้นในวันนั้น (วัตถุดิบ/อื่นๆ) — สามารถแนบรูปบิลได้</li>
+      <li>กด <b>"บันทึก"</b> → ระบบจะคำนวณกำไรขาดทุนและส่ง LINE สรุป</li>
+    </ol>
+    <div class="screen"><img src="manual-img/index-home.jpg" alt="หน้าหลัก"><div class="cap">หน้าหลัก · บันทึกยอดขายรายวัน</div></div>
+
+    <!-- ============== ตอนเย็น ============== -->
+    <h3 class="sub" id="evening">🌙 ตอนเย็น — ปิดร้าน</h3>
+
+    <h4 class="step">ขั้นที่ 1 · นับสต๊อกของหน่วยกรัม</h4>
+    <div class="warn">
+      ของที่หน่วยเป็น <b>"กรัม"</b> (ซอส, ผงต่างๆ, ครีม) ต้อง<b>ชั่งจริง</b>ตอนปิดร้านเพื่อรู้ปริมาณคงเหลือ
+    </div>
+    <ol class="steps">
+      <li>เตรียมเครื่องชั่ง</li>
+      <li>นำของแต่ละรายการมาชั่งหาน้ำหนักจริง (หักน้ำหนักภาชนะ)</li>
+      <li>จดตัวเลขไว้พร้อมกรอกในแอป</li>
+    </ol>
+
+    <h4 class="step">ขั้นที่ 2 · ปิดรอบสต๊อก</h4>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"ปิดร้าน (สรุปสต๊อก)"</b></li>
+      <li>กรอก<b>ชื่อผู้ปิดรอบ</b></li>
+      <li>กด chip <b>"🟡 ต้องนับ"</b> เพื่อโฟกัสรายการที่ต้องชั่ง</li>
+      <li>กรอก<b>คงเหลือ</b>ของแต่ละรายการ (ในช่องสีเหลือง)</li>
+      <li>ถ้ามี<b>ของเสีย</b>ระหว่างวัน — กรอกในช่อง "ของเสีย"</li>
+      <li>กดปุ่ม <b>🌙 ปิดรอบ · ส่ง LINE</b></li>
+    </ol>
+    <div class="screen"><img src="manual-img/stock-close.jpg" alt="ปิดร้าน"><div class="cap">หน้าปิดร้าน · กรอกคงเหลือสำหรับรายการกรัม + ของเสีย</div></div>
+    <div class="tip">
+      ระบบจะคำนวณ <b>"ใช้จริง"</b> ให้อัตโนมัติจากสมการ: เปิด + รับเข้า − คงเหลือ − ของเสีย
+    </div>
+
+    <h4 class="step">ขั้นที่ 3 · เช็คเอาท์ออกงาน</h4>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"บันทึกเข้างาน"</b></li>
+      <li>เลือกชื่อตัวเอง → ใส่ PIN</li>
+      <li>กดปุ่ม 🔴 <b>"ออกงาน"</b></li>
+      <li>ตรวจสอบว่า LINE มีแจ้งเตือนออกงานเข้ามาเรียบร้อย</li>
+    </ol>
+
+    <h3 class="sub" id="remit-staff">💵 นำส่งเงินสด (นำเงินเข้าบัญชีร้าน)</h3>
+    <p style="font-size:14px;color:var(--ink-2);">เมื่อถึงรอบนำเงินสดในลิ้นชักเข้าบัญชีร้าน ทำตามนี้</p>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"เงินสดนำส่ง"</b></li>
+      <li>การ์ดบนสุดจะบอก <b>"ยอดรอนำส่ง"</b> ที่ระบบคำนวณให้ (ยอดขายเงินสด − ค่าใช้จ่าย POS ในรอบ)</li>
+      <li>กดปุ่ม <b>"📤 บันทึกการนำส่ง"</b></li>
+      <li>กรอก<b>ชื่อผู้นำส่ง</b> + <b>ยอดที่นำส่งจริง</b> (โอนเข้าบัญชีเท่าไหร่)</li>
+      <li>แนบ<b>สลิปโอน</b> (ไม่บังคับ แต่แนะนำให้แนบ)</li>
+      <li>กด <b>"✓ บันทึกการนำส่ง"</b> → รอเจ้าของยืนยัน</li>
+    </ol>
+    <div class="tip">
+      <b>ส่งแค่บางช่วงได้:</b> ถ้ารอบเป็น 1–22 แต่จะส่งแค่ถึงวันที่ 20 — เลือก <b>"ถึงวันที่นำส่ง"</b> เป็นวันที่ 20 ระบบจะคำนวณยอดใหม่ให้ทันที ส่วนวันที่ 21–22 จะค้างไว้รอบถัดไปอัตโนมัติ
+    </div>
+    <div class="warn">
+      ยอดที่นำส่งจริงควรตรงกับยอดที่ระบบคำนวณ ถ้าต่างกัน ระบบจะแสดง<b>ส่วนต่าง</b>ให้เจ้าของเห็นตอนยืนยัน
+    </div>
+
+    <!-- ============================ -->
+    <!-- ====== สำหรับผู้จัดการ ====== -->
+    <!-- ============================ -->
+    <h2 class="sec admin" id="admin">👔 สำหรับผู้จัดการ</h2>
+
+    <h3 class="sub" id="reports">📊 ดูรายงาน</h3>
+
+    <h4 class="step">รายงานเข้า-ออกงาน · ดูได้ทั้งรูป + GPS</h4>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"รายงานเข้า-ออกงาน"</b></li>
+      <li>เลือกช่วงวันที่ (วันนี้ / 7 วัน / 30 วัน / เดือนนี้ หรือกรอกเอง)</li>
+      <li>กรองตามพนักงานคนใดคนหนึ่ง หรือเฉพาะเข้า/ออก</li>
+      <li>คลิกที่รูปการ์ดเพื่อขยายดู<b>รูปเซลฟี่</b>เต็มจอ พร้อมข้อมูลครบ</li>
+    </ol>
+    <div class="screen"><img src="manual-img/attend-report.jpg" alt="รายงานเข้า-ออก"><div class="cap">รายงานเข้า-ออกงาน · จัดกลุ่มตามวันที่ + filter ครบ</div></div>
+    <div class="tip">
+      KPI ด้านบนแสดง: รายการทั้งหมด · จำนวนเข้า · จำนวนออก ทำให้ตรวจสอบได้รวดเร็ว
+    </div>
+
+    <h4 class="step">แดชบอร์ดยอดขาย</h4>
+    <ul style="font-size:14px;line-height:1.85;padding-left:18px;">
+      <li>กด <b>☰</b> → <b>"แดชบอร์ดยอดขาย"</b></li>
+      <li>เลือกช่วงวันที่ → ดูยอดรวม · ค่าเฉลี่ย · กราฟ · แบ่งตามช่องทาง (เงินสด/โอน/แอป)</li>
+    </ul>
+
+    <h4 class="step">รายงานสรุปค่าใช้จ่าย</h4>
+    <ul style="font-size:14px;line-height:1.85;padding-left:18px;">
+      <li>กด <b>☰</b> → <b>"รายงานสรุปค่าใช้จ่าย"</b></li>
+      <li>เลือกช่วงวันที่ + ประเภท → สรุปยอดและรูปบิลทั้งหมด</li>
+    </ul>
+
+    <!-- ============ จัดการสต๊อก ============ -->
+    <h3 class="sub" id="manage-stock">🔧 จัดการสต๊อก</h3>
+
+    <h4 class="step">ออดิทสต๊อก (ตรวจนับจริงเทียบกับระบบ)</h4>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"ออดิทสต๊อก"</b></li>
+      <li>กรอกชื่อผู้ตรวจ</li>
+      <li>นับสต๊อกจริงแต่ละรายการ → ใส่ตัวเลขในช่อง "นับจริง"</li>
+      <li>ระบบเทียบกับ "ในระบบ" อัตโนมัติ — แถบสีบ่งบอก:
+        <ul style="margin-top:5px;">
+          <li>🟢 <b>เขียว</b> = ตรงระบบ หรือ เกิน</li>
+          <li>🔴 <b>แดง</b> = ขาด (น้อยกว่าระบบ)</li>
+        </ul>
+      </li>
+      <li>ใส่<b>เหตุผล</b>ของส่วนต่าง (ลูกค้าทำตก / ตวงไม่ตรง / ของหาย / ฯลฯ)</li>
+      <li>ติ๊ก ☑ <b>"ปรับคงเหลือในระบบ"</b> ถ้าต้องการให้ระบบใช้ตัวเลขที่นับจริง</li>
+      <li>กด <b>"🔍 บันทึกออดิท · ส่ง LINE"</b></li>
+    </ol>
+    <div class="screen"><img src="manual-img/stock-audit.jpg" alt="ออดิทสต๊อก"><div class="cap">ออดิทสต๊อก · สีบ่งบอกสถานะ + เหตุผล + ปรับยอดได้</div></div>
+    <div class="warn">
+      ใช้ฟีเจอร์นี้<b>เป็นระยะ</b> (เช่น สัปดาห์ละครั้ง หรือเดือนละครั้ง) เพื่อตรวจสอบว่าระบบยังตรงกับของจริง
+    </div>
+
+    <h4 class="step">จัดการรายการสต๊อก · ตั้งสต๊อกขั้นต่ำ</h4>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"จัดการรายการ"</b></li>
+      <li>เลือกรายการ → ตั้งค่า:
+        <ul>
+          <li><b>หน่วย</b> — กรัม / ถุง / ขวด ฯลฯ</li>
+          <li><b>โหมด</b> — <code>เบิก</code> (ของชิ้น) หรือ <code>นับ</code> (กรัม/ml)</li>
+          <li><b>สต๊อกขั้นต่ำ</b> — เกณฑ์แจ้งเตือนของใกล้หมด</li>
+          <li><b>สถานะ</b> — ใช้งาน / หยุดใช้</li>
+        </ul>
+      </li>
+      <li>กด <b>"บันทึก"</b> รายต่อรายการ</li>
+    </ol>
+    <div class="screen"><img src="manual-img/stock-manage.jpg" alt="จัดการรายการ"><div class="cap">จัดการรายการสต๊อก · ตั้งค่าทีละรายการ</div></div>
+
+    <!-- ============ จัดการพนักงาน ============ -->
+    <h3 class="sub" id="manage-staff">👥 จัดการพนักงาน + สาขา</h3>
+
+    <h4 class="step">เพิ่ม/แก้พนักงาน</h4>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"จัดการพนักงาน/สาขา"</b></li>
+      <li>Tab <b>👥 พนักงาน</b> → กด <b>"+ เพิ่มพนักงาน"</b></li>
+      <li>กรอกข้อมูล:
+        <ul>
+          <li><b>ชื่อ-นามสกุล</b> (จำเป็น)</li>
+          <li><b>ชื่อเล่น</b> (จะแสดงในแอป)</li>
+          <li><b>ตำแหน่ง</b></li>
+          <li><b>PIN 4 หลัก</b> (สำหรับล็อกอิน — ให้พนักงานเก็บเป็นความลับ)</li>
+          <li><b>สถานะ</b> — ใช้งาน / หยุดใช้ (พนักงานออกแล้วให้ปิดใช้งานแทนการลบ)</li>
+        </ul>
+      </li>
+      <li>กด <b>"บันทึก"</b></li>
+    </ol>
+    <div class="screen"><img src="manual-img/attend-setup.jpg" alt="จัดการพนักงาน"><div class="cap">หน้าจัดการพนักงาน · เห็นทุกคนพร้อมสถานะ</div></div>
+
+    <h4 class="step">ตั้งค่าสาขา · พิกัด GPS</h4>
+    <ol class="steps">
+      <li>กด tab <b>🏪 สาขา</b> → กด <b>"แก้ไข"</b> ที่สาขา</li>
+      <li>กด <b>"📍 ใช้ตำแหน่งปัจจุบัน (GPS)"</b> ขณะ<b>ยืนอยู่หน้าร้านจริง</b></li>
+      <li>ตั้งค่า <b>รัศมี (เมตร)</b> ที่ถือว่า "อยู่ในเขตร้าน" (แนะนำ 50-100 ม.)</li>
+      <li>กด <b>"บันทึก"</b></li>
+    </ol>
+    <div class="tip">
+      ถ้าตั้งรัศมีกว้างไป (เช่น 500 ม.) จะตรวจสอบไม่ได้ว่าพนักงานอยู่ที่ร้านจริง
+      ถ้าแคบไป (เช่น 10 ม.) อาจเช็คอินไม่ผ่านเพราะ GPS คลาดเคลื่อน — <b>50-100 ม. กำลังดี</b>
+    </div>
+
+    <h3 class="sub" id="remit-owner">💵 ตรวจรับเงินนำส่ง (เจ้าของ)</h3>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"เงินสดนำส่ง"</b></li>
+      <li>การ์ด <b>"🔐 รอเจ้าของยืนยัน"</b> จะแสดงรายการที่พนักงานนำส่งมา</li>
+      <li>ดูว่ายอดที่นำส่งจริงตรงกับที่ระบบคำนวณไหม (ระบบบอกส่วนต่างให้)</li>
+      <li>ถ้าถูกต้อง กด <b>"✓ ยืนยันรับเงิน"</b> → ใส่<b>รหัสเจ้าของ</b></li>
+      <li>ถ้าผิดปกติ กด <b>"ทักท้วง"</b> + ใส่เหตุผล</li>
+    </ol>
+    <div class="tip">หลังยืนยัน รอบใหม่จะเริ่มนับจากวันถัดจากวันที่นำส่งล่าสุดให้อัตโนมัติ</div>
+
+    <h3 class="sub" id="payroll">💰 การจ่ายเงิน / เงินเดือน (เจ้าของ)</h3>
+    <div class="warn">หน้านี้มีข้อมูลค่าจ้าง/เงินเดือน ต้องใส่ <b>รหัสเจ้าของ</b> ก่อนเข้าดู</div>
+    <ol class="steps">
+      <li>กด <b>☰</b> → <b>"การจ่ายเงิน"</b></li>
+      <li>ใส่<b>รหัสเจ้าของ</b>เพื่อปลดล็อก</li>
+      <li>ดูสถานะการจ่ายของพนักงานแต่ละคน (รอบ / ยอด / จ่ายแล้วหรือยัง)</li>
+      <li>เมื่อจ่ายเงินจริงแล้ว กด<b>บันทึกการจ่าย</b>เพื่อปิดยอดรอบนั้น</li>
+    </ol>
+
+    <!-- ============================ -->
+    <!-- ====== ผู้ช่วยกุยช่าย ====== -->
+    <!-- ============================ -->
+    <h2 class="sec maru" id="maru">🥟 ผู้ช่วยกุยช่าย</h2>
+    <p style="font-size:14px;color:var(--ink-2);">กุยช่ายเป็นผู้ช่วย AI ในแอป ถามข้อมูลร้านหรือให้ช่วยทำโพสต์ขายของได้ — เปิดได้จากปุ่มกุยช่ายมุมขวาล่าง หรือเมนู → "ผู้ช่วยกุยช่าย"</p>
+
+    <h3 class="sub" id="maru-ask">💬 ถามข้อมูลร้าน</h3>
+    <ol class="steps">
+      <li>กดปุ่ม<b>คำถามด่วน</b> (ยอดขาย / สต๊อก / ค่าใช้จ่าย / เข้างาน) หรือพิมพ์ถามเอง</li>
+      <li>ตัวอย่างคำถาม: "ยอด Grab เดือนนี้เท่าไหร่", "มีของอะไรใกล้หมด", "เบิกล่าสุดเมื่อไหร่ ใครเบิก", "เงินสดรอนำส่งเท่าไหร่"</li>
+      <li>กุยช่ายดึง<b>ข้อมูลจริง</b>จากระบบมาตอบให้ (ยอดขาย/สต๊อก/ค่าใช้จ่าย/เข้างาน/เงินสด)</li>
+    </ol>
+    <div class="tip">ข้อมูลค่าจ้าง/เงินเดือนต้องใส่<b>รหัสเจ้าของ</b>ก่อนถาม</div>
+
+    <h3 class="sub" id="maru-promo">🎨 ทำโพสต์ขายของ</h3>
+    <ol class="steps">
+      <li>กดปุ่ม <b>📎</b> แนบรูปสินค้า (ถ้าอยากได้แค่แคปชั่น ไม่ต้องแนบก็ได้)</li>
+      <li>พิมพ์สิ่งที่ต้องการ เช่น <b>"ทำโพสต์ลด 20% ลงเฟส"</b> — ระบุช่องทางได้ (เฟส / LINE / IG / TikTok)</li>
+      <li>กุยช่ายร่าง<b>แคปชั่น</b>ให้ กดปุ่มคัดลอกไปโพสต์ได้เลย</li>
+      <li>ถ้าแนบรูป จะมี<b>สไตล์โปสเตอร์ 6 แบบ</b>ให้เลือก กดแล้วได้รูปพร้อมปุ่มดาวน์โหลด</li>
+      <li>อยากให้ AI แต่งภาพให้สวยขึ้น พิมพ์ <b>"แต่งรูป"</b> (ทำได้เฉพาะจากรูปที่แนบ)</li>
+    </ol>
+    <div class="tip">ในหน้าผู้ช่วยมีปุ่ม <b>"ℹ️ วิธีใช้โหมดการตลาด"</b> กดดูขั้นตอนแบบละเอียดได้ตลอด</div>
+
+    <!-- ============================ -->
+    <!-- ====== FAQ ====== -->
+    <!-- ============================ -->
+    <h2 class="sec faq" id="faq">❓ คำถามที่พบบ่อย</h2>
+
+    <div class="faq-item">
+      <div class="q">ลืม PIN ทำยังไง?</div>
+      <div class="a">ติดต่อ<b>หัวหน้าหรือเจ้าของร้าน</b> ให้เข้าหน้า "จัดการพนักงาน/สาขา" → กดแก้ไขที่ชื่อตัวเอง → ตั้ง PIN ใหม่</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">GPS ขึ้น "นอกเขตร้าน" ทั้งที่อยู่หน้าร้าน?</div>
+      <div class="a">ตรวจสอบ:<br>
+      1. เปิด GPS บนมือถือไว้แล้วหรือยัง<br>
+      2. ลองออกจากใต้หลังคา/อาคาร — GPS รับสัญญาณดีกว่าในที่โล่ง<br>
+      3. รอ 5-10 วินาทีให้ GPS แม่นยำขึ้น<br>
+      4. ถ้ายังไม่ผ่าน — กดลงเวลาได้ตามปกติ ระบบจะบันทึกว่า "นอกเขต" และผู้จัดการจะเห็น</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">LINE ไม่มีแจ้งเตือนเข้ามา?</div>
+      <div class="a">ตรวจสอบในแอป LINE:<br>
+      1. ไม่ได้ปิด notification ของกลุ่ม?<br>
+      2. Bot ยังเป็นสมาชิกในกลุ่มอยู่ไหม?<br>
+      3. ถ้ายังไม่เข้า — แจ้งผู้จัดการให้ตรวจสอบการตั้งค่าใน Apps Script</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">กล้องไม่ขึ้นภาพ ตอนเช็คอิน?</div>
+      <div class="a">1. ลอง<b>รีเฟรชหน้า</b> (ปิดเปิดแอป)<br>
+      2. ตรวจว่าอนุญาตการใช้กล้องในการตั้งค่า browser/แอป<br>
+      3. ปิด-เปิด permission ของกล้องใหม่อีกครั้ง</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">อยากแก้ตัวเลขที่บันทึกไปแล้ว ทำยังไง?</div>
+      <div class="a">ข้อมูลทุกอย่างเก็บใน <b>Google Sheet</b> — ผู้จัดการแก้ตรงในชีตได้เลย (ระวังการแก้ตัวเลขเก่าอาจกระทบยอดคงเหลือสต๊อกในระบบ)</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">รูปไม่ขึ้นในรายงาน?</div>
+      <div class="a">รูปเก็บไว้บน ImgBB เซิร์ฟเวอร์ — ถ้ารูปไม่ขึ้นอาจเป็น:<br>
+      1. <b>เน็ตอ่อน</b> → รอสักครู่หรือลองใหม่<br>
+      2. รูปเก่าถูกลบจาก ImgBB → ไม่สามารถกู้ได้</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">เบิกของผิดจำนวน บันทึกไปแล้ว?</div>
+      <div class="a">2 วิธี:<br>
+      1. <b>เบิกซ้ำเพื่อหักลบ</b> เช่น เบิก 5 → ผิด ต้องการ 3 → ไปเบิกอีก -2 (ใส่ค่าลบ — แต่ระบบไม่รับลบ)<br>
+      2. <b>แจ้งผู้จัดการ</b>ให้แก้ในชีต <code>สต๊อก_เบิก</code> โดยตรง</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">วันนี้พนักงานลืมเช็คอินตอนเช้า ทำยังไง?</div>
+      <div class="a">ลงตอนรู้ตัวเลย — ระบบจะบันทึกตามเวลาจริง ผู้จัดการเห็นในรายงานได้ว่ามาช้ากว่าปกติ</div>
+    </div>
+
+    <!-- ======== Print/Export bar ======== -->
+    <div class="print-bar no-print">
+      <button class="pbtn" onclick="window.print()">🖨 พิมพ์เป็น PDF / กระดาษ</button>
+      <button class="pbtn alt" onclick="window.scrollTo({top:0, behavior:'smooth'})">⬆ ขึ้นบน</button>
+    </div>
+    <div class="tip no-print">
+      <b>วิธีบันทึกเป็น PDF:</b> กดปุ่ม "พิมพ์" ด้านบน → ใน dialog เลือก <b>"Save as PDF"</b> หรือ <b>"บันทึกเป็น PDF"</b> → กด Save
+      <br>จะได้ไฟล์ PDF ที่ส่งใน LINE กลุ่ม หรือพิมพ์ใส่กระดาษติดผนังหลังร้านได้
+    </div>
+
+    <div class="foot" style="margin-top:30px;text-align:center;font-size:11.5px;color:var(--ink-2);">
+      🥟 กุยช่ายสวรรค์ App · คู่มือฉบับสมบูรณ์ · อัปเดตล่าสุด มิ.ย. 2569
+    </div>
+
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+injectShell('manual');
+registerSW();
+renderIcons();
+</script>
+</body>
+</html>

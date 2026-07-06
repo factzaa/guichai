@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>บันทึกเข้างาน · กุยช่ายสวรรค์</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+/* Step container */
+.step{display:none;}
+.step.active{display:block;}
+
+/* Step 1: staff picker */
+.staff-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px;}
+.staff-card{background:#fff;border-radius:14px;padding:14px;text-align:center;cursor:pointer;
+  border:2px solid var(--line);transition:.2s;}
+.staff-card:hover{border-color:var(--yellow);}
+.staff-card .avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#E6B83C,#1E7A45);
+  color:#fff;font-family:'Kanit';font-weight:700;font-size:22px;display:grid;place-items:center;margin:0 auto 8px;}
+.staff-card .nm{font-family:'Kanit';font-weight:600;font-size:14px;color:var(--ink);}
+.staff-card .nick{font-size:11.5px;color:var(--ink-2);margin-top:1px;}
+.staff-card .pos{font-size:10.5px;color:var(--ink-2);margin-top:2px;font-style:italic;}
+
+/* Step 2: PIN entry */
+.pin-display{display:flex;justify-content:center;gap:10px;margin:18px 0 22px;}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--ink-2);background:#fff;transition:.2s;}
+.pin-dot.filled{background:var(--ink);border-color:var(--ink);}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:0 auto;}
+.pin-key{background:#fff;border:2px solid var(--line);border-radius:14px;height:58px;
+  font-family:'Kanit';font-weight:700;font-size:22px;color:var(--ink);cursor:pointer;transition:.1s;}
+.pin-key:active{background:#F6F0DB;transform:scale(.96);}
+.pin-key.fn{font-size:14px;background:#F2EEDD;}
+.pin-err{text-align:center;color:var(--red);font-family:'Kanit';font-weight:600;font-size:13px;margin-top:12px;min-height:18px;}
+.staff-greeting{text-align:center;margin-bottom:12px;}
+.staff-greeting .avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#E6B83C,#1E7A45);
+  color:#fff;font-family:'Kanit';font-weight:700;font-size:28px;display:grid;place-items:center;margin:0 auto 8px;}
+.staff-greeting .nm{font-family:'Kanit';font-weight:700;font-size:18px;color:var(--ink);}
+.staff-greeting .pos{font-size:12.5px;color:var(--ink-2);margin-top:2px;}
+
+/* Step 3: camera */
+.camera-wrap{position:relative;background:#000;border-radius:14px;overflow:hidden;aspect-ratio:1/1;margin-bottom:14px;}
+.camera-wrap video{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1);}
+.camera-wrap canvas{width:100%;height:100%;object-fit:cover;display:none;}
+.camera-wrap canvas.show{display:block;}
+.camera-wrap video.hide{display:none;}
+.camera-loading{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.85);color:#fff;
+  font-family:'Kanit';font-weight:600;font-size:14px;text-align:center;padding:20px;}
+.camera-loading .sp{width:40px;height:40px;border:3px solid rgba(255,255,255,.2);border-top-color:#E6B83C;
+  border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.gps-info{background:#F6F0DB;border-radius:11px;padding:10px 13px;margin-bottom:12px;font-size:12.5px;color:var(--ink-2);line-height:1.5;}
+.gps-info .g-row{display:flex;align-items:center;gap:6px;}
+.gps-info .g-row.ok{color:var(--green);}
+.gps-info .g-row.warn{color:#1E7A45;}
+.gps-info .g-row b{color:var(--ink);font-family:'Kanit';font-weight:600;}
+.gps-info .addr{margin-top:5px;line-height:1.4;}
+
+.action-bar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.act-btn{border:0;padding:14px;border-radius:14px;font-family:'Kanit';font-weight:700;font-size:15px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;}
+.act-btn .em{font-size:22px;}
+.act-btn.in{background:linear-gradient(135deg,#22C55E,#15803D);color:#fff;box-shadow:0 4px 12px rgba(22,163,74,.35);}
+.act-btn.out{background:linear-gradient(135deg,#EF4444,#B91C1C);color:#fff;box-shadow:0 4px 12px rgba(220,38,38,.35);}
+.act-btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+
+/* Step 4: result */
+.result-box{background:linear-gradient(135deg,#DCFCE7,#A7F3D0);border-radius:18px;padding:24px 20px;text-align:center;}
+.result-box.out{background:linear-gradient(135deg,#FEE2E2,#FECACA);}
+.result-box .em{font-size:54px;margin-bottom:10px;}
+.result-box h2{font-family:'Kanit';font-weight:700;font-size:22px;color:var(--ink);margin:0 0 4px;}
+.result-box .time{font-family:'Kanit';font-weight:800;font-size:36px;color:var(--ink);margin:8px 0;}
+.result-box .sub{font-size:13px;color:var(--ink-2);}
+.result-img{margin-top:14px;width:100%;border-radius:14px;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.1);}
+
+.back-link{display:inline-flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--teal);
+  font-family:'Kanit';font-weight:600;font-size:13px;cursor:pointer;padding:4px 8px;}
+
+.no-staff{text-align:center;padding:30px 20px;color:var(--ink-2);}
+.no-staff a{color:var(--teal);text-decoration:underline;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <h1>บันทึกเข้า-ออกงาน</h1>
+    <div class="sub">กุยช่ายสวรรค์ · ลงเวลาทำงาน</div>
+  </div>
+
+  <div class="sheet">
+
+    <!-- Step 1: เลือกพนักงาน -->
+    <section class="step active" id="step1">
+      <div class="card">
+        <div class="h"><span class="ic" style="background:linear-gradient(135deg,#3DD5DC,#1B98A4);" data-icon="store"></span>เลือกชื่อของคุณ</div>
+        <div id="staffGrid"><div style="text-align:center;color:var(--ink-2);padding:20px;font-size:13px;">กำลังโหลด...</div></div>
+      </div>
+    </section>
+
+    <!-- Step 2: ใส่ PIN -->
+    <section class="step" id="step2">
+      <div class="card">
+        <div class="staff-greeting">
+          <div class="avatar" id="grAvatar">?</div>
+          <div class="nm" id="grName">-</div>
+          <div class="pos" id="grPos">-</div>
+        </div>
+        <div style="text-align:center;font-family:'Kanit';font-weight:600;color:var(--ink);">ใส่ PIN 4 หลัก</div>
+        <div class="pin-display" id="pinDisplay">
+          <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+        </div>
+        <div class="pin-keypad" id="pinKeypad">
+          <button class="pin-key" data-k="1">1</button>
+          <button class="pin-key" data-k="2">2</button>
+          <button class="pin-key" data-k="3">3</button>
+          <button class="pin-key" data-k="4">4</button>
+          <button class="pin-key" data-k="5">5</button>
+          <button class="pin-key" data-k="6">6</button>
+          <button class="pin-key" data-k="7">7</button>
+          <button class="pin-key" data-k="8">8</button>
+          <button class="pin-key" data-k="9">9</button>
+          <button class="pin-key fn" data-k="back">⌫</button>
+          <button class="pin-key" data-k="0">0</button>
+          <button class="pin-key fn" data-k="clear">ล้าง</button>
+        </div>
+        <div class="pin-err" id="pinErr"></div>
+        <button class="back-link" id="back1">← เปลี่ยนคน</button>
+      </div>
+    </section>
+
+    <!-- Step 3: กล้อง + GPS + ปุ่มลงเวลา -->
+    <section class="step" id="step3">
+      <div class="card">
+        <div class="staff-greeting">
+          <div class="avatar" id="grAvatar2">?</div>
+          <div class="nm" id="grName2">-</div>
+          <div class="pos" style="color:var(--green);font-weight:700;" id="grVerified">✓ ยืนยัน PIN แล้ว</div>
+        </div>
+
+        <div class="camera-wrap" id="camWrap">
+          <video id="camVideo" autoplay playsinline muted></video>
+          <canvas id="camCanvas"></canvas>
+          <div class="camera-loading" id="camLoading">
+            <div>
+              <div class="sp"></div>
+              กำลังเปิดกล้อง...
+            </div>
+          </div>
+        </div>
+
+        <div class="gps-info" id="gpsInfo">
+          <div class="g-row" id="gpsStatus">📡 กำลังขอตำแหน่ง...</div>
+          <div class="addr" id="gpsAddr"></div>
+        </div>
+
+        <div class="action-bar">
+          <button class="act-btn in" id="btnIn" disabled><span class="em">🟢</span><span>เข้างาน</span></button>
+          <button class="act-btn out" id="btnOut" disabled><span class="em">🔴</span><span>ออกงาน</span></button>
+        </div>
+        <button class="back-link" id="back2" style="margin-top:10px;">← ย้อนกลับ</button>
+      </div>
+    </section>
+
+    <!-- Step 4: ผลลัพธ์ -->
+    <section class="step" id="step4">
+      <div class="card">
+        <div class="result-box" id="resultBox">
+          <div class="em" id="resEm">🟢</div>
+          <h2 id="resTitle">บันทึกเข้างานสำเร็จ</h2>
+          <div class="time" id="resTime">--:--</div>
+          <div class="sub" id="resSub">-</div>
+          <div id="resLine" style="margin-top:10px;font-size:12.5px;font-family:'Kanit';font-weight:600;"></div>
+          <img class="result-img" id="resImg" alt="">
+        </div>
+        <button class="btn" style="margin-top:14px;" onclick="location.reload()">⏰ ลงเวลาคนอื่น</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+injectShell('attend');
+registerSW();
+
+// ====== state ======
+let staffList = [];
+let branches = [];
+let selectedStaff = null;
+let verified = null;       // {id, name, ...}
+let stream = null;         // MediaStream
+let gpsData = null;        // { lat, lng, accuracy, address }
+let pinBuffer = '';
+
+const $ = function(id){return document.getElementById(id);};
+
+function goStep(n){
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active');});
+  $('step'+n).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ====== Step 1: load staff ======
+async function loadStaff(){
+  try{
+    const [s, b] = await Promise.all([api('getAttendStaff',{}), api('getAttendBranches',{})]);
+    staffList = s.staff || [];
+    branches = b.branches || [];
+    renderStaff();
+  }catch(err){
+    $('staffGrid').innerHTML = '<div class="no-staff">โหลดไม่ได้: '+escHtml(err.message)+'<br><br>ถ้ายังไม่ได้รัน <code>setupAttend</code> ใน Apps Script → รันก่อน<br><br><a href="attend-setup.html">→ ไปหน้าจัดการพนักงาน</a></div>';
+  }
+}
+function renderStaff(){
+  const box = $('staffGrid');
+  if(!staffList.length){
+    box.innerHTML = '<div class="no-staff">ยังไม่มีพนักงานในระบบ<br><br><a href="attend-setup.html">→ เพิ่มพนักงานที่หน้าจัดการ</a></div>';
+    return;
+  }
+  box.innerHTML = '<div class="staff-grid">'+staffList.map(function(s){
+    const initial = (s.nickname || s.name).charAt(0);
+    return '<div class="staff-card" data-id="'+s.id+'">'
+      +'<div class="avatar">'+escHtml(initial)+'</div>'
+      +'<div class="nm">'+escHtml(s.nickname || s.name)+'</div>'
+      +(s.nickname ? '<div class="nick">'+escHtml(s.name)+'</div>' : '')
+      +(s.position ? '<div class="pos">'+escHtml(s.position)+'</div>' : '')
+      +'</div>';
+  }).join('')+'</div>';
+  box.querySelectorAll('.staff-card').forEach(function(c){
+    c.addEventListener('click', function(){
+      selectedStaff = staffList.find(function(x){return x.id===c.dataset.id;});
+      const initial = (selectedStaff.nickname || selectedStaff.name).charAt(0);
+      $('grAvatar').textContent = initial;
+      $('grName').textContent = selectedStaff.nickname || selectedStaff.name;
+      $('grPos').textContent = selectedStaff.position || (selectedStaff.nickname ? selectedStaff.name : '');
+      pinBuffer = ''; renderPin(); $('pinErr').textContent = '';
+      goStep(2);
+    });
+  });
+}
+
+// ====== Step 2: PIN ======
+function renderPin(){
+  document.querySelectorAll('#pinDisplay .pin-dot').forEach(function(d,i){
+    d.classList.toggle('filled', i < pinBuffer.length);
+  });
+}
+document.querySelectorAll('.pin-key').forEach(function(b){
+  b.addEventListener('click', function(){
+    const k = b.dataset.k;
+    if(k === 'back') pinBuffer = pinBuffer.slice(0,-1);
+    else if(k === 'clear') pinBuffer = '';
+    else if(pinBuffer.length < 4) pinBuffer += k;
+    renderPin();
+    $('pinErr').textContent = '';
+    if(pinBuffer.length === 4) submitPin();
+  });
+});
+async function submitPin(){
+  try{
+    const r = await api('verifyStaffPin', { staffId: selectedStaff.id, pin: pinBuffer });
+    if(!r.ok){ $('pinErr').textContent = r.error || 'PIN ผิด'; pinBuffer = ''; renderPin(); return; }
+    verified = r.staff;
+    // ไป step 3
+    const initial = (verified.nickname || verified.name).charAt(0);
+    $('grAvatar2').textContent = initial;
+    $('grName2').textContent = verified.nickname || verified.name;
+    goStep(3);
+    setTimeout(initCameraAndGps, 200);
+  }catch(err){ $('pinErr').textContent = 'ผิดพลาด: ' + err.message; }
+}
+$('back1').addEventListener('click', function(){ selectedStaff = null; goStep(1); });
+
+// ====== Step 3: Camera + GPS ======
+async function initCameraAndGps(){
+  // ขอ GPS ก่อน (parallel กับกล้อง)
+  requestGps();
+  // เปิดกล้อง
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1080 }, height: { ideal: 1080 } },
+      audio: false
+    });
+    const v = $('camVideo'); v.srcObject = stream;
+    v.onloadedmetadata = function(){ $('camLoading').style.display = 'none'; };
+  }catch(err){
+    showCameraError(err);
+    return;
+  }
+}
+
+function showCameraError(err){
+  const name = err.name || '';
+  const msg = err.message || String(err);
+  let title = '❌ เปิดกล้องไม่ได้';
+  let help = '';
+  if (name === 'NotAllowedError' || /denied|permission/i.test(msg)) {
+    title = '🚫 ไม่ได้รับอนุญาตให้ใช้กล้อง';
+    help = '<b>วิธีแก้:</b><br>'
+      + '1. กดไอคอน 🔒 ในแถบ URL (มุมบน)<br>'
+      + '2. กด <b>Permissions</b> → <b>Camera</b> → <b>Allow</b><br>'
+      + '3. กดปุ่ม "ลองใหม่" ด้านล่าง<br><br>'
+      + '<b>ถ้าติดตั้งเป็นแอปแล้ว:</b><br>'
+      + 'กดค้างที่ icon บนหน้าจอ → App info → Permissions → Camera → Allow';
+  } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
+    title = '❌ ไม่พบกล้องหน้า';
+    help = 'ตรวจสอบว่ามือถือมีกล้องหน้า และไม่มีแอปอื่นกำลังใช้กล้องอยู่';
+  } else if (name === 'NotReadableError') {
+    title = '⚠️ กล้องถูกใช้งานอยู่';
+    help = 'มีแอปอื่นกำลังใช้กล้องอยู่ — ปิดแอป LINE/Camera/Snapchat/อื่นๆ แล้วลองใหม่';
+  } else {
+    help = msg;
+  }
+  $('camLoading').innerHTML = '<div style="padding:14px;text-align:center;">'
+    + '<div style="font-size:18px;font-weight:700;margin-bottom:10px;">'+title+'</div>'
+    + '<div style="font-size:12.5px;line-height:1.6;text-align:left;background:rgba(255,255,255,.08);padding:11px;border-radius:9px;margin-bottom:12px;">'+help+'</div>'
+    + '<button onclick="initCameraAndGps()" style="background:#E6B83C;color:#143D26;border:0;padding:9px 22px;border-radius:10px;font-family:Kanit;font-weight:700;font-size:14px;cursor:pointer;">🔄 ลองใหม่</button>'
+    + '</div>';
+}
+
+function requestGps(){
+  if(!navigator.geolocation){
+    $('gpsStatus').className = 'g-row warn';
+    $('gpsStatus').textContent = '⚠️ อุปกรณ์ไม่รองรับ GPS';
+    enableButtons(); return;
+  }
+  navigator.geolocation.getCurrentPosition(async function(pos){
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    const accuracy = pos.coords.accuracy;
+    let addr = '';
+    try{
+      const url = 'https://api-bdc.net/data/reverse-geocode-client?latitude='+lat+'&longitude='+lng+'&localityLanguage=th';
+      const res = await fetch(url);
+      const data = await res.json();
+      const parts = [];
+      if (data.locality) parts.push(data.locality);
+      if (data.city && data.city !== data.locality) parts.push(data.city);
+      if (data.principalSubdivision) parts.push(data.principalSubdivision);
+      addr = parts.join(' ') || (data.countryName || '');
+    }catch(e){ addr = lat.toFixed(5) + ', ' + lng.toFixed(5); }
+
+    // คำนวณว่าอยู่ในเขตสาขาไหม
+    let inGeofence = false, distance = 999999, branchName = '';
+    branches.forEach(function(b){
+      const dist = haversine(lat, lng, b.lat, b.lng);
+      if(dist < distance){ distance = dist; branchName = b.name; }
+      if(dist <= b.radius) inGeofence = true;
+    });
+
+    gpsData = { lat: lat, lng: lng, accuracy: accuracy, address: addr,
+      inGeofence: inGeofence, distance: distance, branch: branchName };
+
+    const statusEl = $('gpsStatus');
+    if(inGeofence){
+      statusEl.className = 'g-row ok';
+      statusEl.innerHTML = '✓ <b>ในเขตร้าน</b> · ระยะ '+Math.round(distance)+' m · GPS ±'+Math.round(accuracy)+'m';
+    } else {
+      statusEl.className = 'g-row warn';
+      statusEl.innerHTML = '⚠️ <b>อยู่นอกเขตร้าน</b> · ห่าง '+Math.round(distance)+' m · GPS ±'+Math.round(accuracy)+'m';
+    }
+    $('gpsAddr').textContent = '📍 ' + (addr || '-');
+    enableButtons();
+  }, function(err){
+    $('gpsStatus').className = 'g-row warn';
+    $('gpsStatus').textContent = '⚠️ ขอตำแหน่งไม่ได้: ' + (err.code===1?'ผู้ใช้ปฏิเสธ':err.code===2?'ไม่พบตำแหน่ง':'หมดเวลา');
+    enableButtons();
+  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+}
+
+function enableButtons(){ $('btnIn').disabled = false; $('btnOut').disabled = false; }
+
+// Haversine — คำนวณระยะ 2 จุด (เมตร)
+function haversine(lat1, lng1, lat2, lng2){
+  const R = 6371000;
+  const φ1 = lat1 * Math.PI/180, φ2 = lat2 * Math.PI/180;
+  const Δφ = (lat2-lat1) * Math.PI/180, Δλ = (lng2-lng1) * Math.PI/180;
+  const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ====== Capture + Stamp + Submit ======
+async function capture(type){
+  const btn = type === 'in' ? $('btnIn') : $('btnOut');
+  btn.disabled = true; $('btnIn').disabled = true; $('btnOut').disabled = true;
+  btn.querySelector('span:last-child').textContent = 'กำลังถ่าย...';
+
+  const v = $('camVideo'), c = $('camCanvas');
+  let w = v.videoWidth, h = v.videoHeight;
+  // ย่อให้ด้านยาวสุดไม่เกิน 1080px (ลดขนาดไฟล์ → อัปไวขึ้น เสถียรขึ้น)
+  const MAXD = 1080;
+  if (Math.max(w, h) > MAXD) {
+    const sc = MAXD / Math.max(w, h);
+    w = Math.round(w * sc); h = Math.round(h * sc);
+  }
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+
+  // ภาพปกติ (mirror selfie: flip horizontally back)
+  ctx.save();
+  ctx.scale(-1, 1);
+  ctx.drawImage(v, -w, 0, w, h);
+  ctx.restore();
+
+  // วาดแสตมป์
+  drawWatermark(ctx, w, h);
+
+  // แสดง canvas แทน video
+  v.classList.add('hide'); c.classList.add('show');
+
+  // export และส่ง
+  const dataUrl = c.toDataURL('image/jpeg', 0.82);
+  const base64 = dataUrl.split(',')[1];
+
+  try{
+    const r = await api('addAttendLog', { data: {
+      staffId: verified.id,
+      type: type,
+      lat: gpsData ? gpsData.lat : 0,
+      lng: gpsData ? gpsData.lng : 0,
+      address: gpsData ? gpsData.address : '',
+      inGeofence: gpsData ? gpsData.inGeofence : false,
+      distance: gpsData ? gpsData.distance : 0,
+      photo: { base64: base64, mime: 'image/jpeg' }
+    }});
+    // ปิดกล้อง
+    if(stream){ stream.getTracks().forEach(function(t){t.stop();}); stream = null; }
+    // ไป Step 4
+    showResult(type, dataUrl, r);
+  }catch(err){
+    alert('ผิดพลาด: ' + err.message);
+    btn.querySelector('span:last-child').textContent = type==='in'?'เข้างาน':'ออกงาน';
+    $('btnIn').disabled = false; $('btnOut').disabled = false;
+    v.classList.remove('hide'); c.classList.remove('show');
+  }
+}
+
+function drawWatermark(ctx, w, h){
+  const scale = w / 1080;
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const time = hh + ':' + mm;
+  const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const dows = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+  const date = String(now.getDate()).padStart(2,'0')+' '+months[now.getMonth()]+' '+(now.getFullYear()+543).toString().slice(-2);
+  const dow = dows[now.getDay()];
+  const addr = gpsData && gpsData.address ? gpsData.address : '-';
+
+  // แถบเทาด้านล่าง — gradient
+  const barH = Math.round(h * 0.22);
+  const grd = ctx.createLinearGradient(0, h - barH, 0, h);
+  grd.addColorStop(0, 'rgba(0,0,0,0)');
+  grd.addColorStop(0.25, 'rgba(0,0,0,0.55)');
+  grd.addColorStop(1, 'rgba(0,0,0,0.92)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, h - barH, w, barH);
+
+  // เวลาใหญ่
+  ctx.font = 'bold ' + Math.round(110*scale) + 'px Kanit, sans-serif';
+  ctx.fillStyle = '#fff';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(time, 28*scale, h - 100*scale);
+
+  // เส้นแบ่ง
+  const lineX = 28*scale + ctx.measureText(time).width + 22*scale;
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.lineWidth = 2*scale;
+  ctx.beginPath();
+  ctx.moveTo(lineX, h - 175*scale);
+  ctx.lineTo(lineX, h - 105*scale);
+  ctx.stroke();
+
+  // วันที่ + dow
+  ctx.font = Math.round(36*scale) + 'px Kanit, sans-serif';
+  ctx.fillStyle = '#fff';
+  ctx.fillText(date, lineX + 18*scale, h - 145*scale);
+  ctx.font = Math.round(28*scale) + 'px Kanit, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.fillText(dow, lineX + 18*scale, h - 108*scale);
+
+  // ที่อยู่ (wrap ถ้ายาว)
+  ctx.font = Math.round(26*scale) + 'px Sarabun, sans-serif';
+  ctx.fillStyle = '#fff';
+  wrapText(ctx, '📍 ' + addr, 28*scale, h - 55*scale, w - 250*scale, 32*scale);
+
+  // โลโก้แอปขวาล่าง
+  ctx.textAlign = 'right';
+  ctx.font = 'bold ' + Math.round(24*scale) + 'px Kanit, sans-serif';
+  ctx.fillStyle = '#E6B83C';
+  ctx.fillText('กุยช่ายสวรรค์ App', w - 24*scale, h - 50*scale);
+  ctx.font = Math.round(18*scale) + 'px Sarabun, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.fillText('เวลา & สถานที่จริง', w - 24*scale, h - 22*scale);
+  ctx.textAlign = 'left';
+
+  // Verified watermark (ขอบขวาแนวตั้ง)
+  ctx.save();
+  ctx.translate(w - 30*scale, h*0.5);
+  ctx.rotate(-Math.PI/2);
+  ctx.font = 'bold ' + Math.round(22*scale) + 'px Kanit, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.textAlign = 'center';
+  ctx.fillText('© กุยช่ายสวรรค์ Verified', 0, 0);
+  ctx.restore();
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = text.split(' ');
+  let line = '', yOffset = 0;
+  for(let i = 0; i < words.length; i++){
+    const test = line + words[i] + ' ';
+    if(ctx.measureText(test).width > maxWidth && line){
+      ctx.fillText(line.trim(), x, y + yOffset);
+      line = words[i] + ' '; yOffset += lineHeight;
+      if(yOffset > lineHeight) break; // จำกัด 2 บรรทัด
+    } else line = test;
+  }
+  ctx.fillText(line.trim(), x, y + yOffset);
+}
+
+$('btnIn').addEventListener('click', function(){ capture('in'); });
+$('btnOut').addEventListener('click', function(){ capture('out'); });
+$('back2').addEventListener('click', function(){
+  if(stream){ stream.getTracks().forEach(function(t){t.stop();}); stream = null; }
+  goStep(2);
+});
+
+// ====== Step 4: result ======
+function showResult(type, imgDataUrl, response){
+  const isIn = type === 'in';
+  const box = $('resultBox');
+  box.className = 'result-box' + (isIn ? '' : ' out');
+  $('resEm').textContent = isIn ? '🟢' : '🔴';
+  $('resTitle').textContent = isIn ? 'บันทึกเข้างานสำเร็จ' : 'บันทึกออกงานสำเร็จ';
+  const now = new Date();
+  $('resTime').textContent = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  $('resSub').textContent = (verified.nickname || verified.name) + (gpsData && gpsData.inGeofence ? ' · ✓ ในเขตร้าน' : ' · ⚠️ นอกเขตร้าน');
+  $('resImg').src = response.imgUrl || imgDataUrl;
+  // LINE status
+  const ls = response.lineStatus;
+  const resLine = $('resLine');
+  if (ls && ls.status === 200) {
+    resLine.style.color = '#15803D';
+    resLine.textContent = '✓ ส่ง LINE แล้ว';
+  } else if (ls && ls.status) {
+    resLine.style.color = '#B91C1C';
+    resLine.innerHTML = '⚠️ ส่ง LINE ไม่สำเร็จ (HTTP ' + ls.status + ')<br><small style="font-weight:400;">' + escHtml((ls.body || ls.error || '').slice(0, 200)) + '</small>';
+  } else if (ls && ls.error) {
+    resLine.style.color = '#B91C1C';
+    resLine.textContent = '⚠️ LINE: ' + ls.error;
+  } else {
+    resLine.style.color = '#6B5F4A';
+    resLine.textContent = 'ℹ️ LINE: ไม่ได้ตั้งค่า';
+  }
+  goStep(4);
+}
+
+renderIcons();
+loadStaff();
+</script>
+</body>
+</html>

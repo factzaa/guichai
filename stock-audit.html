@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>ออดิทสต๊อก · กุยช่ายสวรรค์</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B5A31">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+
+<style>
+.audit-info{background:linear-gradient(135deg,#DBEAFE,#BFDBFE);border-radius:12px;padding:12px 14px;margin-bottom:12px;
+  font-size:12.5px;color:#1E3A8A;line-height:1.6;}
+.audit-info b{color:#1E40AF;}
+
+.audit-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.audit-summary .sk{background:#fff;border-radius:12px;padding:11px 13px;text-align:center;}
+.audit-summary .sk .v{font-family:'Kanit';font-weight:800;font-size:22px;line-height:1;color:var(--ink);}
+.audit-summary .sk .l{font-size:11px;color:var(--ink-2);margin-top:3px;}
+.audit-summary .sk.match .v{color:#15803D;}
+.audit-summary .sk.diff  .v{color:#B91C1C;}
+.audit-summary .sk.adj   .v{color:#92400E;}
+
+.audit-row{background:#fff;border-radius:11px;padding:10px 12px;margin-bottom:6px;display:grid;
+  grid-template-columns:1fr auto;gap:6px 10px;align-items:center;border-left:3px solid transparent;transition:.2s;}
+.audit-row.has-input{border-left-color:#3B82F6;}
+.audit-row.match{border-left-color:#22C55E;background:#F0FDF4;}
+.audit-row.over {border-left-color:#22C55E;background:#F0FDF4;}
+.audit-row.under{border-left-color:#EF4444;background:#FEF2F2;}
+
+.audit-row .nm{font-family:'Kanit';font-weight:600;font-size:13px;color:var(--ink);line-height:1.25;}
+.audit-row .nm .u{font-size:10.5px;color:var(--ink-2);font-weight:500;margin-left:4px;}
+.audit-row .nm .mp{font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:6px;margin-left:4px;background:#F2EEDD;color:#6B5F4A;}
+.audit-row .nm .mp.count{background:#FEF3C7;color:#92400E;}
+
+.audit-row .meta{font-size:11.5px;color:var(--ink-2);margin-top:2px;}
+.audit-row .meta b{color:var(--ink);}
+.audit-row .meta .sys{font-family:'Kanit';font-weight:700;color:var(--ink);}
+
+.audit-row .input-area{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+.audit-row .input-area input.actual{width:78px;border:1.5px solid var(--line);border-radius:8px;padding:6px 9px;font-size:14px;
+  font-family:'Kanit';font-weight:700;text-align:right;background:#fff;}
+.audit-row.has-input .input-area input.actual{border-color:#3B82F6;background:#EFF6FF;}
+.audit-row.match .input-area input.actual{border-color:#22C55E;background:#fff;}
+.audit-row.under .input-area input.actual{border-color:#EF4444;background:#fff;}
+.audit-row.over  .input-area input.actual{border-color:#22C55E;background:#fff;}
+.audit-row .diff-pill{font-family:'Kanit';font-weight:700;font-size:11px;padding:2px 9px;border-radius:10px;display:none;}
+.audit-row.match .diff-pill{display:inline;background:#DCFCE7;color:#15803D;}
+.audit-row.over  .diff-pill{display:inline;background:#DCFCE7;color:#15803D;}
+.audit-row.under .diff-pill{display:inline;background:#FEE2E2;color:#B91C1C;}
+
+.audit-row .extras{grid-column:1/-1;display:none;border-top:1px dashed var(--line);padding-top:8px;margin-top:5px;flex-direction:column;gap:6px;}
+.audit-row.has-input .extras{display:flex;}
+.audit-row .extras .reason-input{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12.5px;font-family:'Sarabun';background:#FFFBEB;}
+.audit-row .extras .adjust-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);cursor:pointer;}
+.audit-row .extras .adjust-row input{width:18px;height:18px;cursor:pointer;}
+.audit-row .extras .adjust-row b{color:#92400E;}
+
+.op-bar{position:sticky;bottom:0;background:#fff;border-radius:14px 14px 0 0;padding:12px 14px;
+  box-shadow:0 -4px 14px rgba(0,0,0,.08);margin-top:14px;display:flex;align-items:center;gap:10px;}
+.op-bar .cnt{flex:1;font-family:'Kanit';font-weight:600;font-size:13px;color:var(--ink-2);}
+.op-bar .cnt b{color:var(--ink);font-size:15px;}
+.op-bar button{flex:none;padding:10px 18px;border:0;border-radius:10px;font-family:'Kanit';font-weight:700;
+  font-size:14px;cursor:pointer;background:var(--yellow);color:var(--ink);box-shadow:0 3px 10px rgba(198,152,42,.4);}
+.op-bar button:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <h1>ออดิทสต๊อก</h1>
+    <div class="sub">กุยช่ายสวรรค์ · ตรวจนับจริงเทียบระบบ</div>
+  </div>
+
+  <div class="sheet">
+    <div class="card">
+      <div class="h"><span class="ic" style="background:linear-gradient(135deg,#3B82F6,#1E40AF);" data-icon="check"></span>ตรวจนับสต๊อก</div>
+
+      <div class="audit-info">
+        <b>วิธีใช้:</b><br>
+        1. นับสต๊อกจริงแต่ละรายการ → กรอกในช่อง "นับจริง"<br>
+        2. ระบบเทียบกับ "ในระบบ" → ขึ้นแถบสี (เขียว=ตรง/เกิน, แดง=ขาด)<br>
+        3. ใส่<b>เหตุผล</b>ของส่วนต่าง (ของหาย, นับผิด, ตวงไม่ตรง, ฯลฯ)<br>
+        4. ติ๊ก <b>"ปรับคงเหลือในระบบให้ตรงกับที่นับจริง"</b> ถ้าต้องการให้ระบบใช้ตัวเลขจริง<br>
+        5. กดปุ่มบันทึก → log เก็บใน <code>สต๊อก_ออดิท</code> + ส่ง LINE
+      </div>
+
+      <div class="audit-summary">
+        <div class="sk match"><div class="v" id="cntMatch">0</div><div class="l">✓ ตรงระบบ</div></div>
+        <div class="sk diff"><div class="v" id="cntDiff">0</div><div class="l">⚠️ ส่วนต่าง</div></div>
+        <div class="sk adj"><div class="v" id="cntAdj">0</div><div class="l">🔧 จะปรับยอด</div></div>
+      </div>
+
+      <div class="staff-box">
+        <label>ผู้ตรวจนับ</label>
+        <input type="text" id="auStaff" placeholder="ชื่อพนักงาน">
+      </div>
+
+      <div class="stock-filters" id="auCatChips" style="background:transparent;padding:0;">
+        <button class="stock-cat-chip on" data-cat="all">ทั้งหมด</button>
+        <button class="stock-cat-chip" data-cat="Waffle">🧁 Waffle</button>
+        <button class="stock-cat-chip" data-cat="KUFF">🥐 KUFF</button>
+        <button class="stock-cat-chip" data-cat="Drink">🥤 Drink</button>
+        <button class="stock-cat-chip" data-cat="Other">📦 อื่นๆ</button>
+        <button class="stock-cat-chip" data-cat="counted" style="background:#DBEAFE;border-color:#93C5FD;color:#1E3A8A;">📝 นับแล้ว</button>
+      </div>
+      <div class="stock-filters">
+        <input type="search" id="auSearch" placeholder="ค้นหารายการ...">
+      </div>
+
+      <div style="display:flex;gap:8px;margin:8px 0 4px;">
+        <button class="csvb print" id="auPrintCount" style="flex:1;">🖨️ ใบนับ</button>
+        <button class="csvb print" id="auPrintResult" style="flex:1;">🖨️ ผลออดิท</button>
+      </div>
+      <div id="auList"><div style="text-align:center;color:var(--ink-2);padding:20px;font-size:13px;">กำลังโหลด...</div></div>
+    </div>
+  </div>
+
+  <div class="op-bar">
+    <div class="cnt">นับแล้ว <b id="totalCounted">0</b> รายการ</div>
+    <button id="auSaveBtn">🔍 บันทึกออดิท · ส่ง LINE</button>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+injectShell('stockAudit');
+registerSW();
+
+const au = {
+  balances: [],
+  filter: { cat: 'all', q: '' },
+  actuals: {},   // {id: '123'}
+  reasons: {},   // {id: 'นับผิด'}
+  adjusts: {}    // {id: true}
+};
+
+function getAuditFiltered(){
+  var q=(au.filter.q||'').toLowerCase(), cat=au.filter.cat;
+  return au.balances.filter(function(it){
+    if(cat==='counted'){ if(!(au.actuals[it.id]!==undefined && au.actuals[it.id]!=='')) return false; }
+    else if(cat!=='all' && it.category!==cat) return false;
+    if(q && it.name.toLowerCase().indexOf(q)<0) return false;
+    return true;
+  });
+}
+var AU_CL={Waffle:'Waffle',KUFF:'KUFF',Drink:'Drink',Other:'อื่นๆ',Others:'อื่นๆ'};
+function printCountSheet(){
+  var items=getAuditFiltered();
+  if(!items.length){ toast('ไม่มีรายการให้พิมพ์'); return; }
+  var counts={}; items.forEach(function(it){ counts[it.category]=(counts[it.category]||0)+1; });
+  var rows=[],cur=null;
+  items.forEach(function(it){
+    var c=it.category||''; if(c!==cur){ cur=c; rows.push({ head:(AU_CL[c]||c||'อื่นๆ')+' ('+(counts[c]||0)+')' }); }
+    rows.push({ l: it.name, r: 'จริง:______', sub: 'ในระบบ '+it.balance+' '+(it.unit||'') });
+  });
+  var staff=document.getElementById('auStaff').value.trim();
+  maruPrintSlip({ title:'ใบนับสต๊อก', meta:['ผู้นับ: '+(staff||'____________'), 'วันที่นับ: ____/____/____'], rows:rows, summary:'รวม '+items.length+' รายการ' });
+}
+function printAuditResult(){
+  var items=getAuditFiltered().filter(function(it){ var a=au.actuals[it.id]; return a!==undefined && a!=='' && !isNaN(parseFloat(a)); });
+  if(!items.length){ toast('ยังไม่มีรายการที่นับจริง'); return; }
+  var counts={}; items.forEach(function(it){ counts[it.category]=(counts[it.category]||0)+1; });
+  var match=0,diffC=0,rows=[],cur=null;
+  items.forEach(function(it){
+    var c=it.category||''; if(c!==cur){ cur=c; rows.push({ head:(AU_CL[c]||c||'อื่นๆ')+' ('+(counts[c]||0)+')' }); }
+    var actual=parseFloat(au.actuals[it.id]); var diff=Math.round((actual-it.balance)*100)/100;
+    var tag = Math.abs(diff)<0.01 ? '✓' : ((diff>0?'+':'')+diff);
+    if(Math.abs(diff)<0.01) match++; else diffC++;
+    var adj = au.adjusts[it.id] ? ' [ปรับยอด]' : '';
+    var rs = au.reasons[it.id] ? (' · '+au.reasons[it.id]) : '';
+    rows.push({ l: it.name, r: tag, sub: 'ระบบ '+it.balance+' → นับ '+actual+(it.unit?' '+it.unit:'')+adj+rs });
+  });
+  var staff=document.getElementById('auStaff').value.trim();
+  maruPrintSlip({ title:'ผลออดิทสต๊อก', meta:['ผู้ตรวจ: '+(staff||'-')], rows:rows, summary:'นับ '+items.length+' · ตรงระบบ '+match+' · ส่วนต่าง '+diffC });
+}
+function load(){
+  const box = document.getElementById('auList');
+  box.innerHTML = '<div style="text-align:center;color:var(--ink-2);padding:20px;font-size:13px;">กำลังโหลด...</div>';
+  apiSWR('getStockBalances', {}, function(res){
+      au.balances = (res.items||[]).filter(function(x){return x.active!==false;});
+      render();
+    })
+    .catch(function(err){
+      box.innerHTML = '<div style="color:var(--red);padding:14px;font-size:13px;">โหลดไม่ได้: '+escHtml(err.message)+'</div>';
+    });
+}
+
+function calcStatus(it){
+  const a = au.actuals[it.id];
+  if (a === undefined || a === '') return null;
+  const actual = parseFloat(a);
+  if (isNaN(actual)) return null;
+  const diff = Math.round((actual - it.balance) * 100) / 100;
+  if (Math.abs(diff) < 0.01) return { status:'match', diff:0 };
+  if (diff > 0) return { status:'over', diff:diff };
+  return { status:'under', diff:diff };
+}
+
+// อัปเดตเฉพาะแถวเดียว (แถบสี + diff pill + summary) โดยไม่ render ใหม่ทั้งหมด → พิมพ์ลื่น focus ไม่หลุด
+function updateAuditRow(id){
+  const it = au.balances.find(function(x){return x.id===id;});
+  if(!it) return;
+  const row = document.querySelector('.audit-row[data-id="'+id+'"]');
+  if(!row) return;
+  const st = calcStatus(it);
+  row.className = 'audit-row ' + (st ? ('has-input '+st.status) : '');
+  const area = row.querySelector('.input-area');
+  let pill = area ? area.querySelector('.diff-pill') : null;
+  if(st){
+    const diffLabel = Math.abs(st.diff)<0.01 ? '✓ ตรง' : (st.diff>0?'+':'')+st.diff;
+    if(!pill && area){ pill = document.createElement('span'); pill.className='diff-pill'; area.appendChild(pill); }
+    if(pill) pill.textContent = diffLabel;
+  } else if(pill){
+    pill.remove();
+  }
+  updateSummary();
+}
+
+function render(){
+  const q = (au.filter.q||'').toLowerCase();
+  const cat = au.filter.cat;
+  const filtered = au.balances.filter(function(it){
+    if(cat==='counted'){ if(!(au.actuals[it.id] !== undefined && au.actuals[it.id] !== '')) return false; }
+    else if(cat!=='all' && it.category!==cat) return false;
+    if(q && it.name.toLowerCase().indexOf(q)<0) return false;
+    return true;
+  });
+  const box = document.getElementById('auList');
+  if(!filtered.length){ box.innerHTML = '<div style="text-align:center;color:var(--ink-2);padding:20px;font-size:13px;">ไม่พบรายการ</div>'; return; }
+  box.innerHTML = filtered.map(function(it){
+    const st = calcStatus(it);
+    const cls = st ? ('has-input '+st.status) : '';
+    const diffLabel = st ? (Math.abs(st.diff)<0.01 ? '✓ ตรง' : (st.diff>0?'+':'')+st.diff) : '';
+    const modeP = it.mode==='count' ? '<span class="mp count">โหมด: ชั่งกรัม</span>' : '<span class="mp">โหมด: นับชิ้น</span>';
+    const reason = au.reasons[it.id] || '';
+    const adjust = !!au.adjusts[it.id];
+    return '<div class="audit-row '+cls+'" data-id="'+it.id+'">'
+      +'<div>'
+        +'<div class="nm">'+escHtml(it.name)+'<span class="u">('+escHtml(it.unit)+')</span>'+modeP+'</div>'
+        +'<div class="meta">ในระบบ <span class="sys">'+it.balance+' '+escHtml(it.unit)+'</span></div>'
+      +'</div>'
+      +'<div class="input-area">'
+        +'<input type="number" inputmode="decimal" step="any" min="0" data-f="actual" data-id="'+it.id+'" value="'+(au.actuals[it.id]||'')+'" placeholder="นับจริง" class="actual">'
+        +(st ? '<span class="diff-pill">'+diffLabel+'</span>' : '')
+      +'</div>'
+      +'<div class="extras">'
+        +'<input type="text" class="reason-input" data-f="reason" data-id="'+it.id+'" value="'+escHtml(reason)+'" placeholder="เหตุผลของส่วนต่าง (เช่น นับผิด, ของหาย, ตวงไม่ตรง)">'
+        +'<label class="adjust-row"><input type="checkbox" data-f="adjust" data-id="'+it.id+'"'+(adjust?' checked':'')+'> <b>ปรับคงเหลือในระบบ</b> ให้ตรงกับที่นับจริง</label>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+  // bind inputs
+  box.querySelectorAll('input[data-f]').forEach(function(inp){
+    const ev = inp.type === 'checkbox' ? 'change' : 'input';
+    inp.addEventListener(ev, function(){
+      const id = inp.dataset.id, f = inp.dataset.f;
+      if(f === 'actual'){
+        if(inp.value === '') delete au.actuals[id];
+        else au.actuals[id] = inp.value;
+        updateAuditRow(id); // อัปเดตเฉพาะแถวนี้ — พิมพ์ได้ต่อเนื่อง focus ไม่หลุด
+      } else if(f === 'reason'){
+        if(inp.value === '') delete au.reasons[id];
+        else au.reasons[id] = inp.value;
+        // ไม่ render — เก็บ focus ไว้
+      } else if(f === 'adjust'){
+        if(inp.checked) au.adjusts[id] = true;
+        else delete au.adjusts[id];
+        updateSummary();
+      }
+    });
+  });
+  updateSummary();
+}
+
+function updateSummary(){
+  let match=0, diff=0, adj=0, counted=0;
+  au.balances.forEach(function(it){
+    const a = au.actuals[it.id];
+    if (a === undefined || a === '') return;
+    counted++;
+    const status = calcStatus(it);
+    if (status && status.status === 'match') match++;
+    else if (status) diff++;
+    if (au.adjusts[it.id]) adj++;
+  });
+  document.getElementById('cntMatch').textContent = match;
+  document.getElementById('cntDiff').textContent = diff;
+  document.getElementById('cntAdj').textContent = adj;
+  document.getElementById('totalCounted').textContent = counted;
+}
+
+// Filter chips + search
+document.querySelectorAll('#auCatChips .stock-cat-chip').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#auCatChips .stock-cat-chip').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    au.filter.cat = b.dataset.cat;
+    render();
+  });
+});
+document.getElementById('auSearch').addEventListener('input', function(){ au.filter.q = this.value; render(); });
+
+// Save
+document.getElementById('auSaveBtn').addEventListener('click', function(){
+  const staff = document.getElementById('auStaff').value.trim();
+  if(!staff){ toast('กรุณากรอกชื่อผู้ตรวจนับ'); return; }
+  const items = [];
+  au.balances.forEach(function(it){
+    const a = au.actuals[it.id];
+    if(a === undefined || a === '' || isNaN(parseFloat(a))) return;
+    items.push({
+      id: it.id,
+      actualCount: parseFloat(a),
+      reason: au.reasons[it.id] || '',
+      adjust: !!au.adjusts[it.id]
+    });
+  });
+  if(!items.length){ toast('ยังไม่ได้กรอก "นับจริง" รายการใดเลย'); return; }
+  // ตรวจ: รายการที่มี diff แต่ไม่ใส่เหตุผล
+  const noReason = items.filter(function(e){
+    const it = au.balances.find(function(x){return x.id===e.id;});
+    return it && Math.abs(e.actualCount - it.balance) > 0.01 && !e.reason.trim();
+  });
+  if(noReason.length){
+    if(!confirm('มีรายการที่ส่วนต่างไม่ตรงระบบ '+noReason.length+' รายการ แต่ยังไม่ได้ใส่เหตุผล\nบันทึกต่อหรือไม่?')) return;
+  }
+  const btn = this; btn.disabled=true; btn.textContent='กำลังบันทึก...';
+  api('addStockAudit', { data:{ staff:staff, items:items } })
+    .then(function(res){
+      toast(res.msg||'บันทึกแล้ว ✓');
+      btn.disabled=false; btn.textContent='🔍 บันทึกออดิท · ส่ง LINE';
+      au.actuals = {}; au.reasons = {}; au.adjusts = {};
+      load();
+    })
+    .catch(function(err){
+      toast('ผิดพลาด: '+err.message);
+      btn.disabled=false; btn.textContent='🔍 บันทึกออดิท · ส่ง LINE';
+    });
+});
+
+document.getElementById('auPrintCount').addEventListener('click', printCountSheet);
+document.getElementById('auPrintResult').addEventListener('click', printAuditResult);
+renderIcons();
+load();
+</script>
+</body>
+</html>
