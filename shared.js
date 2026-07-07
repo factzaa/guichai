@@ -240,7 +240,7 @@ function sbComputeBalances(asOfDate, category, T){
       closeBalance: Math.round(b.closeBalance*100)/100, sinceWithdraw: Math.round(b.sinceWithdraw*100)/100, sinceReceive: Math.round(b.sinceReceive*100)/100,
       lowStock: it.minStock > 0 && b.balance <= it.minStock };
   });
-  var CR2 = { Waffle:0, KUFF:1, Drink:2, Other:3, Others:3 };
+  var CR2 = (function(){var m={};(window.SB_CATS||[]).forEach(function(c,i){m[c.cat_key]=(c.sort_order!=null?c.sort_order:i);});return m;})();
   list.sort(function(a,b){
     var ra = (CR2[a.category] !== undefined ? CR2[a.category] : 9), rb = (CR2[b.category] !== undefined ? CR2[b.category] : 9);
     if(ra !== rb) return ra - rb;
@@ -450,7 +450,7 @@ async function sbGetStockItems(p){
   });
   const cat = p && p.category;
   const filtered = (cat && cat !== 'all') ? items.filter(function(x){ return x.category === cat; }) : items;
-  var CR = { Waffle:0, KUFF:1, Drink:2, Other:3, Others:3 };
+  var CR = (function(){var m={};(window.SB_CATS||[]).forEach(function(c,i){m[c.cat_key]=(c.sort_order!=null?c.sort_order:i);});return m;})();
   filtered.sort(function(a,b){
     var ra = (CR[a.category] !== undefined ? CR[a.category] : 9), rb = (CR[b.category] !== undefined ? CR[b.category] : 9);
     if(ra !== rb) return ra - rb;
@@ -760,6 +760,7 @@ async function sbAddStockReceive(p){
 
 // ---- ปิดรอบสต๊อกสิ้นวัน (สูตรตรงกับหน้า stock-close) ----
 async function sbCloseDailyStock(p){
+  try{ await sbLoadCats(); }catch(e){}
   const data = (p && p.data) || {}, staff = (data.staff||'').trim();
   if(!staff) return { ok:false, error:'กรุณากรอกชื่อผู้ปิดรอบ' };
   const wastes = data.wastes || {}, closings = data.closings || {};
@@ -1061,7 +1062,7 @@ async function sbGetStockMoveHistory(p){
   const T = await sbStockTables();
   const meta = {};
   T.items.forEach(function(r){ meta[r.item_id] = { name:r.name, category:r.category, order:Number(r.sort_order)||0, unit:r.unit, mode:r.mode || 'withdraw' }; });
-  const CR = { Waffle:0, KUFF:1, Drink:2, Other:3, Others:3 };
+  const CR = (function(){var m={};(window.SB_CATS||[]).forEach(function(c,i){m[c.cat_key]=(c.sort_order!=null?c.sort_order:i);});return m;})();
   const byDate = {};
   (T.daily || []).forEach(function(r){
     const id = r.item_id, m = meta[id]; if(!m) return;
@@ -2585,7 +2586,11 @@ function maruBuildStockFlex(date, branch, staff, itemsArr, dailyRows){
   var dow = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
   var dd = new Date(date + 'T00:00:00');
   var itemsMap = {}; (itemsArr||[]).forEach(function(it){ itemsMap[it.id] = it; });
-  var byCat = { Waffle:[], KUFF:[], Drink:[], Other:[] }, wasteList = [], lowStock = [];
+  var _sc = (window.SB_CATS && window.SB_CATS.length) ? window.SB_CATS.slice() : [{cat_key:'Other',label:'อื่นๆ',emoji:'📦'}];
+  var _order = _sc.map(function(c){return c.cat_key;}); if(_order.indexOf('Other')<0) _order.push('Other');
+  var _cm = {}; _sc.forEach(function(c){ _cm[c.cat_key]={emoji:(c.emoji||'📦'),label:(c.label||c.cat_key)}; }); if(!_cm['Other']) _cm['Other']={emoji:'📦',label:'อื่นๆ'};
+  var byCat = {}; _order.forEach(function(k){ byCat[k]=[]; });
+  var wasteList = [], lowStock = [];
   (dailyRows||[]).forEach(function(o){
     var id = o.item_id, cat = itemsMap[id] ? itemsMap[id].category : 'Other';
     var used = mwNum(o.used), waste = mwNum(o.waste), closing = mwNum(o.balance);
@@ -2596,12 +2601,11 @@ function maruBuildStockFlex(date, branch, staff, itemsArr, dailyRows){
     if(waste > 0) wasteList.push({ name:o.item_name, waste:waste, unit:unit });
     if(minS > 0 && closing <= minS && itemsMap[id] && itemsMap[id].active) lowStock.push({ name:o.item_name, closing:closing, unit:unit, minS:minS });
   });
-  var catIcons = { Waffle:'🧁', KUFF:'🥐', Drink:'🥤', Other:'📦' };
-  var catNames = { Waffle:'Waffle', KUFF:'KUFF', Drink:'Drink', Other:'อื่นๆ' };
   var bodyContents = [], totalCount = 0;
-  ['Waffle','KUFF','Drink','Other'].forEach(function(cat){
-    if(!byCat[cat].length) return;
-    bodyContents.push({ type:'text', text:catIcons[cat] + ' ' + catNames[cat], size:'sm', weight:'bold', color:'#1E7A45', margin:(totalCount ? 'md' : 'none') });
+  _order.forEach(function(cat){
+    if(!byCat[cat] || !byCat[cat].length) return;
+    var _m=_cm[cat]||{emoji:'📦',label:cat};
+    bodyContents.push({ type:'text', text:_m.emoji + ' ' + _m.label, size:'sm', weight:'bold', color:'#1E7A45', margin:(totalCount ? 'md' : 'none') });
     byCat[cat].forEach(function(it){ totalCount++;
       bodyContents.push({ type:'box', layout:'horizontal', spacing:'sm', contents:[
         { type:'text', text:'  · ' + it.name, size:'sm', color:'#4B5563', flex:7, wrap:true },

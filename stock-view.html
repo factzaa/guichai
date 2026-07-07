@@ -112,7 +112,7 @@ function renderStockSummary(){
 function getStockFiltered(){
   const q = (stockData.filter.q || '').toLowerCase();
   const cat = stockData.filter.cat;
-  const CAT_ORDER = { Waffle:0, KUFF:1, Drink:2, Other:3 };
+  const CAT_ORDER = (function(){var m={};(window.SB_CATS||[]).forEach(function(c,i){m[c.cat_key]=(c.sort_order!=null?c.sort_order:i);});return m;})();
   const filtered = stockData.items.filter(function(it){
     if(!it.active) return false;
     if(cat === 'low')      { if(!(it.lowStock && it.balance > 0)) return false; }

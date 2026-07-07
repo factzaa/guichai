@@ -110,7 +110,7 @@ async function fetchAllRows(path){
 async function load(){
   $('histBody').innerHTML = '<div class="empty">กำลังโหลด...</div>';
   try{
-    var CR={ Waffle:0, KUFF:1, Drink:2, Other:3, Others:3 };
+    var CR=(function(){var m={};(window.SB_CATS||[]).forEach(function(c,i){m[c.cat_key]=(c.sort_order!=null?c.sort_order:i);});return m;})();
     var items=await fetchAllRows('stock_items?select=item_id,name,category,sort_order,unit');
     var meta={}; items.forEach(function(r){ meta[r.item_id]={ name:r.name, category:r.category, order:Number(r.sort_order)||0, unit:r.unit }; });
     var daily=await fetchAllRows('stock_daily?select=*&order=move_date.asc,created_at.asc');

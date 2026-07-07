@@ -521,7 +521,7 @@
         </div>
         <div>
           <label>รายการ</label>
-          <input type="text" id="bizItem" placeholder="เช่น แป้งวาฟเฟิล 5 กก. จากซัพ A, สั่งถุงกระดาษ 200 ใบ">
+          <input type="text" id="bizItem" placeholder="เช่น กุยช่าย 5 กก. จากซัพ A, สั่งถุงกระดาษ 200 ใบ">
         </div>
         <div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <button type="button" class="rcpt-btn" id="bizAddReceipt">📎 แนบใบเสร็จ / บิล</button>
@@ -1082,7 +1082,7 @@ const BRAND_LOGOS = {
       const reAttach = (e.preview||e.existingUrl)?'<button type="button" class="rcpt-btn alt" data-rcpt="'+idx+'">เปลี่ยน</button>':'';
       div.innerHTML=
         '<div class="top">'
-        +'<input class="desc" placeholder="รายการ เช่น แป้งวาฟเฟิล" value="'+(e.item||'').replace(/"/g,'&quot;')+'" data-i="'+idx+'" data-f="item">'
+        +'<input class="desc" placeholder="รายการ เช่น แป้งกุยช่าย" value="'+(e.item||'').replace(/"/g,'&quot;')+'" data-i="'+idx+'" data-f="item">'
         +'<span class="amt-wrap"><span class="baht">฿</span><input type="number" inputmode="decimal" min="0" placeholder="0" value="'+(e.amount||'')+'" data-i="'+idx+'" data-f="amount"></span>'
         +'</div>'
         +'<div class="bot"><div class="rcpt-group">'+rcptInner+reAttach+'</div>'
