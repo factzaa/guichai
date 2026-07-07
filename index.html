@@ -56,6 +56,9 @@
 .qa .ic.yellow{background:linear-gradient(135deg,#E6B83C,#1E7A45);}
 .qa .ic.blue{background:linear-gradient(135deg,#7DD3FC,#0284C7);}
 .qa .ic.purple{background:linear-gradient(135deg,#C4B5FD,#7C3AED);}
+.qa .ic svg{width:32px;height:32px;color:#143D26;}
+.dl-grid a .dlic{flex:none;display:grid;place-items:center;color:#143D26;}
+.dl-grid a .dlic svg{width:24px;height:24px;}
 .qa .lbl{font-family:'Kanit';font-weight:600;font-size:12px;color:var(--ink);text-align:center;line-height:1.25;}
 
 /* Stats Grid */
@@ -97,7 +100,7 @@
 
 <div class="app">
   <div class="head" style="padding-bottom:16px;">
-    <img class="logo" src="Logo.png" alt="กุยช่ายสวรรค์" style="height:230px;width:auto;border-radius:0;margin-bottom:4px;">
+    <img class="logo" src="Logo.png" alt="กุยช่ายสวรรค์" style="height:280px;width:auto;border-radius:0;margin-bottom:4px;">
     <div class="sub" style="color:#E7CE92;">ระบบบริหารร้าน</div>
   </div>
 
@@ -175,10 +178,10 @@ function render(){
 
   // Quick Actions
   html += '<div class="qa-grid">'
-    +'<a class="qa" href="attend.html"><div class="ic" style="font-size:30px;display:grid;place-items:center;">⏰</div><div class="lbl">เช็คอิน<br>เข้างาน</div></a>'
-    +'<a class="qa" href="records.html#report"><div class="ic" style="font-size:30px;display:grid;place-items:center;">📝</div><div class="lbl">บันทึก<br>ยอดวันนี้</div></a>'
-    +'<a class="qa" href="stock-view.html"><div class="ic" style="font-size:30px;display:grid;place-items:center;">🔍</div><div class="lbl">ตรวจ<br>สต๊อก</div></a>'
-    +'<a class="qa" href="stock-receive.html"><div class="ic" style="font-size:30px;display:grid;place-items:center;">📥</div><div class="lbl">รับ<br>ของเข้า</div></a>'
+    +'<a class="qa" href="attend.html"><div class="ic"><span data-icon="clock"></span></div><div class="lbl">เช็คอิน<br>เข้างาน</div></a>'
+    +'<a class="qa" href="records.html#report"><div class="ic"><span data-icon="clipboard"></span></div><div class="lbl">บันทึก<br>ยอดวันนี้</div></a>'
+    +'<a class="qa" href="stock-view.html"><div class="ic"><span data-icon="store"></span></div><div class="lbl">ตรวจ<br>สต๊อก</div></a>'
+    +'<a class="qa" href="stock-receive.html"><div class="ic"><span data-icon="pkgin"></span></div><div class="lbl">รับ<br>ของเข้า</div></a>'
   +'</div>';
 
   // Stats Grid
@@ -227,14 +230,15 @@ function render(){
   // ลิงก์แดชบอร์ดเต็ม
   html += '<div class="sec"><div class="h"><span class="em">📊</span> ดูข้อมูลเชิงลึก</div>'
     +'<div class="dl-grid">'
-      +'<a href="records.html#dash"><span style="font-size:22px;margin-right:7px;vertical-align:middle;">📈</span>แดชบอร์ดยอดขาย</a>'
-      +'<a href="stock-dashboard.html"><span style="font-size:22px;margin-right:7px;vertical-align:middle;">📦</span>แดชบอร์ดสต๊อก</a>'
-      +'<a href="attend-report.html"><span style="font-size:22px;margin-right:7px;vertical-align:middle;">👥</span>รายงานเข้า-ออก</a>'
-      +'<a href="expenses-report.html"><span style="font-size:22px;margin-right:7px;vertical-align:middle;">🧾</span>รายงานค่าใช้จ่าย</a>'
+      +'<a href="records.html#dash"><span class="dlic" data-icon="bars"></span>แดชบอร์ดยอดขาย</a>'
+      +'<a href="stock-dashboard.html"><span class="dlic" data-icon="boxes"></span>แดชบอร์ดสต๊อก</a>'
+      +'<a href="attend-report.html"><span class="dlic" data-icon="users"></span>รายงานเข้า-ออก</a>'
+      +'<a href="expenses-report.html"><span class="dlic" data-icon="pie"></span>รายงานค่าใช้จ่าย</a>'
     +'</div>'
   +'</div>';
 
   $('content').innerHTML = html;
+  renderIcons();
 }
 
 function buildAlerts(){
